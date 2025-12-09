@@ -11,6 +11,7 @@
 
 import mysql.connector
 import os
+import re
 import subprocess
 import json
 from pathlib import Path
@@ -65,6 +66,7 @@ def create_table(db_name, table_name):
     /* Блок "Інформація про транспортний засіб" */
     `brand` varchar(100) DEFAULT NULL,
     `model` varchar(100) DEFAULT NULL,
+    `memberVehicleType` varchar(100) DEFAULT NULL, 
     `manufacture_year` int DEFAULT NULL,
     `complectation` varchar(100) DEFAULT NULL,
     `full_url` text,
@@ -107,7 +109,6 @@ def create_table(db_name, table_name):
     `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     
     PRIMARY KEY (`id`),
-    UNIQUE KEY `vin_unique` (`vin_number`),
     KEY `lot_number_idx` (`lot_number`),
     KEY `brand_model_idx` (`brand`, `model`)
     )
@@ -424,6 +425,7 @@ def parse_copart_lot(lot_obj, file_path, cursor, db, db_name, table_name): #extr
     # -----------------------------
     brand = lot_obj.get("mkn")                               # VOLVO
     model = lot_obj.get("mmod")                              # XC60
+    memberVehicleType = lot_obj.get("memberVehicleType")     #suv, automobile, motorcycle, etc.
     manufacture_year = lot_obj.get("lcy")                    # 2017
     complectation = lot_obj.get("lm")                        # XC60 T6 DY
 
@@ -554,7 +556,7 @@ def parse_copart_lot(lot_obj, file_path, cursor, db, db_name, table_name): #extr
     print(f"parse db_name: {db_name}")
     sql = f"""
     INSERT INTO {table_name} (
-        brand, model, manufacture_year, complectation, full_url, thumbnail_url, highres_url,
+        brand, model, memberVehicleType, manufacture_year, complectation, full_url, thumbnail_url, highres_url,
         lot_number, vin_number, ownership_certificate_code,
         odometer_km, primary_damage, secondary_damage, cylinders, color, engine_type,
         transmission, drive_type, vehicle_classification, fuel_type,
@@ -562,7 +564,7 @@ def parse_copart_lot(lot_obj, file_path, cursor, db, db_name, table_name): #extr
         current_bid, price_without_auction, starting_bid,
         sale_name, sale_location, sale_date, last_updated, video, png
     ) VALUES (
-        %s, %s, %s, %s, %s, %s, %s,
+        %s, %s, %s, %s, %s, %s, %s, %s,
         %s, %s, %s,
         %s, %s, %s, %s, %s, %s,
         %s, %s, %s, %s,
@@ -573,7 +575,7 @@ def parse_copart_lot(lot_obj, file_path, cursor, db, db_name, table_name): #extr
     """
 
     params = (
-        brand, model, manufacture_year, complectation, res_full_url, res_thumbnail_url, res_highres_url,
+        brand, model, memberVehicleType, manufacture_year, complectation, res_full_url, res_thumbnail_url, res_highres_url,
         lot_number, vin_number, ownership_certificate_code,
         odometer_km, primary_damage, secondary_damage, cylinders, color, engine_type,
         transmission, drive_type, vehicle_classification, fuel_type,
@@ -593,6 +595,7 @@ def parse_copart_lot(lot_obj, file_path, cursor, db, db_name, table_name): #extr
 
 def process_json_file(file_path, db, cursor, resume_lot, db_name, table_name, lot_number=0):
     file_path = str(file_path)
+
     """Process one JSON file and add data to database"""
     try:
         with open(str(file_path), 'r', encoding='utf-8') as f:
@@ -709,8 +712,29 @@ def process_json_file(file_path, db, cursor, resume_lot, db_name, table_name, lo
             f.write('\n')
         print(f"Error reading file of errors {file_path}: {e}")
         return 0
+    
+def save_filenames(directory_path, output_file, starts_with=""):
+    #saves names of files and returns it. Saving is to make it easier to restore program after crash
+    # Get all files in the directory
+    files = os.listdir(directory_path)
 
-def main(db_name, table_name):
+    # Filter only files AND those that start with the needed prefix
+    files = [
+        f for f in files
+        if os.path.isfile(os.path.join(directory_path, f)) and f.startswith(starts_with)
+    ]
+
+    files.sort(
+        key=lambda f: int(re.search(r'page(\d+)', f).group(1))
+    )
+
+    # Write file names to output file
+    with open(output_file, "w", encoding="utf-8") as out:
+        for filename in files:
+            out.write(filename + "\n")
+    return files
+
+def main(db_name, table_name, results_json_path):
     create_db(db_name)
     cursor, db = create_table(db_name, table_name)
     # Check if directory exists
@@ -720,9 +744,11 @@ def main(db_name, table_name):
     
     # Create tech directory if it doesn't exist
     db_tech_json_path.mkdir(exist_ok=True)
+
+    save_filenames(reviews_json_path, db_tech_json_path / "all_json_names.txt")
     
     # Check if all_json_names file exists and is not empty
-    all_json_names_file = db_tech_json_path / "all_json_names"
+    all_json_names_file = db_tech_json_path / "all_json_names.txt"
     last_review_file = db_tech_json_path / "last_written_to_db_review.json"
     
     json_files = []
@@ -769,7 +795,7 @@ def main(db_name, table_name):
         json_files = natsorted(json_files)
         with open(all_json_names_file, 'w', encoding='utf-8') as f:
             for file_path in json_files:
-                f.write(str(file_path) + '\n')
+                f.write(f"{reviews_json_path}/{file_path}" + '\n')
         print(f"Created new file list with {len(json_files)} files")
     
     if not json_files:
@@ -786,9 +812,11 @@ def main(db_name, table_name):
         current_file_index += 1
         # For the first file when resuming, pass the resume_lot
         if not start_from_beginning and current_file_index == 1:
-            inserted = process_json_file(file_path, db, cursor, resume_lot, db_name, table_name)
+            print(f"1 file_path: {file_path}")
+            inserted = process_json_file(f"{results_json_path}/{file_path}", db, cursor, resume_lot, db_name, table_name)
         else:
-            inserted = process_json_file(file_path, db, cursor, db_name, table_name)
+            print(f"2 file_path: {file_path}")
+            inserted = process_json_file(f"{results_json_path}/{file_path}", db, cursor, 0, db_name, table_name)
         
         total_inserted += inserted
         
@@ -816,7 +844,7 @@ def main(db_name, table_name):
     formatted_datetime = current_date.strftime("%Y-%m-%d")
     try:
         with open(f'{formatted_datetime}_{backup_name}.sql', 'w', encoding='utf-8') as f:
-            subprocess.run(['mysqldump', '-u', 'root', '-proot', 'copart_lots'], stdout=f, check=True)
+            subprocess.run(['mysqldump', '-u', 'root', '-proot', f"{table_name}"], stdout=f, check=True)
         print(f"Database exported to {formatted_datetime}_{backup_name}.sql")
     except Exception as e:
         print(f"Export error: {e}")
@@ -836,4 +864,4 @@ def main(db_name, table_name):
     db.close()
 
 if __name__ == "__main__":
-    main('copart_lots_test', 'second_copart_lots_test')
+    main('copart_lots_test', 'copart_lots_test')

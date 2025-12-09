@@ -9,10 +9,12 @@ logic:
 2.4 step 2. again
 """
 
+#TODO delete redundant pages from res_json based on photos folders. after bmw everything should be well. now 78 redundant files compare to number of photos folders
 #BUG somehow there were few page files with 50th index with just error inside, but the problem that 
 # they were saved and there were only 10 of them and as a result of final code version
 
-#TODO question about priority of vehicles, now there is no priority
+#TODO make that if there is no content array don't download json of this page
+#TODO make switcher for cars and other types of vehicles (maybe talk about priority)
 
 import re
 from pathlib import Path
@@ -20,10 +22,10 @@ import json
 import execjs
 import requests
 import time
-from requests_html import HTMLSession
+# from requests_html import HTMLSession
 import os
-from html_downloader import HTML_downloader
-from database_writer import main as db_main
+# from html_downloader import HTML_downloader
+# from database_writer import main as db_main
 
 tech_json_path = Path('tech_json')
 res_json_path = Path('res_json')
@@ -123,7 +125,7 @@ def extract_json_from_list_of_all_brands():
             })
 
 
-def extract_automobile_brands_list(extract_only_automobile): 
+def extract_automobile_brands_list(): 
     #extracts from tech_json/data_from_js.json only automobile firms and ignores duplicates with suv/sedan/automobile duplications. 
     # it extracts only with 'automobile' type and saves it in tech_json/list_of_automobile_brands.json
     try:
@@ -142,21 +144,17 @@ def extract_automobile_brands_list(extract_only_automobile):
     
     automobile_brands_list_with_automobile_type = []
 
-    if extract_only_automobile:
-        for brand in automobile_brands_list:
-            try:
-                if brand['type'] == 'AUTOMOBILE':
-                    automobile_brands_list_with_automobile_type.append(brand)
-            except KeyError:
-                print(f"Warning: Brand missing 'type' field, skipping: {brand}")
-                continue
+    for brand in automobile_brands_list:
+        try:
+            if brand['type'] == 'AUTOMOBILE':
+                automobile_brands_list_with_automobile_type.append(brand)
+        except KeyError:
+            print(f"Warning: Brand missing 'type' field, skipping: {brand}")
+            continue
     
     try:
         with open(tech_json_path / 'list_of_automobile_brands.json', 'w', encoding='utf-8') as f:
-            if extract_only_automobile:
-                json.dump(automobile_brands_list_with_automobile_type, f, indent=2, ensure_ascii=False)
-            else:
-                json.dump(automobile_brands_list, f, indent=2, ensure_ascii=False)
+            json.dump(automobile_brands_list_with_automobile_type, f, indent=2, ensure_ascii=False)
         print(f"Successfully saved {len(automobile_brands_list_with_automobile_type)} automobile brands.")
     except IOError as e:
         print(f"Error: Could not write to file - {e}")
@@ -353,7 +351,7 @@ def download_data_from_pages_of_single_brand(brand, restart_object):
             if response_json.get('data', {}).get('results', {}).get('content', []) == []:
                 break
 
-            with open(res_json_path / f'{brand}_page{page + 1}.json', 'w', encoding='utf-8') as f:
+            with open(f'{brand}_page{page + 1}.json', 'w', encoding='utf-8') as f:
                 json.dump(response_json, f, ensure_ascii=False, indent=2)
         except Exception as e:
             print(f"Failed to get json in response download_data_from_pages_of_single_brand for {brand} page: {page}")
@@ -425,19 +423,20 @@ def download_data_from_pages_of_each_brand():
 
 def main():
     # extract_json_from_list_of_all_brands()
-    # extract_automobile_brands_list(False) #if True then only vehicles with 'automobile' type will be extracted
-                                            # if False then all vehicles types will be extracted
+    # extract_automobile_brands_list()
     
-    while True:
-        try:
-            download_data_from_pages_of_each_brand()
-            break
-        except requests.exceptions.ConnectionError as e:
-            print("Network error, restarting in 60 sec:", e)
-            time.sleep(60)
+    download_data_from_pages_of_single_brand("1800 KENNER", None)
+
+    # while True:
+    #     try:
+    #         download_data_from_pages_of_each_brand()
+    #         break
+    #     except requests.exceptions.ConnectionError as e:
+    #         print("Network error, restarting in 60 sec:", e)
+    #         time.sleep(60)
 
     #launch database writing
-    db_main('copart_lots_test', 'second_copart_lots_test')
+    # db_main('copart_lots_test', 'second_copart_lots_test')
 
     # if you wont to download html pages with photos uncomment the line below 
     # and fix tudu at the start of this file

@@ -24,9 +24,11 @@ from requests_html import HTMLSession
 import os
 from html_downloader import HTML_downloader
 from database_writer import main as db_main
+import shutil
 
 tech_json_path = Path('tech_json')
 res_json_path = Path('res_json')
+db_tech_json_path = Path('db_tech_json')
 SESSION = requests.Session()
 
 def safe_post(url, **kwargs):
@@ -121,7 +123,26 @@ def extract_json_from_list_of_all_brands():
         save_error({
                 'error_type': f"Variable {name_of_var_inside} not found"
             })
+        
+def filter_unique_brands(brands_list):
+    """
+    Приймає список словників брендів.
+    Повертає новий список, де для кожного унікального 'description' 
+    залишено лише один запис (перший знайдений).
+    """
+    seen_descriptions = set()
+    unique_list = []
 
+    for brand in brands_list:
+        # Отримуємо значення description (наприклад "Acura", "BMW")
+        description = brand.get('description')
+        
+        # Якщо description існує і ми його ще не бачили
+        if description and description not in seen_descriptions:
+            unique_list.append(brand)
+            seen_descriptions.add(description)
+            
+    return unique_list
 
 def extract_automobile_brands_list(extract_only_automobile): 
     #extracts from tech_json/data_from_js.json only automobile firms and ignores duplicates with suv/sedan/automobile duplications. 
@@ -140,23 +161,27 @@ def extract_automobile_brands_list(extract_only_automobile):
         print(f"Error: Invalid JSON format - {e}")
         return
     
+    # to filter duplicates based on 'description' field
+    automobile_brands_list = filter_unique_brands(automobile_brands_list)
+
     automobile_brands_list_with_automobile_type = []
 
-    if extract_only_automobile:
-        for brand in automobile_brands_list:
-            try:
-                if brand['type'] == 'AUTOMOBILE':
-                    automobile_brands_list_with_automobile_type.append(brand)
-            except KeyError:
-                print(f"Warning: Brand missing 'type' field, skipping: {brand}")
-                continue
+    #tmp
+    automobile_brands_list = automobile_brands_list[:3]
+
+    for brand in automobile_brands_list:
+        try:
+            if extract_only_automobile and brand['type'] == 'AUTOMOBILE':
+                automobile_brands_list_with_automobile_type.append(brand)
+            else:
+                automobile_brands_list_with_automobile_type.append(brand)
+        except KeyError:
+            print(f"Warning: Brand missing 'type' field, skipping: {brand}")
+            continue
     
     try:
         with open(tech_json_path / 'list_of_automobile_brands.json', 'w', encoding='utf-8') as f:
-            if extract_only_automobile:
-                json.dump(automobile_brands_list_with_automobile_type, f, indent=2, ensure_ascii=False)
-            else:
-                json.dump(automobile_brands_list, f, indent=2, ensure_ascii=False)
+            json.dump(automobile_brands_list_with_automobile_type, f, indent=2, ensure_ascii=False)
         print(f"Successfully saved {len(automobile_brands_list_with_automobile_type)} automobile brands.")
     except IOError as e:
         print(f"Error: Could not write to file - {e}")
@@ -197,10 +222,10 @@ def download_photos_from_lot(brand, page, arr_of_lot_numbers, restart_object):
     url = "https://www.copart.com/public/data/lotdetails/solr/lot-images/"
 
     if len(arr_of_lot_numbers)<=0:
-        print(f"arr_of_lot_numbers<=0 for {brand} page {page}")
+        print(f"arr_of_lot_numbers<=0 for {brand} page {page + 1}")
         save_error({
                 'brand': brand,
-                'page': page,                    
+                'page': page + 1,                    
                 'error_type': "arr_of_lot_numbers<=0"
             })
     
@@ -227,10 +252,10 @@ def download_photos_from_lot(brand, page, arr_of_lot_numbers, restart_object):
         # print("STATUS:", r.status_code)
 
         if r.status_code != 200:
-            print(f"Error to get photos for brand: {brand} page: {page} number of lot: {number}")
+            print(f"Error to get photos for brand: {brand} page: {page + 1} number of lot: {number}")
             save_error({
                     'brand': brand,
-                    'page': page,
+                    'page': page + 1,
                     'number': number,
                     'error_type': "Error to get photos"
                 })
@@ -243,20 +268,20 @@ def download_photos_from_lot(brand, page, arr_of_lot_numbers, restart_object):
             print(r.json())
             save_error({
                 'brand': brand,
-                'page': page,
+                'page': page + 1,
                 'lot_number': number,
                 'error_type': f"Exception in r.json() in photos {e}"
             })
             
-        (res_json_path / f"{brand}_page{page}_photos").mkdir(exist_ok=True)
+        (res_json_path / f"{brand}_page{page + 1}_photos").mkdir(exist_ok=True)
 
-        with open(res_json_path / f"{brand}_page{page}_photos" / f"{number}.json", "w", encoding="utf-8") as f:
+        with open(res_json_path / f"{brand}_page{page + 1}_photos" / f"{number}.json", "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
 
         with open(tech_json_path /'restart_point.json', 'w', encoding='utf-8') as f:
             restart_point = {
                 'brand': brand,
-                'page': page,
+                'page': page + 1,
                 'lot_number': number
             }
             json.dump(restart_point, f, indent=2, ensure_ascii=False)
@@ -315,10 +340,11 @@ def download_data_from_pages_of_single_brand(brand, restart_object):
         restart_page = 0
     else:
         restart_page = restart_object['page']
-
-    for page in range (restart_page, 51):
+#tmp
+    # for page in range (restart_page, 51):
+    for page in range (restart_page, 1):
         time.sleep(0.1)
-        print(f"Brand: {brand}, page: {page}")
+        print(f"Brand: {brand}, page: {page + 1}")
         start = page * 20
         #change page and start = page * 20;   pages starts from 0  i.e. page 2: "page":2,"size":20,"start":40
         payload = clean_payload({"query":["*"],"filter":{"MAKE":[f"lot_make_desc:\"{brand_upper}\""]},"sort":["salelight_priority asc","member_damage_group_priority asc","auction_date_type desc","auction_date_utc asc"],"page":page,"size":20,"start":start,"watchListOnly":False,"freeFormSearch":False,"hideImages":False,"defaultSort":False,"specificRowProvided":False,"displayName":"","searchName":"","backUrl":"","includeTagByField":{"MAKE":"{!tag=MAKE}"},"rawParams":{}})
@@ -340,10 +366,10 @@ def download_data_from_pages_of_single_brand(brand, restart_object):
         # below won't be reached 
 
         if response.status_code != 200:
-            print(f"Downloading from single page failed for brand: {brand} at page: {page}")
+            print(f"Downloading from single page failed for brand: {brand} at page: {page + 1}")
             save_error({
                     'brand': brand,
-                    'page': page,
+                    'page': page + 1,
                     'error_type': "Downloading from single page failed"
                 })
 
@@ -356,10 +382,10 @@ def download_data_from_pages_of_single_brand(brand, restart_object):
             with open(res_json_path / f'{brand}_page{page + 1}.json', 'w', encoding='utf-8') as f:
                 json.dump(response_json, f, ensure_ascii=False, indent=2)
         except Exception as e:
-            print(f"Failed to get json in response download_data_from_pages_of_single_brand for {brand} page: {page}")
+            print(f"Failed to get json in response download_data_from_pages_of_single_brand for {brand} page: {page + 1}")
             save_error({
                 'brand': brand,
-                'page': page,                    
+                'page': page + 1,                    
                 'error_type': "Failed to get json in response download_data_from_pages_of_single_brand"
             })
 
@@ -372,9 +398,9 @@ def download_data_from_pages_of_single_brand(brand, restart_object):
                 if 'ln' in item:
                     all_ln_values.append(item['ln'])
         except Exception as e:
-            print(f"Error extracting ln values on page {page}: {e}")
+            print(f"Error extracting ln values on page {page + 1}: {e}")
             save_error({
-                'page': page,
+                'page': page + 1,
                 'error_type': str(e)
             })
         per_page_restart = None
@@ -396,7 +422,6 @@ def download_data_from_pages_of_each_brand():
     except Exception as e:
         print(e)
         return
-
     restart_brand = None
     restart_obj = None
 
@@ -422,10 +447,39 @@ def download_data_from_pages_of_each_brand():
         else:
             download_data_from_pages_of_single_brand(brand_description, None)
 
+def clean_working_files():
+    """Clean all working files and directories"""
+    
+    # 1. Clean JSON files (create empty ones)
+    tech_json_path.mkdir(exist_ok=True)
+    db_tech_json_path.mkdir(exist_ok=True)
+    
+    # Clear JSON files
+    files_to_clear = {
+        tech_json_path: ['errors.json', 'list_of_automobile_brands.json', 'restart_point.json'],
+        db_tech_json_path: ['error_list.json', 'last_written_to_db_review.json', 'all_json_names.txt']
+    }
+    
+    for directory, filenames in files_to_clear.items():
+        for filename in filenames:
+            file_path = directory / filename
+            file_path.write_text('', encoding='utf-8')
+    
+    # 2. Clean res_json_path directory
+    if res_json_path.exists():
+        shutil.rmtree(res_json_path)
+    
+    # Recreate empty directory
+    res_json_path.mkdir(parents=True, exist_ok=True)
+    print(f"Cleaned and recreated directory: {res_json_path}")
 
 def main():
-    # extract_json_from_list_of_all_brands()
-    # extract_automobile_brands_list(False) #if True then only vehicles with 'automobile' type will be extracted
+    clean_working_files_bool = False
+    if clean_working_files_bool:
+        clean_working_files()
+    extract_only_automobile = False
+    extract_json_from_list_of_all_brands()
+    extract_automobile_brands_list(extract_only_automobile) #if True then only vehicles with 'automobile' type will be extracted
                                             # if False then all vehicles types will be extracted
     
     while True:
@@ -437,11 +491,11 @@ def main():
             time.sleep(60)
 
     #launch database writing
-    db_main('copart_lots_test', 'second_copart_lots_test')
+    db_main('copart_lots_test', 'copart_lots_test', res_json_path)
 
     # if you wont to download html pages with photos uncomment the line below 
     # and fix tudu at the start of this file
-    # HTML_downloader.download_all()
+    HTML_downloader.download_all()
 
 if __name__ == '__main__':
     main()

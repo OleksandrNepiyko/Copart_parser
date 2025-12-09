@@ -18,12 +18,13 @@ import os
 
 class HTML_downloader:
     tech_json = Path('tech_json')
+    tech_html = Path('html_downloader_tech')
     res_json_dir = Path('res_json')
     html_results = Path('html_results')
 
     @classmethod
     def save_error(cls, error_object):
-        with open(cls.tech_json / 'html_downloader_errors.json', 'a', encoding='utf-8') as f:
+        with open(cls.tech_html / 'html_downloader_errors.json', 'a', encoding='utf-8') as f:
             json.dump(error_object, f, indent=2, ensure_ascii=False)
 
     # @classmethod
@@ -61,79 +62,62 @@ class HTML_downloader:
     @classmethod
     def get_rendered_html(cls, lot_number: str):
         import time
-        from selenium.webdriver.common.by import By
         from selenium.common.exceptions import TimeoutException
 
         url = f"https://www.copart.com/lot/{lot_number}"
         print(f"Opening: {url}")
 
-        # Кількість спроб
-        MAX_RETRIES = 5
+        MAX_RETRIES = 3
 
         for attempt in range(1, MAX_RETRIES + 1):
             print(f"\nTRY {attempt}/{MAX_RETRIES}")
 
             try:
                 with SB(uc=True, test=False) as sb:
-                    sb.driver.set_page_load_timeout(40)
-
-                    # -------------------------------
-                    # 1. Увімкнути CDP mode (дуже важливо)
-                    # -------------------------------
+                    sb.driver.set_page_load_timeout(70) # Трохи збільшимо таймаут
                     sb.activate_cdp_mode()
-
-                    # -------------------------------
-                    # 2. Підміна User-Agent (блокує більшість антиботів)
-                    # -------------------------------
-                    sb.driver.execute_cdp_cmd(
-                        "Network.setUserAgentOverride",
-                        {"userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
-                                    " AppleWebKit/537.36 (KHTML, like Gecko)"
-                                    " Chrome/121.0.0.0 Safari/537.36"}
-                    )
-
-                    # -------------------------------
-                    # 3. Відкриваємо URL з retry
-                    # -------------------------------
+                    
+                    # --- ВІДКРИВАЄМО URL ---
                     sb.open(url)
-                    time.sleep(2)
-
-                    # Якщо завис на Google пробуємо ще раз
-                    current = sb.get_current_url()
-                    if "google" in current.lower():
-                        print("Still stuck on Google retry")
+                    
+                    # --- ПЕРЕВІРКА НА CAPTCHA / CLOUDFLARE (ВИДИМІСТЬ) ---
+                    # Cloudflare зазвичай має id="challenge-form" або iframe
+                    if sb.is_element_visible("#challenge-form") or sb.is_element_visible('iframe[src*="cloudflare"]'):
+                        print("Cloudflare/Captcha challenge visible! Retrying...")
+                        # Тут можна додати логіку вирішення капчі, якщо треба
+                        # sb.uc_gui_click_captcha() # Експериментальна функція SB
                         continue
 
-                    # -------------------------------
-                    # 4. Чекаємо, поки Copart відрендериться
-                    # -------------------------------
-                    time.sleep(3)
-                    sb.scroll_to_bottom()
-                    time.sleep(2)
-                    sb.scroll_to_bottom()
-                    time.sleep(2)
+                    # --- ЧЕКАЄМО ЗАВАНТАЖЕННЯ КОНТЕНТУ (РЕНДЕР) ---
+                    # Замість time.sleep чекаємо конкретний елемент сторінки лоту.
+                    # На Copart заголовок лоту часто має клас 'lot-details-heading' або блок 'lot-details-page'
+                    try:
+                        # Чекаємо до 15 сек, поки з'явиться заголовок (значить React відпрацював)
+                        sb.wait_for_element(".lot-vehicle-info, h1.lot-details-heading", timeout=20)
+                        print("Content rendered (Title found)")
+                    except Exception:
+                        print("Main content not found within timeout.")
+                        # Якщо контенту нема, можливо нас заблокували, але без явної капчі
+                        if "access denied" in sb.get_page_title().lower():
+                             print("Access Denied detected.")
+                             continue
 
-                    # React load complete
-                    sb.wait_for_ready_state_complete(timeout=20)
+                    # --- СКРОЛ ТІЛЬКИ ЯКЩО ПОТРІБНО ---
+                    # Часто достатньо одного скролу для підвантаження фото
+                    sb.scroll_to_bottom()
+                    sb.sleep(1) # Короткий сліп після скролу виправданий
 
-                    # -------------------------------
-                    # 5. Anti-bot / Cloudflare check
-                    # -------------------------------
+                    # --- ФІНАЛЬНА ПЕРЕВІРКА URL ---
+                    current_url = sb.get_current_url()
+                    print(f"Final URL: {current_url}")
+                    
+                    # Якщо нас перекинуло на пошук (лот не знайдено)
+                    if "lot-not-found" in current_url or "member-home" in current_url:
+                        print("Lot redirected to home/search (Lot might not exist).")
+                    
+                    # --- ЗБЕРІГАЄМО HTML ---
                     html = sb.get_page_source()
-
-                    if "captcha" in html.lower() or "verify you are human" in html.lower():
-                        print("Captcha detected retry")
-                        continue
-
-                    if "Checking your browser" in html:
-                        print("Cloudflare check retry")
-                        continue
-
-                    # -------------------------------
-                    # 6. Зберігаємо результат
-                    # -------------------------------
-                    print("Final URL:", sb.get_current_url())
-
+                    
                     save_path = HTML_downloader.html_results / f"{lot_number}.html"
                     with open(save_path, "w", encoding="utf-8") as f:
                         f.write(html)
@@ -145,12 +129,12 @@ class HTML_downloader:
                 print("Timeout retry")
                 continue
             except Exception as ex:
-                print(f"Unexpected error: {ex} retry")
+                print(f"Unexpected error: {ex}")
                 continue
 
         print("FAILED after all retries")
+        # Тут можна викликати cls.save_error(...)
         return None
-
         
     @staticmethod
     def save_filenames(directory_path, output_file, starts_with):
@@ -221,7 +205,6 @@ class HTML_downloader:
         # 4. скачати кожеш лот функцією get_rendered_html() 
         
         brands = HTML_downloader.get_list_of_automobile_brands()
-        brands = brands[1:]
         for brand in brands: 
             filenames = cls.save_filenames(cls.res_json_dir, f"{str(cls.tech_json)}/list_of_json_files_names_for_single_brand.txt", f"{brand}")
             # у list_of_json_files_names_for_single_brand міститься список назв json файлів 
@@ -232,4 +215,4 @@ class HTML_downloader:
                 for lot in lots:
                     cls.get_rendered_html(str(lot))
 
-HTML_downloader.download_all()
+# HTML_downloader.download_all()
