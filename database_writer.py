@@ -9,6 +9,8 @@
 
 #it's completely ready-to-run* version of json->db saver (*read the text above)
 
+#TODO make that if you restart the main func do not resave the last files which are already inserted before the program stopped
+
 import mysql.connector
 import os
 import re
@@ -508,7 +510,7 @@ def parse_copart_lot(lot_obj, file_path, cursor, db, db_name, table_name): #extr
             # video = car_photos.get('video', None)
             video = car_photos.get('video', None)
             video_insert = video.get('highres_url', '')
-            print(f"Video insert for lot {lot_number}: {video_insert}")
+            # print(f"Video insert for lot {lot_number}: {video_insert}")
         except:
             pass
 
@@ -519,7 +521,7 @@ def parse_copart_lot(lot_obj, file_path, cursor, db, db_name, table_name): #extr
             png_thumbnail = png.get('thumbnail_url', '')
             png_highres = png.get('highres_url', '')
             png_insert = f"'full_url:' {png_full}{separator}'thumbnail_url:' {png_thumbnail}{separator}'highres_url:' {png_highres}"
-            print(f"PNG insert for lot {lot_number}: {png_insert}")
+            # print(f"PNG insert for lot {lot_number}: {png_insert}")
         except:
             pass
 
@@ -697,7 +699,7 @@ def process_json_file(file_path, db, cursor, resume_lot, db_name, table_name, lo
                 }
                 json.dump(obj, f, ensure_ascii=False, indent=2)
                 f.write('\n')
-            print(f"Error processing review in {str(obj)}: {e}")
+            print(f"Error processing review in {str(obj)}")
         
         time.sleep(3)
         return inserted_count
@@ -812,10 +814,10 @@ def main(db_name, table_name, results_json_path):
         current_file_index += 1
         # For the first file when resuming, pass the resume_lot
         if not start_from_beginning and current_file_index == 1:
-            print(f"1 file_path: {file_path}")
+            # print(f"1 file_path: {file_path}")
             inserted = process_json_file(f"{results_json_path}/{file_path}", db, cursor, resume_lot, db_name, table_name)
         else:
-            print(f"2 file_path: {file_path}")
+            # print(f"2 file_path: {file_path}")
             inserted = process_json_file(f"{results_json_path}/{file_path}", db, cursor, 0, db_name, table_name)
         
         total_inserted += inserted

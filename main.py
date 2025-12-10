@@ -24,9 +24,12 @@ from requests_html import HTMLSession
 import os
 from html_downloader import HTML_downloader
 from database_writer import main as db_main
+import shutil
+from datetime import datetime
 
 tech_json_path = Path('tech_json')
 res_json_path = Path('res_json')
+db_tech_json_path = Path('db_tech_json')
 SESSION = requests.Session()
 
 def safe_post(url, **kwargs):
@@ -121,7 +124,26 @@ def extract_json_from_list_of_all_brands():
         save_error({
                 'error_type': f"Variable {name_of_var_inside} not found"
             })
+        
+def filter_unique_brands(brands_list):
+    """
+    Приймає список словників брендів.
+    Повертає новий список, де для кожного унікального 'description' 
+    залишено лише один запис (перший знайдений).
+    """
+    seen_descriptions = set()
+    unique_list = []
 
+    for brand in brands_list:
+        # Отримуємо значення description (наприклад "Acura", "BMW")
+        description = brand.get('description')
+        
+        # Якщо description існує і ми його ще не бачили
+        if description and description not in seen_descriptions:
+            unique_list.append(brand)
+            seen_descriptions.add(description)
+            
+    return unique_list
 
 def extract_automobile_brands_list(extract_only_automobile): 
     #extracts from tech_json/data_from_js.json only automobile firms and ignores duplicates with suv/sedan/automobile duplications. 
@@ -140,23 +162,27 @@ def extract_automobile_brands_list(extract_only_automobile):
         print(f"Error: Invalid JSON format - {e}")
         return
     
+    # to filter duplicates based on 'description' field
+    automobile_brands_list = filter_unique_brands(automobile_brands_list)
+
     automobile_brands_list_with_automobile_type = []
 
-    if extract_only_automobile:
-        for brand in automobile_brands_list:
-            try:
-                if brand['type'] == 'AUTOMOBILE':
-                    automobile_brands_list_with_automobile_type.append(brand)
-            except KeyError:
-                print(f"Warning: Brand missing 'type' field, skipping: {brand}")
-                continue
+    #tmp
+    automobile_brands_list = automobile_brands_list[:3]
+
+    for brand in automobile_brands_list:
+        try:
+            if extract_only_automobile and brand['type'] == 'AUTOMOBILE':
+                automobile_brands_list_with_automobile_type.append(brand)
+            else:
+                automobile_brands_list_with_automobile_type.append(brand)
+        except KeyError:
+            print(f"Warning: Brand missing 'type' field, skipping: {brand}")
+            continue
     
     try:
         with open(tech_json_path / 'list_of_automobile_brands.json', 'w', encoding='utf-8') as f:
-            if extract_only_automobile:
-                json.dump(automobile_brands_list_with_automobile_type, f, indent=2, ensure_ascii=False)
-            else:
-                json.dump(automobile_brands_list, f, indent=2, ensure_ascii=False)
+            json.dump(automobile_brands_list_with_automobile_type, f, indent=2, ensure_ascii=False)
         print(f"Successfully saved {len(automobile_brands_list_with_automobile_type)} automobile brands.")
     except IOError as e:
         print(f"Error: Could not write to file - {e}")
@@ -165,42 +191,55 @@ def extract_automobile_brands_list(extract_only_automobile):
 def download_photos_from_lot(brand, page, arr_of_lot_numbers, restart_object):
     #goes through arr of lot numbers that is provided and downloads photos links
     print(f"Download_photos_for_lot: {arr_of_lot_numbers}")
-    session = requests.Session()
+    brand_with_underscores = brand.replace(" ", "_")
     headers = {
         'Accept': 'application/json, text/plain, */*',
         'Content-Type': 'application/json',
         'Origin': 'https://www.copart.com',
-        'Referer': 'https://www.copart.com/lot/92745685/2013-bmw-m5-ca-hayward',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36',
-        'x-xsrf-token': '15ef9352-6b78-4960-8c22-3d6c7ae511fb'
+        'Referer': 'https://www.copart.com/ru/lot/91444005/clean-title-2006-acura-rl-ny-long-island',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36',
+        'x-xsrf-token': 'b1817ad8-085b-4983-8cde-11c795c671b6'
     }
-
     cookies = {
         "anonymousCrmId": "7f62f400-a31c-40a1-9ec6-3882600d94af",
         "nlbi_242093": "GtLwHyNVDAsWMox4ie/jegAAAAAJbMaLBXI7o0sn1hVYNNVy",
         "_gcl_au": "1.1.135331524.1763655305",
         "userCategory": "RPU",
-        "timezone": "Europe/Kiev",
+        "timezone": "Europe%2FKiev",
         "googtrans": "/en/ru",
-        "__eoi": "ID=3643d9cf80e64b0b:T=1763678384:RT=1763710894:S=AA-AfjbApzZYR5-V4goE6TvOXwWQ",
-        "g2usersessionid": "2763b116147121b40f878f6069f35fe2",
-        "G2JSESSIONID": "08C38284F647FE7B7445FB64159219B6-n1",
-        "usersessionid": "8b7a8968a7dfa001c484e404e5df0266",
         "visid_incap_242093": "l4BVG1w4S8yiXVL+fdF8idscHmkAAAAAREIPAAAAAACAYJHAAbmSeb5ni73/A+8E5nZBukKZqgd5",
+        "OptanonAlertBoxClosed": "2025-11-24T13:12:10.554Z",
+        "__eoi": "ID=3643d9cf80e64b0b:T=1763678384:RT=1764066291:S=AA-AfjbApzZYR5-V4goE6TvOXwWQ",
+        "userLangChanged_CPRTUS": "true",
+        "userLang": "ru",
+        "incap_ses_519_242093": "dcXgbcfvwEzIqrtEJNwzB/R2NmkAAAAADGSYNxs20bLHXesgDl0c4w==",
+        "incap_ses_108_242093": "CpdrAjc1yGqm5cdl3bF/Adl/NmkAAAAA0btxx6LjxwHSDd2l4UvMrg==",
+        "incap_ses_788_242093": "yEHEXtUmaWtcu0wu/YnvCsHfNmkAAAAAi/vfWRkPK6v/hsM73clJ7w==",
+        "incap_ses_255_242093": "ZZUvMzBrP3BSDx/pr/GJAyXUN2kAAAAAer74fUKmMCdKyvVxk139hg==",
+        "incap_ses_687_242093": "0Z0wdVeKAhyyOxQMTLeICQbxN2kAAAAAKGBK/MrWSq2wwreDKbdFlg==",
+        "g2usersessionid": "2763b116147121b40f878f6069f35fe2",
         "g2app.search-table-rows": "20",
-        "incap_ses_788_242093": "1ubiVz9v3U1vW/sd/YnvCsAYImkAAAAAbWGGCS9E7MRyIBINNRCmKg==",
-        "reese84": "3:NejAT/1S7D7w5zdRhj7IAA==:zAV+...",
-        "userLang": "en",
-        "_clck": "s3k3kn^2^g18^0^2152",
+        "usersessionid": "054dd1c973a5d0a46e2164cc622ffe17",
+        "G2JSESSIONID": "3D552CD3BE64314EF22D94E21CDE962D-n1",
+        "incap_ses_686_242093": "rMllJWSiaQhfXZRwzSmFCYO1OWkAAAAANrgBCParNcfeoq4eyJdb+Q==",
+        "reese84": "3:yJzc+ilHwkSymjIG6YlouA==:AH39SW66JSv/5sFOWuqLZApn2VSiMWRh8IEIEgy8yrR2b809t2WRqmZKznvWQJe08w7mG53wS0IKwV3EEdEujfAbUSFiM5UDbXKTu+b1QZ/TY18fioNIloYKqnKCqHsksH32mEnJgZCZippUhRK1IHNWDcOatO64qS6XhB8M8h08+CR/AftMqtQbCz+az1lQ55yTjF7c6DLHjqc40bCZxD+BRecuyvMc4Qmtw+tSMQNOlN4t7I6ydUppzjC9KFy03tSfXRaAtUc1bifWIyT6j7r3ZtLQk9UgEg3wtJQw1lEpLY5F67+rTmL83F6TChLGmtlOzXOmfPaU0wkbbaOzLoFZ/67hHQdXNbyYKWnIsiEYlRm41ub8DxcJWpq/l2I+D84wwtVz1PfG3YCquJivI6WivEWyAZ4tYIJdQpiCb5De+9DBoJ0YSMrRhqM6D2l2Uhv3D0k3dtNHW3wyBr5hGA==:xDGzO0tTCrWetTWoQvpchKbkgEEm/9kVEAHDoxLb9RM=",
+        "FCNEC": "%5B%5B%22AKsRol820AzPw9CCLzQ38o4eycoiceZdq8TzanJxJRXKY5GGGOY__3qTer-_mGdnVYHwbn3W5pODlfjdn-EPer7ptuJORB5dvERgWgLKuhqR0rt-wliKCMVdiN6XB1nQ40VPyRuc_0liDnYHISmWY_XyjNOoyt75lw%3D%3D%22%5D%5D",
+        "OptanonConsent": "isGpcEnabled=0&datestamp=Wed+Dec+10+2025+20%3A02%3A48+GMT%2B0200+(Eastern+European+Standard+Time)&version=202510.2.0&browserGpcFlag=0&isIABGlobal=false&hosts=&consentId=8dda50fe-1f46-4974-b215-351ce89ca87c&interactionCount=2&isAnonUser=1&landingPath=NotLandingPage&groups=C0001%3A1%2CC0002%3A0%2CC0003%3A0%2CC0004%3A0%2CC0005%3A0&AwaitingReconsent=false&intType=3&geolocation=UA%3B05",
+        "nlbi_242093_2147483392": "Wc8wJGxi/m062mwBie/jegAAAACh2TegyUfRmPhkfWXbyH/z",
+        "copartTimezonePref": "%7B%22displayStr%22%3A%22GMT%2B2%22%2C%22offset%22%3A2%2C%22dst%22%3Afalse%2C%22windowsTz%22%3Anull%7D",
+        "lhnStorageType": "cookie",
+        "_uetsid": "6965b820d5d111f08abd956bdcf7cd89",
+        "_uetvid": "13491b80c62c11f08525d5471aa25869",
+        "FCCDCF": "%5Bnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2C%5B%5B32%2C%22%5B%5C%2248c5e301-e5b2-463e-bfe9-3992203a711b%5C%22%2C%5B1763655305%2C452000000%5D%5D%22%5D%5D%5D"
     }
 
     url = "https://www.copart.com/public/data/lotdetails/solr/lot-images/"
 
     if len(arr_of_lot_numbers)<=0:
-        print(f"arr_of_lot_numbers<=0 for {brand} page {page}")
+        print(f"arr_of_lot_numbers<=0 for {brand} page {page + 1}")
         save_error({
                 'brand': brand,
-                'page': page,                    
+                'page': page + 1,                    
                 'error_type': "arr_of_lot_numbers<=0"
             })
     
@@ -210,6 +249,9 @@ def download_photos_from_lot(brand, page, arr_of_lot_numbers, restart_object):
         restart_lot_number = restart_object['lot_number']
 
     skip = restart_lot_number != 0
+
+    #tmp
+    arr_of_lot_numbers = arr_of_lot_numbers[:3]
 
     for number in arr_of_lot_numbers:
         if skip:
@@ -227,10 +269,10 @@ def download_photos_from_lot(brand, page, arr_of_lot_numbers, restart_object):
         # print("STATUS:", r.status_code)
 
         if r.status_code != 200:
-            print(f"Error to get photos for brand: {brand} page: {page} number of lot: {number}")
+            print(f"Error to get photos for brand: {brand} page: {page + 1} number of lot: {number}")
             save_error({
                     'brand': brand,
-                    'page': page,
+                    'page': page + 1,
                     'number': number,
                     'error_type': "Error to get photos"
                 })
@@ -240,23 +282,24 @@ def download_photos_from_lot(brand, page, arr_of_lot_numbers, restart_object):
             data = r.json()
         except Exception as e:
             print(f"Exception in r.json() in photos : {e}")
-            print(r.json())
+            # print(r.json())
+            print(r.text)
             save_error({
                 'brand': brand,
-                'page': page,
+                'page': page + 1,
                 'lot_number': number,
                 'error_type': f"Exception in r.json() in photos {e}"
             })
             
-        (res_json_path / f"{brand}_page{page}_photos").mkdir(exist_ok=True)
+        (res_json_path / f"{brand_with_underscores}_page{page + 1}_photos").mkdir(exist_ok=True)
 
-        with open(res_json_path / f"{brand}_page{page}_photos" / f"{number}.json", "w", encoding="utf-8") as f:
+        with open(res_json_path / f"{brand_with_underscores}_page{page + 1}_photos" / f"{number}.json", "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
 
         with open(tech_json_path /'restart_point.json', 'w', encoding='utf-8') as f:
             restart_point = {
                 'brand': brand,
-                'page': page,
+                'page': page + 1,
                 'lot_number': number
             }
             json.dump(restart_point, f, indent=2, ensure_ascii=False)
@@ -296,29 +339,30 @@ def download_data_from_pages_of_single_brand(brand, restart_object):
     print(f"download_data_from_pages_of_single_brand: {brand}")
 
     brand_upper = brand.upper()
+    brand_with_underscores = brand.replace(" ", "_")
     
-    session = requests.Session()
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36',
     }
 
     cookies = {
-        "g2usersessionid": "02db60a883b957d26afa942ef1644a63",
-        "G2JSESSIONID": "6E41C900EC34DC08CBD4B5DD1769A49C-n1",
-        "usersessionid": "8b7a8968a7dfa001c484e404e5df0266",
-        "visid_incap_242093": "l4BVG1w4S8yiXVL+fdF8idscHmkAAAAAQ0IPAAAAAACAT4XAAbmSeb6WO/lBY1ffSzbZ7FHDHQ8l",
-        "incap_ses_788_242093": "nc54ZDSfuHERwzHP+onvCkFGH2kAAAAAg+ILLZmelDQeaBW3mIt/Vw==",
-        "reese84": "3:wfeLqHpa1LHnkFPxKBd+CQ==:MvQBcXVmBVZudOu3Pom+vVTolvQL3qduhSO04LVpEvaBj+geu8zcQ6TpyC..."
+        # "g2usersessionid": "02db60a883b957d26afa942ef1644a63",
+        # "G2JSESSIONID": "6E41C900EC34DC08CBD4B5DD1769A49C-n1",
+        # "usersessionid": "8b7a8968a7dfa001c484e404e5df0266",
+        # "visid_incap_242093": "l4BVG1w4S8yiXVL+fdF8idscHmkAAAAAQ0IPAAAAAACAT4XAAbmSeb6WO/lBY1ffSzbZ7FHDHQ8l",
+        # "incap_ses_788_242093": "nc54ZDSfuHERwzHP+onvCkFGH2kAAAAAg+ILLZmelDQeaBW3mIt/Vw==",
+        # "reese84": "3:wfeLqHpa1LHnkFPxKBd+CQ==:MvQBcXVmBVZudOu3Pom+vVTolvQL3qduhSO04LVpEvaBj+geu8zcQ6TpyC..."
     }
 
     if restart_object == None or restart_object == '':
         restart_page = 0
     else:
         restart_page = restart_object['page']
-
-    for page in range (restart_page, 51):
+#tmp
+    # for page in range (restart_page, 51):
+    for page in range (restart_page, 1):
         time.sleep(0.1)
-        print(f"Brand: {brand}, page: {page}")
+        print(f"Brand: {brand}, page: {page + 1}")
         start = page * 20
         #change page and start = page * 20;   pages starts from 0  i.e. page 2: "page":2,"size":20,"start":40
         payload = clean_payload({"query":["*"],"filter":{"MAKE":[f"lot_make_desc:\"{brand_upper}\""]},"sort":["salelight_priority asc","member_damage_group_priority asc","auction_date_type desc","auction_date_utc asc"],"page":page,"size":20,"start":start,"watchListOnly":False,"freeFormSearch":False,"hideImages":False,"defaultSort":False,"specificRowProvided":False,"displayName":"","searchName":"","backUrl":"","includeTagByField":{"MAKE":"{!tag=MAKE}"},"rawParams":{}})
@@ -340,10 +384,10 @@ def download_data_from_pages_of_single_brand(brand, restart_object):
         # below won't be reached 
 
         if response.status_code != 200:
-            print(f"Downloading from single page failed for brand: {brand} at page: {page}")
+            print(f"Downloading from single page failed for brand: {brand} at page: {page + 1}")
             save_error({
                     'brand': brand,
-                    'page': page,
+                    'page': page + 1,
                     'error_type': "Downloading from single page failed"
                 })
 
@@ -352,14 +396,14 @@ def download_data_from_pages_of_single_brand(brand, restart_object):
 
             if response_json.get('data', {}).get('results', {}).get('content', []) == []:
                 break
-
-            with open(res_json_path / f'{brand}_page{page + 1}.json', 'w', encoding='utf-8') as f:
+            
+            with open(res_json_path / f'{brand_with_underscores}_page{page + 1}.json', 'w', encoding='utf-8') as f:
                 json.dump(response_json, f, ensure_ascii=False, indent=2)
         except Exception as e:
-            print(f"Failed to get json in response download_data_from_pages_of_single_brand for {brand} page: {page}")
+            print(f"Failed to get json in response download_data_from_pages_of_single_brand for {brand} page: {page + 1}")
             save_error({
                 'brand': brand,
-                'page': page,                    
+                'page': page + 1,                    
                 'error_type': "Failed to get json in response download_data_from_pages_of_single_brand"
             })
 
@@ -372,9 +416,9 @@ def download_data_from_pages_of_single_brand(brand, restart_object):
                 if 'ln' in item:
                     all_ln_values.append(item['ln'])
         except Exception as e:
-            print(f"Error extracting ln values on page {page}: {e}")
+            print(f"Error extracting ln values on page {page + 1}: {e}")
             save_error({
-                'page': page,
+                'page': page + 1,
                 'error_type': str(e)
             })
         per_page_restart = None
@@ -396,7 +440,6 @@ def download_data_from_pages_of_each_brand():
     except Exception as e:
         print(e)
         return
-
     restart_brand = None
     restart_obj = None
 
@@ -422,10 +465,52 @@ def download_data_from_pages_of_each_brand():
         else:
             download_data_from_pages_of_single_brand(brand_description, None)
 
+def clean_working_files():
+    """Clean all working files and directories"""
+    
+    # 1. Clean JSON files (create empty ones)
+    tech_json_path.mkdir(exist_ok=True)
+    db_tech_json_path.mkdir(exist_ok=True)
+    HTML_downloader.html_results.mkdir(exist_ok=True)
+    
+    # Clear JSON files
+    files_to_clear = {
+        tech_json_path: ['errors.json', 'list_of_automobile_brands.json', 'restart_point.json'],
+        db_tech_json_path: ['error_list.json', 'last_written_to_db_review.json', 'all_json_names.txt']
+    }
+    
+    for directory, filenames in files_to_clear.items():
+        for filename in filenames:
+            file_path = directory / filename
+            file_path.write_text('', encoding='utf-8')
+    
+    # 2. Clean res_json_path directory
+    if res_json_path.exists():
+        shutil.rmtree(res_json_path)
+
+    directories_to_wipe = [res_json_path, HTML_downloader.html_results]
+
+    for directory in directories_to_wipe:
+        if directory.exists():
+            try:
+                shutil.rmtree(directory)
+            except Exception as e:
+                print(f"Error deleting {directory}: {e}")
+        
+        # Recreate empty directory
+        directory.mkdir(parents=True, exist_ok=True)
+    
+    # Recreate empty directory
+    res_json_path.mkdir(parents=True, exist_ok=True)
+    print(f"Cleaned and recreated directory: {res_json_path}")
 
 def main():
-    # extract_json_from_list_of_all_brands()
-    # extract_automobile_brands_list(False) #if True then only vehicles with 'automobile' type will be extracted
+    clean_working_files_bool = True
+    if clean_working_files_bool:
+        clean_working_files()
+    extract_only_automobile = False
+    extract_json_from_list_of_all_brands()
+    extract_automobile_brands_list(extract_only_automobile) #if True then only vehicles with 'automobile' type will be extracted
                                             # if False then all vehicles types will be extracted
     
     while True:
@@ -437,11 +522,14 @@ def main():
             time.sleep(60)
 
     #launch database writing
-    db_main('copart_lots_test', 'second_copart_lots_test')
+    current_date = datetime.now()
+    formatted_datetime = current_date.strftime("%Y_%m_%d")
+    table_name = f"copart_lots_{formatted_datetime}"
+    db_main('copart_lots_test', table_name, res_json_path)
 
     # if you wont to download html pages with photos uncomment the line below 
     # and fix tudu at the start of this file
-    # HTML_downloader.download_all()
+    HTML_downloader.download_all()
 
 if __name__ == '__main__':
     main()
