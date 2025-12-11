@@ -168,7 +168,7 @@ def extract_automobile_brands_list(extract_only_automobile):
     automobile_brands_list_with_automobile_type = []
 
     #tmp
-    automobile_brands_list = automobile_brands_list[:3]
+    # automobile_brands_list = automobile_brands_list[:3]
 
     for brand in automobile_brands_list:
         try:
@@ -251,7 +251,7 @@ def download_photos_from_lot(brand, page, arr_of_lot_numbers, restart_object):
     skip = restart_lot_number != 0
 
     #tmp
-    arr_of_lot_numbers = arr_of_lot_numbers[:3]
+    # arr_of_lot_numbers = arr_of_lot_numbers[:3]
 
     for number in arr_of_lot_numbers:
         if skip:
@@ -359,8 +359,8 @@ def download_data_from_pages_of_single_brand(brand, restart_object):
     else:
         restart_page = restart_object['page']
 #tmp
-    # for page in range (restart_page, 51):
-    for page in range (restart_page, 1):
+    # for page in range (restart_page, 1):
+    for page in range (restart_page, 51):
         time.sleep(0.1)
         print(f"Brand: {brand}, page: {page + 1}")
         start = page * 20
