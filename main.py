@@ -69,7 +69,7 @@ def extract_json_from_list_of_all_brands():
         cleaned = re.sub(r',\s*]', ']', cleaned)
         
         # Fix the escape sequences that cause warnings
-        cleaned = cleaned.replace('\/', '/')
+        cleaned = cleaned.replace(r'\/', '/')
         
         try:
             # Parse as JSON directly
@@ -415,7 +415,7 @@ def download_data_from_pages_of_single_brand(brand, type_param, restart_object):
     if restart_object == None or restart_object == '':
         restart_page = 0
     else:
-        restart_page = restart_object['page']
+        restart_page = max(0, restart_object['page'] - 1)
 #tmp
     # for page in range (restart_page, 1):
     for page in range (restart_page, 51):
@@ -667,7 +667,7 @@ def clean_working_files():
     print(f"Cleaned and recreated directory: {res_json_path}")
 
 def main():
-    clean_working_files_bool = True
+    clean_working_files_bool = False
     if clean_working_files_bool:
         clean_working_files()
     extract_only_automobile = False
@@ -680,8 +680,9 @@ def main():
         try:
             download_data_from_pages_of_each_brand()
             break
-        except requests.exceptions.ConnectionError as e:
-            print("Network error, restarting in 60 sec:", e)
+        except (requests.exceptions.ConnectionError, RuntimeError, Exception) as e:
+            print(f"Critial error or Network error: {e}")
+            print("Restarting in 60 sec...")
             time.sleep(60)
 
     #launch database writing

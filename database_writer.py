@@ -32,7 +32,7 @@ db = None
 
 def create_db(db_name):
     db = mysql.connector.connect(
-        host="localhost", 
+        host="db", 
         user="root",
         password="root",
         auth_plugin='mysql_native_password'
@@ -42,7 +42,7 @@ def create_db(db_name):
 
 def create_table(db_name, table_name):
     db = mysql.connector.connect(
-        host="localhost", 
+        host="db", 
         user="root",
         password="root",
         database=f"{db_name}",
