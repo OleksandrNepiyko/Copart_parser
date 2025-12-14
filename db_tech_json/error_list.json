@@ -1,169 +1,1613 @@
 {
-  "file_path": "res_json/Acura_page1.json",
-  "lot_number": "90243375",
-  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Acura_page1_photos/90243375.json'"
+  "file_path": "res_json/Acura_V_page1.json",
+  "lot_number": "91201105",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Acura_V_page1_photos/91201105.json'"
 },{
-  "file_path": "res_json/Acura_page1.json",
-  "lot_number": "84240965",
-  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Acura_page1_photos/84240965.json'"
+  "file_path": "res_json/Acura_V_page1.json",
+  "lot_number": "87088985",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Acura_V_page1_photos/87088985.json'"
 },{
-  "file_path": "res_json/Acura_page1.json",
+  "file_path": "res_json/Acura_V_page1.json",
   "lot_number": "89730805",
-  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Acura_page1_photos/89730805.json'"
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Acura_V_page1_photos/89730805.json'"
 },{
-  "file_path": "res_json/Acura_page1.json",
-  "lot_number": "91444005",
-  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Acura_page1_photos/91444005.json'"
+  "file_path": "res_json/Acura_V_page1.json",
+  "lot_number": "90243375",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Acura_V_page1_photos/90243375.json'"
 },{
-  "file_path": "res_json/Acura_page1.json",
-  "lot_number": "95981465",
-  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Acura_page1_photos/95981465.json'"
-},{
-  "file_path": "res_json/Acura_page1.json",
-  "lot_number": "89556475",
-  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Acura_page1_photos/89556475.json'"
-},{
-  "file_path": "res_json/Acura_page1.json",
-  "lot_number": "92284765",
-  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Acura_page1_photos/92284765.json'"
-},{
-  "file_path": "res_json/Acura_page1.json",
-  "lot_number": "95950625",
-  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Acura_page1_photos/95950625.json'"
-},{
-  "file_path": "res_json/Acura_page1.json",
-  "lot_number": "93373795",
-  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Acura_page1_photos/93373795.json'"
-},{
-  "file_path": "res_json/Acura_page1.json",
-  "lot_number": "96666635",
-  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Acura_page1_photos/96666635.json'"
-},{
-  "file_path": "res_json/Acura_page1.json",
-  "lot_number": "93381935",
-  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Acura_page1_photos/93381935.json'"
-},{
-  "file_path": "res_json/Acura_page1.json",
-  "lot_number": "94197645",
-  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Acura_page1_photos/94197645.json'"
-},{
-  "file_path": "res_json/Acura_page1.json",
+  "file_path": "res_json/Acura_V_page1.json",
   "lot_number": "81425195",
-  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Acura_page1_photos/81425195.json'"
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Acura_V_page1_photos/81425195.json'"
 },{
-  "file_path": "res_json/Acura_page1.json",
+  "file_path": "res_json/Acura_V_page1.json",
+  "lot_number": "87077095",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Acura_V_page1_photos/87077095.json'"
+},{
+  "file_path": "res_json/Acura_V_page1.json",
+  "lot_number": "91444005",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Acura_V_page1_photos/91444005.json'"
+},{
+  "file_path": "res_json/Acura_V_page1.json",
   "lot_number": "91857405",
-  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Acura_page1_photos/91857405.json'"
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Acura_V_page1_photos/91857405.json'"
 },{
-  "file_path": "res_json/Acura_page1.json",
+  "file_path": "res_json/Acura_V_page1.json",
   "lot_number": "94910125",
-  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Acura_page1_photos/94910125.json'"
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Acura_V_page1_photos/94910125.json'"
 },{
-  "file_path": "res_json/Acura_page1.json",
+  "file_path": "res_json/Acura_V_page1.json",
+  "lot_number": "65768215",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Acura_V_page1_photos/65768215.json'"
+},{
+  "file_path": "res_json/Acura_V_page1.json",
+  "lot_number": "95796145",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Acura_V_page1_photos/95796145.json'"
+},{
+  "file_path": "res_json/Acura_V_page1.json",
+  "lot_number": "95950625",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Acura_V_page1_photos/95950625.json'"
+},{
+  "file_path": "res_json/Acura_V_page1.json",
+  "lot_number": "93973645",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Acura_V_page1_photos/93973645.json'"
+},{
+  "file_path": "res_json/Acura_V_page1.json",
   "lot_number": "96314445",
-  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Acura_page1_photos/96314445.json'"
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Acura_V_page1_photos/96314445.json'"
 },{
-  "file_path": "res_json/Acura_page1.json",
+  "file_path": "res_json/Acura_V_page1.json",
+  "lot_number": "93062015",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Acura_V_page1_photos/93062015.json'"
+},{
+  "file_path": "res_json/Acura_V_page1.json",
   "lot_number": "95523395",
-  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Acura_page1_photos/95523395.json'"
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Acura_V_page1_photos/95523395.json'"
 },{
-  "file_path": "res_json/Alfa_Romeo_page1.json",
+  "file_path": "res_json/Acura_V_page1.json",
+  "lot_number": "96408835",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Acura_V_page1_photos/96408835.json'"
+},{
+  "file_path": "res_json/Acura_V_page1.json",
+  "lot_number": "96926945",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Acura_V_page1_photos/96926945.json'"
+},{
+  "file_path": "res_json/Acura_V_page1.json",
+  "lot_number": "95765495",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Acura_V_page1_photos/95765495.json'"
+},{
+  "file_path": "res_json/Alfa_Romeo_V_page1.json",
+  "lot_number": "92937675",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Alfa_Romeo_V_page1_photos/92937675.json'"
+},{
+  "file_path": "res_json/Alfa_Romeo_V_page1.json",
+  "lot_number": "71523195",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Alfa_Romeo_V_page1_photos/71523195.json'"
+},{
+  "file_path": "res_json/Alfa_Romeo_V_page1.json",
+  "lot_number": "97276105",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Alfa_Romeo_V_page1_photos/97276105.json'"
+},{
+  "file_path": "res_json/Alfa_Romeo_V_page1.json",
+  "lot_number": "97242455",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Alfa_Romeo_V_page1_photos/97242455.json'"
+},{
+  "file_path": "res_json/Alfa_Romeo_V_page1.json",
+  "lot_number": "97160275",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Alfa_Romeo_V_page1_photos/97160275.json'"
+},{
+  "file_path": "res_json/Alfa_Romeo_V_page1.json",
+  "lot_number": "97057025",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Alfa_Romeo_V_page1_photos/97057025.json'"
+},{
+  "file_path": "res_json/Alfa_Romeo_V_page1.json",
+  "lot_number": "96938315",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Alfa_Romeo_V_page1_photos/96938315.json'"
+},{
+  "file_path": "res_json/Alfa_Romeo_V_page1.json",
+  "lot_number": "96916745",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Alfa_Romeo_V_page1_photos/96916745.json'"
+},{
+  "file_path": "res_json/Alfa_Romeo_V_page1.json",
+  "lot_number": "96677845",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Alfa_Romeo_V_page1_photos/96677845.json'"
+},{
+  "file_path": "res_json/Alfa_Romeo_V_page1.json",
+  "lot_number": "96651835",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Alfa_Romeo_V_page1_photos/96651835.json'"
+},{
+  "file_path": "res_json/Alfa_Romeo_V_page1.json",
+  "lot_number": "96576555",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Alfa_Romeo_V_page1_photos/96576555.json'"
+},{
+  "file_path": "res_json/Alfa_Romeo_V_page1.json",
+  "lot_number": "96523395",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Alfa_Romeo_V_page1_photos/96523395.json'"
+},{
+  "file_path": "res_json/Alfa_Romeo_V_page1.json",
+  "lot_number": "96487955",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Alfa_Romeo_V_page1_photos/96487955.json'"
+},{
+  "file_path": "res_json/Alfa_Romeo_V_page1.json",
+  "lot_number": "96423035",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Alfa_Romeo_V_page1_photos/96423035.json'"
+},{
+  "file_path": "res_json/Alfa_Romeo_V_page1.json",
   "lot_number": "96418445",
-  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Alfa_Romeo_page1_photos/96418445.json'"
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Alfa_Romeo_V_page1_photos/96418445.json'"
 },{
-  "file_path": "res_json/Alfa_Romeo_page1.json",
-  "lot_number": "96348645",
-  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Alfa_Romeo_page1_photos/96348645.json'"
+  "file_path": "res_json/Alfa_Romeo_V_page1.json",
+  "lot_number": "96407225",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Alfa_Romeo_V_page1_photos/96407225.json'"
 },{
-  "file_path": "res_json/Alfa_Romeo_page1.json",
+  "file_path": "res_json/Alfa_Romeo_V_page1.json",
   "lot_number": "96332945",
-  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Alfa_Romeo_page1_photos/96332945.json'"
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Alfa_Romeo_V_page1_photos/96332945.json'"
 },{
-  "file_path": "res_json/Alfa_Romeo_page1.json",
+  "file_path": "res_json/Alfa_Romeo_V_page1.json",
+  "lot_number": "96330665",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Alfa_Romeo_V_page1_photos/96330665.json'"
+},{
+  "file_path": "res_json/Alfa_Romeo_V_page1.json",
   "lot_number": "96279065",
-  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Alfa_Romeo_page1_photos/96279065.json'"
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Alfa_Romeo_V_page1_photos/96279065.json'"
 },{
-  "file_path": "res_json/Alfa_Romeo_page1.json",
-  "lot_number": "96267875",
-  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Alfa_Romeo_page1_photos/96267875.json'"
+  "file_path": "res_json/American_General_V_page1.json",
+  "lot_number": "91655535",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/American_General_V_page1_photos/91655535.json'"
 },{
-  "file_path": "res_json/Alfa_Romeo_page1.json",
-  "lot_number": "96148985",
-  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Alfa_Romeo_page1_photos/96148985.json'"
+  "file_path": "res_json/American_General_V_page1.json",
+  "lot_number": "90881325",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/American_General_V_page1_photos/90881325.json'"
 },{
-  "file_path": "res_json/Alfa_Romeo_page1.json",
-  "lot_number": "96121005",
-  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Alfa_Romeo_page1_photos/96121005.json'"
+  "file_path": "res_json/American_General_V_page1.json",
+  "lot_number": "86268125",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/American_General_V_page1_photos/86268125.json'"
 },{
-  "file_path": "res_json/Alfa_Romeo_page1.json",
-  "lot_number": "96108085",
-  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Alfa_Romeo_page1_photos/96108085.json'"
+  "file_path": "res_json/American_Motors_V_page1.json",
+  "lot_number": "94734515",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/American_Motors_V_page1_photos/94734515.json'"
 },{
-  "file_path": "res_json/Alfa_Romeo_page1.json",
-  "lot_number": "96061585",
-  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Alfa_Romeo_page1_photos/96061585.json'"
-},{
-  "file_path": "res_json/Alfa_Romeo_page1.json",
-  "lot_number": "96051545",
-  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Alfa_Romeo_page1_photos/96051545.json'"
-},{
-  "file_path": "res_json/Alfa_Romeo_page1.json",
-  "lot_number": "96026335",
-  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Alfa_Romeo_page1_photos/96026335.json'"
-},{
-  "file_path": "res_json/Alfa_Romeo_page1.json",
-  "lot_number": "95962075",
-  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Alfa_Romeo_page1_photos/95962075.json'"
-},{
-  "file_path": "res_json/Alfa_Romeo_page1.json",
-  "lot_number": "95924485",
-  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Alfa_Romeo_page1_photos/95924485.json'"
-},{
-  "file_path": "res_json/Alfa_Romeo_page1.json",
-  "lot_number": "95902305",
-  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Alfa_Romeo_page1_photos/95902305.json'"
-},{
-  "file_path": "res_json/Alfa_Romeo_page1.json",
-  "lot_number": "95876785",
-  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Alfa_Romeo_page1_photos/95876785.json'"
-},{
-  "file_path": "res_json/Alfa_Romeo_page1.json",
-  "lot_number": "95828555",
-  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Alfa_Romeo_page1_photos/95828555.json'"
-},{
-  "file_path": "res_json/Alfa_Romeo_page1.json",
-  "lot_number": "95778215",
-  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Alfa_Romeo_page1_photos/95778215.json'"
-},{
-  "file_path": "res_json/American_Motors_page1.json",
-  "lot_number": "92505395",
-  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/American_Motors_page1_photos/92505395.json'"
-},{
-  "file_path": "res_json/American_Motors_page1.json",
+  "file_path": "res_json/American_Motors_V_page1.json",
   "lot_number": "86531295",
-  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/American_Motors_page1_photos/86531295.json'"
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/American_Motors_V_page1_photos/86531295.json'"
 },{
-  "file_path": "res_json/American_Motors_page1.json",
-  "lot_number": "84439885",
-  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/American_Motors_page1_photos/84439885.json'"
+  "file_path": "res_json/BMW_V_page1.json",
+  "lot_number": "90368485",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/BMW_V_page1_photos/90368485.json'"
 },{
-  "file_path": "res_json/American_Motors_page1.json",
-  "lot_number": "72093955",
-  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/American_Motors_page1_photos/72093955.json'"
+  "file_path": "res_json/BMW_V_page1.json",
+  "lot_number": "90265105",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/BMW_V_page1_photos/90265105.json'"
 },{
-  "file_path": "res_json/American_Motors_page1.json",
-  "lot_number": "68947754",
-  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/American_Motors_page1_photos/68947754.json'"
+  "file_path": "res_json/BMW_V_page1.json",
+  "lot_number": "90077085",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/BMW_V_page1_photos/90077085.json'"
 },{
-  "file_path": "res_json/American_Motors_page1.json",
-  "lot_number": "60043685",
-  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/American_Motors_page1_photos/60043685.json'"
+  "file_path": "res_json/BMW_V_page1.json",
+  "lot_number": "92666145",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/BMW_V_page1_photos/92666145.json'"
 },{
-  "file_path": "res_json/American_Motors_page1.json",
-  "lot_number": "57619655",
-  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/American_Motors_page1_photos/57619655.json'"
+  "file_path": "res_json/BMW_V_page1.json",
+  "lot_number": "89879365",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/BMW_V_page1_photos/89879365.json'"
 },{
-  "file_path": "res_json/American_Motors_page1.json",
-  "lot_number": "41643455",
-  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/American_Motors_page1_photos/41643455.json'"
+  "file_path": "res_json/BMW_V_page1.json",
+  "lot_number": "95669515",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/BMW_V_page1_photos/95669515.json'"
+},{
+  "file_path": "res_json/BMW_V_page1.json",
+  "lot_number": "94808665",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/BMW_V_page1_photos/94808665.json'"
+},{
+  "file_path": "res_json/BMW_V_page1.json",
+  "lot_number": "94528615",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/BMW_V_page1_photos/94528615.json'"
+},{
+  "file_path": "res_json/BMW_V_page1.json",
+  "lot_number": "94088115",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/BMW_V_page1_photos/94088115.json'"
+},{
+  "file_path": "res_json/BMW_V_page1.json",
+  "lot_number": "93775305",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/BMW_V_page1_photos/93775305.json'"
+},{
+  "file_path": "res_json/BMW_V_page1.json",
+  "lot_number": "93697795",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/BMW_V_page1_photos/93697795.json'"
+},{
+  "file_path": "res_json/BMW_V_page1.json",
+  "lot_number": "93122405",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/BMW_V_page1_photos/93122405.json'"
+},{
+  "file_path": "res_json/BMW_V_page1.json",
+  "lot_number": "93104995",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/BMW_V_page1_photos/93104995.json'"
+},{
+  "file_path": "res_json/BMW_V_page1.json",
+  "lot_number": "92874415",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/BMW_V_page1_photos/92874415.json'"
+},{
+  "file_path": "res_json/BMW_V_page1.json",
+  "lot_number": "92638015",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/BMW_V_page1_photos/92638015.json'"
+},{
+  "file_path": "res_json/BMW_V_page1.json",
+  "lot_number": "92605575",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/BMW_V_page1_photos/92605575.json'"
+},{
+  "file_path": "res_json/BMW_V_page1.json",
+  "lot_number": "92510565",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/BMW_V_page1_photos/92510565.json'"
+},{
+  "file_path": "res_json/BMW_V_page1.json",
+  "lot_number": "91939575",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/BMW_V_page1_photos/91939575.json'"
+},{
+  "file_path": "res_json/BMW_V_page1.json",
+  "lot_number": "91821905",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/BMW_V_page1_photos/91821905.json'"
+},{
+  "file_path": "res_json/Buick_V_page1.json",
+  "lot_number": "92040905",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Buick_V_page1_photos/92040905.json'"
+},{
+  "file_path": "res_json/Buick_V_page1.json",
+  "lot_number": "95991625",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Buick_V_page1_photos/95991625.json'"
+},{
+  "file_path": "res_json/Buick_V_page1.json",
+  "lot_number": "95864185",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Buick_V_page1_photos/95864185.json'"
+},{
+  "file_path": "res_json/Buick_V_page1.json",
+  "lot_number": "95764655",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Buick_V_page1_photos/95764655.json'"
+},{
+  "file_path": "res_json/Buick_V_page1.json",
+  "lot_number": "95608945",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Buick_V_page1_photos/95608945.json'"
+},{
+  "file_path": "res_json/Buick_V_page1.json",
+  "lot_number": "95560145",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Buick_V_page1_photos/95560145.json'"
+},{
+  "file_path": "res_json/Buick_V_page1.json",
+  "lot_number": "95504665",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Buick_V_page1_photos/95504665.json'"
+},{
+  "file_path": "res_json/Buick_V_page1.json",
+  "lot_number": "95256055",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Buick_V_page1_photos/95256055.json'"
+},{
+  "file_path": "res_json/Buick_V_page1.json",
+  "lot_number": "95012015",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Buick_V_page1_photos/95012015.json'"
+},{
+  "file_path": "res_json/Buick_V_page1.json",
+  "lot_number": "94701265",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Buick_V_page1_photos/94701265.json'"
+},{
+  "file_path": "res_json/Buick_V_page1.json",
+  "lot_number": "94636665",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Buick_V_page1_photos/94636665.json'"
+},{
+  "file_path": "res_json/Buick_V_page1.json",
+  "lot_number": "94145305",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Buick_V_page1_photos/94145305.json'"
+},{
+  "file_path": "res_json/Buick_V_page1.json",
+  "lot_number": "94084005",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Buick_V_page1_photos/94084005.json'"
+},{
+  "file_path": "res_json/Buick_V_page1.json",
+  "lot_number": "92982865",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Buick_V_page1_photos/92982865.json'"
+},{
+  "file_path": "res_json/Buick_V_page1.json",
+  "lot_number": "92949025",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Buick_V_page1_photos/92949025.json'"
+},{
+  "file_path": "res_json/Buick_V_page1.json",
+  "lot_number": "92622025",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Buick_V_page1_photos/92622025.json'"
+},{
+  "file_path": "res_json/Buick_V_page1.json",
+  "lot_number": "92222145",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Buick_V_page1_photos/92222145.json'"
+},{
+  "file_path": "res_json/Buick_V_page1.json",
+  "lot_number": "92128535",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Buick_V_page1_photos/92128535.json'"
+},{
+  "file_path": "res_json/Buick_V_page1.json",
+  "lot_number": "92072095",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Buick_V_page1_photos/92072095.json'"
+},{
+  "file_path": "res_json/Chevrolet_V_page1.json",
+  "lot_number": "95669295",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Chevrolet_V_page1_photos/95669295.json'"
+},{
+  "file_path": "res_json/Chevrolet_V_page1.json",
+  "lot_number": "95544785",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Chevrolet_V_page1_photos/95544785.json'"
+},{
+  "file_path": "res_json/Chevrolet_V_page1.json",
+  "lot_number": "95544765",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Chevrolet_V_page1_photos/95544765.json'"
+},{
+  "file_path": "res_json/Chevrolet_V_page1.json",
+  "lot_number": "95130725",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Chevrolet_V_page1_photos/95130725.json'"
+},{
+  "file_path": "res_json/Chevrolet_V_page1.json",
+  "lot_number": "94912175",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Chevrolet_V_page1_photos/94912175.json'"
+},{
+  "file_path": "res_json/Chevrolet_V_page1.json",
+  "lot_number": "94665725",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Chevrolet_V_page1_photos/94665725.json'"
+},{
+  "file_path": "res_json/Chevrolet_V_page1.json",
+  "lot_number": "94660245",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Chevrolet_V_page1_photos/94660245.json'"
+},{
+  "file_path": "res_json/Chevrolet_V_page1.json",
+  "lot_number": "94510135",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Chevrolet_V_page1_photos/94510135.json'"
+},{
+  "file_path": "res_json/Chevrolet_V_page1.json",
+  "lot_number": "93657865",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Chevrolet_V_page1_photos/93657865.json'"
+},{
+  "file_path": "res_json/Chevrolet_V_page1.json",
+  "lot_number": "93347245",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Chevrolet_V_page1_photos/93347245.json'"
+},{
+  "file_path": "res_json/Chevrolet_V_page1.json",
+  "lot_number": "93113605",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Chevrolet_V_page1_photos/93113605.json'"
+},{
+  "file_path": "res_json/Chevrolet_V_page1.json",
+  "lot_number": "92929885",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Chevrolet_V_page1_photos/92929885.json'"
+},{
+  "file_path": "res_json/Chevrolet_V_page1.json",
+  "lot_number": "92875375",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Chevrolet_V_page1_photos/92875375.json'"
+},{
+  "file_path": "res_json/Chevrolet_V_page1.json",
+  "lot_number": "92493195",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Chevrolet_V_page1_photos/92493195.json'"
+},{
+  "file_path": "res_json/Chevrolet_V_page1.json",
+  "lot_number": "92328425",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Chevrolet_V_page1_photos/92328425.json'"
+},{
+  "file_path": "res_json/Chevrolet_V_page1.json",
+  "lot_number": "92281955",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Chevrolet_V_page1_photos/92281955.json'"
+},{
+  "file_path": "res_json/Chevrolet_V_page1.json",
+  "lot_number": "92239345",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Chevrolet_V_page1_photos/92239345.json'"
+},{
+  "file_path": "res_json/Chevrolet_V_page1.json",
+  "lot_number": "91283075",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Chevrolet_V_page1_photos/91283075.json'"
+},{
+  "file_path": "res_json/Chevrolet_V_page1.json",
+  "lot_number": "90938495",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Chevrolet_V_page1_photos/90938495.json'"
+},{
+  "file_path": "res_json/Daihatsu_V_page1.json",
+  "lot_number": "94186195",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Daihatsu_V_page1_photos/94186195.json'"
+},{
+  "file_path": "res_json/Daihatsu_V_page1.json",
+  "lot_number": "91907825",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Daihatsu_V_page1_photos/91907825.json'"
+},{
+  "file_path": "res_json/Daihatsu_V_page1.json",
+  "lot_number": "89832605",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Daihatsu_V_page1_photos/89832605.json'"
+},{
+  "file_path": "res_json/Daihatsu_V_page1.json",
+  "lot_number": "84065575",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Daihatsu_V_page1_photos/84065575.json'"
+},{
+  "file_path": "res_json/Dodge_V_page1.json",
+  "lot_number": "91436245",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Dodge_V_page1_photos/91436245.json'"
+},{
+  "file_path": "res_json/Dodge_V_page1.json",
+  "lot_number": "84228225",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Dodge_V_page1_photos/84228225.json'"
+},{
+  "file_path": "res_json/Dodge_V_page1.json",
+  "lot_number": "94145345",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Dodge_V_page1_photos/94145345.json'"
+},{
+  "file_path": "res_json/Dodge_V_page1.json",
+  "lot_number": "93311215",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Dodge_V_page1_photos/93311215.json'"
+},{
+  "file_path": "res_json/Dodge_V_page1.json",
+  "lot_number": "93263165",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Dodge_V_page1_photos/93263165.json'"
+},{
+  "file_path": "res_json/Dodge_V_page1.json",
+  "lot_number": "93235695",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Dodge_V_page1_photos/93235695.json'"
+},{
+  "file_path": "res_json/Dodge_V_page1.json",
+  "lot_number": "92673415",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Dodge_V_page1_photos/92673415.json'"
+},{
+  "file_path": "res_json/Dodge_V_page1.json",
+  "lot_number": "92086665",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Dodge_V_page1_photos/92086665.json'"
+},{
+  "file_path": "res_json/Dodge_V_page1.json",
+  "lot_number": "91380815",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Dodge_V_page1_photos/91380815.json'"
+},{
+  "file_path": "res_json/Dodge_V_page1.json",
+  "lot_number": "86453465",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Dodge_V_page1_photos/86453465.json'"
+},{
+  "file_path": "res_json/Dodge_V_page1.json",
+  "lot_number": "95220775",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Dodge_V_page1_photos/95220775.json'"
+},{
+  "file_path": "res_json/Dodge_V_page1.json",
+  "lot_number": "95142055",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Dodge_V_page1_photos/95142055.json'"
+},{
+  "file_path": "res_json/Dodge_V_page1.json",
+  "lot_number": "95130695",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Dodge_V_page1_photos/95130695.json'"
+},{
+  "file_path": "res_json/Dodge_V_page1.json",
+  "lot_number": "95083575",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Dodge_V_page1_photos/95083575.json'"
+},{
+  "file_path": "res_json/Dodge_V_page1.json",
+  "lot_number": "94329315",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Dodge_V_page1_photos/94329315.json'"
+},{
+  "file_path": "res_json/Dodge_V_page1.json",
+  "lot_number": "93895175",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Dodge_V_page1_photos/93895175.json'"
+},{
+  "file_path": "res_json/Dodge_V_page1.json",
+  "lot_number": "93846045",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Dodge_V_page1_photos/93846045.json'"
+},{
+  "file_path": "res_json/Dodge_V_page1.json",
+  "lot_number": "93636305",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Dodge_V_page1_photos/93636305.json'"
+},{
+  "file_path": "res_json/Dodge_V_page1.json",
+  "lot_number": "93539435",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Dodge_V_page1_photos/93539435.json'"
+},{
+  "file_path": "res_json/Ferrari_V_page1.json",
+  "lot_number": "96463705",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Ferrari_V_page1_photos/96463705.json'"
+},{
+  "file_path": "res_json/Ferrari_V_page1.json",
+  "lot_number": "96212125",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Ferrari_V_page1_photos/96212125.json'"
+},{
+  "file_path": "res_json/Ferrari_V_page1.json",
+  "lot_number": "94912535",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Ferrari_V_page1_photos/94912535.json'"
+},{
+  "file_path": "res_json/Ferrari_V_page1.json",
+  "lot_number": "94693145",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Ferrari_V_page1_photos/94693145.json'"
+},{
+  "file_path": "res_json/Ferrari_V_page1.json",
+  "lot_number": "93463325",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Ferrari_V_page1_photos/93463325.json'"
+},{
+  "file_path": "res_json/Ferrari_V_page1.json",
+  "lot_number": "92329615",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Ferrari_V_page1_photos/92329615.json'"
+},{
+  "file_path": "res_json/Ferrari_V_page1.json",
+  "lot_number": "91873555",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Ferrari_V_page1_photos/91873555.json'"
+},{
+  "file_path": "res_json/Ferrari_V_page1.json",
+  "lot_number": "91702825",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Ferrari_V_page1_photos/91702825.json'"
+},{
+  "file_path": "res_json/Ferrari_V_page1.json",
+  "lot_number": "91329695",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Ferrari_V_page1_photos/91329695.json'"
+},{
+  "file_path": "res_json/Ferrari_V_page1.json",
+  "lot_number": "90932175",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Ferrari_V_page1_photos/90932175.json'"
+},{
+  "file_path": "res_json/Ferrari_V_page1.json",
+  "lot_number": "90033235",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Ferrari_V_page1_photos/90033235.json'"
+},{
+  "file_path": "res_json/Ferrari_V_page1.json",
+  "lot_number": "89801255",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Ferrari_V_page1_photos/89801255.json'"
+},{
+  "file_path": "res_json/Ferrari_V_page1.json",
+  "lot_number": "89616815",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Ferrari_V_page1_photos/89616815.json'"
+},{
+  "file_path": "res_json/Ferrari_V_page1.json",
+  "lot_number": "87220945",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Ferrari_V_page1_photos/87220945.json'"
+},{
+  "file_path": "res_json/Ferrari_V_page1.json",
+  "lot_number": "87044425",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Ferrari_V_page1_photos/87044425.json'"
+},{
+  "file_path": "res_json/Ferrari_V_page1.json",
+  "lot_number": "86607555",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Ferrari_V_page1_photos/86607555.json'"
+},{
+  "file_path": "res_json/Ferrari_V_page1.json",
+  "lot_number": "86246045",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Ferrari_V_page1_photos/86246045.json'"
+},{
+  "file_path": "res_json/Ferrari_V_page1.json",
+  "lot_number": "84411645",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Ferrari_V_page1_photos/84411645.json'"
+},{
+  "file_path": "res_json/Ferrari_V_page1.json",
+  "lot_number": "83862955",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Ferrari_V_page1_photos/83862955.json'"
+},{
+  "file_path": "res_json/GEO_V_page1.json",
+  "lot_number": "95513575",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/GEO_V_page1_photos/95513575.json'"
+},{
+  "file_path": "res_json/GEO_V_page1.json",
+  "lot_number": "95192665",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/GEO_V_page1_photos/95192665.json'"
+},{
+  "file_path": "res_json/GEO_V_page1.json",
+  "lot_number": "94517195",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/GEO_V_page1_photos/94517195.json'"
+},{
+  "file_path": "res_json/GEO_V_page1.json",
+  "lot_number": "93800445",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/GEO_V_page1_photos/93800445.json'"
+},{
+  "file_path": "res_json/GEO_V_page1.json",
+  "lot_number": "93766865",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/GEO_V_page1_photos/93766865.json'"
+},{
+  "file_path": "res_json/GEO_V_page1.json",
+  "lot_number": "92448705",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/GEO_V_page1_photos/92448705.json'"
+},{
+  "file_path": "res_json/GEO_V_page1.json",
+  "lot_number": "92194345",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/GEO_V_page1_photos/92194345.json'"
+},{
+  "file_path": "res_json/GEO_V_page1.json",
+  "lot_number": "90754315",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/GEO_V_page1_photos/90754315.json'"
+},{
+  "file_path": "res_json/GEO_V_page1.json",
+  "lot_number": "85717125",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/GEO_V_page1_photos/85717125.json'"
+},{
+  "file_path": "res_json/GEO_V_page1.json",
+  "lot_number": "85530485",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/GEO_V_page1_photos/85530485.json'"
+},{
+  "file_path": "res_json/GEO_V_page1.json",
+  "lot_number": "84645865",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/GEO_V_page1_photos/84645865.json'"
+},{
+  "file_path": "res_json/GEO_V_page1.json",
+  "lot_number": "84059415",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/GEO_V_page1_photos/84059415.json'"
+},{
+  "file_path": "res_json/GEO_V_page1.json",
+  "lot_number": "46097994",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/GEO_V_page1_photos/46097994.json'"
+},{
+  "file_path": "res_json/GEO_V_page1.json",
+  "lot_number": "40692204",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/GEO_V_page1_photos/40692204.json'"
+},{
+  "file_path": "res_json/GMC_V_page1.json",
+  "lot_number": "86295155",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/GMC_V_page1_photos/86295155.json'"
+},{
+  "file_path": "res_json/GMC_V_page1.json",
+  "lot_number": "68724245",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/GMC_V_page1_photos/68724245.json'"
+},{
+  "file_path": "res_json/GMC_V_page1.json",
+  "lot_number": "81583955",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/GMC_V_page1_photos/81583955.json'"
+},{
+  "file_path": "res_json/GMC_V_page1.json",
+  "lot_number": "95290565",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/GMC_V_page1_photos/95290565.json'"
+},{
+  "file_path": "res_json/GMC_V_page1.json",
+  "lot_number": "95130655",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/GMC_V_page1_photos/95130655.json'"
+},{
+  "file_path": "res_json/GMC_V_page1.json",
+  "lot_number": "95018585",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/GMC_V_page1_photos/95018585.json'"
+},{
+  "file_path": "res_json/GMC_V_page1.json",
+  "lot_number": "95004955",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/GMC_V_page1_photos/95004955.json'"
+},{
+  "file_path": "res_json/GMC_V_page1.json",
+  "lot_number": "94642855",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/GMC_V_page1_photos/94642855.json'"
+},{
+  "file_path": "res_json/GMC_V_page1.json",
+  "lot_number": "93454545",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/GMC_V_page1_photos/93454545.json'"
+},{
+  "file_path": "res_json/GMC_V_page1.json",
+  "lot_number": "93328065",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/GMC_V_page1_photos/93328065.json'"
+},{
+  "file_path": "res_json/GMC_V_page1.json",
+  "lot_number": "93124435",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/GMC_V_page1_photos/93124435.json'"
+},{
+  "file_path": "res_json/GMC_V_page1.json",
+  "lot_number": "92727085",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/GMC_V_page1_photos/92727085.json'"
+},{
+  "file_path": "res_json/GMC_V_page1.json",
+  "lot_number": "92424935",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/GMC_V_page1_photos/92424935.json'"
+},{
+  "file_path": "res_json/GMC_V_page1.json",
+  "lot_number": "92326765",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/GMC_V_page1_photos/92326765.json'"
+},{
+  "file_path": "res_json/GMC_V_page1.json",
+  "lot_number": "91453315",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/GMC_V_page1_photos/91453315.json'"
+},{
+  "file_path": "res_json/GMC_V_page1.json",
+  "lot_number": "90264005",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/GMC_V_page1_photos/90264005.json'"
+},{
+  "file_path": "res_json/GMC_V_page1.json",
+  "lot_number": "89859705",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/GMC_V_page1_photos/89859705.json'"
+},{
+  "file_path": "res_json/GMC_V_page1.json",
+  "lot_number": "89846805",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/GMC_V_page1_photos/89846805.json'"
+},{
+  "file_path": "res_json/GMC_V_page1.json",
+  "lot_number": "89628575",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/GMC_V_page1_photos/89628575.json'"
+},{
+  "file_path": "res_json/Honda_A_page1.json",
+  "lot_number": "96205625",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Honda_A_page1_photos/96205625.json'"
+},{
+  "file_path": "res_json/Honda_A_page1.json",
+  "lot_number": "96153385",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Honda_A_page1_photos/96153385.json'"
+},{
+  "file_path": "res_json/Honda_A_page1.json",
+  "lot_number": "96065285",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Honda_A_page1_photos/96065285.json'"
+},{
+  "file_path": "res_json/Honda_A_page1.json",
+  "lot_number": "96039295",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Honda_A_page1_photos/96039295.json'"
+},{
+  "file_path": "res_json/Honda_A_page1.json",
+  "lot_number": "95927535",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Honda_A_page1_photos/95927535.json'"
+},{
+  "file_path": "res_json/Honda_A_page1.json",
+  "lot_number": "95914525",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Honda_A_page1_photos/95914525.json'"
+},{
+  "file_path": "res_json/Honda_A_page1.json",
+  "lot_number": "95799135",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Honda_A_page1_photos/95799135.json'"
+},{
+  "file_path": "res_json/Honda_A_page1.json",
+  "lot_number": "95798955",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Honda_A_page1_photos/95798955.json'"
+},{
+  "file_path": "res_json/Honda_A_page1.json",
+  "lot_number": "95683765",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Honda_A_page1_photos/95683765.json'"
+},{
+  "file_path": "res_json/Honda_A_page1.json",
+  "lot_number": "95497125",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Honda_A_page1_photos/95497125.json'"
+},{
+  "file_path": "res_json/Honda_A_page1.json",
+  "lot_number": "95408445",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Honda_A_page1_photos/95408445.json'"
+},{
+  "file_path": "res_json/Honda_A_page1.json",
+  "lot_number": "95205325",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Honda_A_page1_photos/95205325.json'"
+},{
+  "file_path": "res_json/Honda_A_page1.json",
+  "lot_number": "94459195",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Honda_A_page1_photos/94459195.json'"
+},{
+  "file_path": "res_json/Honda_A_page1.json",
+  "lot_number": "94326885",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Honda_A_page1_photos/94326885.json'"
+},{
+  "file_path": "res_json/Honda_A_page1.json",
+  "lot_number": "94073155",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Honda_A_page1_photos/94073155.json'"
+},{
+  "file_path": "res_json/Honda_A_page1.json",
+  "lot_number": "94046105",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Honda_A_page1_photos/94046105.json'"
+},{
+  "file_path": "res_json/Honda_A_page1.json",
+  "lot_number": "93931625",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Honda_A_page1_photos/93931625.json'"
+},{
+  "file_path": "res_json/Honda_A_page1.json",
+  "lot_number": "93902425",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Honda_A_page1_photos/93902425.json'"
+},{
+  "file_path": "res_json/Honda_A_page1.json",
+  "lot_number": "93828675",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Honda_A_page1_photos/93828675.json'"
+},{
+  "file_path": "res_json/Isuzu_V_page1.json",
+  "lot_number": "96715525",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Isuzu_V_page1_photos/96715525.json'"
+},{
+  "file_path": "res_json/Isuzu_V_page1.json",
+  "lot_number": "96537965",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Isuzu_V_page1_photos/96537965.json'"
+},{
+  "file_path": "res_json/Isuzu_V_page1.json",
+  "lot_number": "96182535",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Isuzu_V_page1_photos/96182535.json'"
+},{
+  "file_path": "res_json/Isuzu_V_page1.json",
+  "lot_number": "95933975",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Isuzu_V_page1_photos/95933975.json'"
+},{
+  "file_path": "res_json/Isuzu_V_page1.json",
+  "lot_number": "95651635",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Isuzu_V_page1_photos/95651635.json'"
+},{
+  "file_path": "res_json/Isuzu_V_page1.json",
+  "lot_number": "95540635",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Isuzu_V_page1_photos/95540635.json'"
+},{
+  "file_path": "res_json/Isuzu_V_page1.json",
+  "lot_number": "95328045",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Isuzu_V_page1_photos/95328045.json'"
+},{
+  "file_path": "res_json/Isuzu_V_page1.json",
+  "lot_number": "95211015",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Isuzu_V_page1_photos/95211015.json'"
+},{
+  "file_path": "res_json/Isuzu_V_page1.json",
+  "lot_number": "94420795",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Isuzu_V_page1_photos/94420795.json'"
+},{
+  "file_path": "res_json/Isuzu_V_page1.json",
+  "lot_number": "94355335",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Isuzu_V_page1_photos/94355335.json'"
+},{
+  "file_path": "res_json/Isuzu_V_page1.json",
+  "lot_number": "94298715",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Isuzu_V_page1_photos/94298715.json'"
+},{
+  "file_path": "res_json/Isuzu_V_page1.json",
+  "lot_number": "94173855",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Isuzu_V_page1_photos/94173855.json'"
+},{
+  "file_path": "res_json/Isuzu_V_page1.json",
+  "lot_number": "93980595",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Isuzu_V_page1_photos/93980595.json'"
+},{
+  "file_path": "res_json/Isuzu_V_page1.json",
+  "lot_number": "93481735",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Isuzu_V_page1_photos/93481735.json'"
+},{
+  "file_path": "res_json/Isuzu_V_page1.json",
+  "lot_number": "93335405",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Isuzu_V_page1_photos/93335405.json'"
+},{
+  "file_path": "res_json/Isuzu_V_page1.json",
+  "lot_number": "93113025",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Isuzu_V_page1_photos/93113025.json'"
+},{
+  "file_path": "res_json/Isuzu_V_page1.json",
+  "lot_number": "93023595",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Isuzu_V_page1_photos/93023595.json'"
+},{
+  "file_path": "res_json/Isuzu_V_page1.json",
+  "lot_number": "92869855",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Isuzu_V_page1_photos/92869855.json'"
+},{
+  "file_path": "res_json/Isuzu_V_page1.json",
+  "lot_number": "92474595",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Isuzu_V_page1_photos/92474595.json'"
+},{
+  "file_path": "res_json/Jaguar_V_page1.json",
+  "lot_number": "97097095",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Jaguar_V_page1_photos/97097095.json'"
+},{
+  "file_path": "res_json/Jaguar_V_page1.json",
+  "lot_number": "96984275",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Jaguar_V_page1_photos/96984275.json'"
+},{
+  "file_path": "res_json/Jaguar_V_page1.json",
+  "lot_number": "96931225",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Jaguar_V_page1_photos/96931225.json'"
+},{
+  "file_path": "res_json/Jaguar_V_page1.json",
+  "lot_number": "96920875",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Jaguar_V_page1_photos/96920875.json'"
+},{
+  "file_path": "res_json/Jaguar_V_page1.json",
+  "lot_number": "96915055",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Jaguar_V_page1_photos/96915055.json'"
+},{
+  "file_path": "res_json/Jaguar_V_page1.json",
+  "lot_number": "96913045",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Jaguar_V_page1_photos/96913045.json'"
+},{
+  "file_path": "res_json/Jaguar_V_page1.json",
+  "lot_number": "96877215",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Jaguar_V_page1_photos/96877215.json'"
+},{
+  "file_path": "res_json/Jaguar_V_page1.json",
+  "lot_number": "96855375",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Jaguar_V_page1_photos/96855375.json'"
+},{
+  "file_path": "res_json/Jaguar_V_page1.json",
+  "lot_number": "96837005",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Jaguar_V_page1_photos/96837005.json'"
+},{
+  "file_path": "res_json/Jaguar_V_page1.json",
+  "lot_number": "96828515",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Jaguar_V_page1_photos/96828515.json'"
+},{
+  "file_path": "res_json/Jaguar_V_page1.json",
+  "lot_number": "96822895",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Jaguar_V_page1_photos/96822895.json'"
+},{
+  "file_path": "res_json/Jaguar_V_page1.json",
+  "lot_number": "96811665",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Jaguar_V_page1_photos/96811665.json'"
+},{
+  "file_path": "res_json/Jaguar_V_page1.json",
+  "lot_number": "96804895",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Jaguar_V_page1_photos/96804895.json'"
+},{
+  "file_path": "res_json/Jaguar_V_page1.json",
+  "lot_number": "96804435",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Jaguar_V_page1_photos/96804435.json'"
+},{
+  "file_path": "res_json/Jaguar_V_page1.json",
+  "lot_number": "96802105",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Jaguar_V_page1_photos/96802105.json'"
+},{
+  "file_path": "res_json/Jaguar_V_page1.json",
+  "lot_number": "96796695",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Jaguar_V_page1_photos/96796695.json'"
+},{
+  "file_path": "res_json/Jaguar_V_page1.json",
+  "lot_number": "96786935",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Jaguar_V_page1_photos/96786935.json'"
+},{
+  "file_path": "res_json/Jaguar_V_page1.json",
+  "lot_number": "96770055",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Jaguar_V_page1_photos/96770055.json'"
+},{
+  "file_path": "res_json/Jaguar_V_page1.json",
+  "lot_number": "96762725",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Jaguar_V_page1_photos/96762725.json'"
+},{
+  "file_path": "res_json/Jeep_V_page1.json",
+  "lot_number": "94135685",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Jeep_V_page1_photos/94135685.json'"
+},{
+  "file_path": "res_json/Jeep_V_page1.json",
+  "lot_number": "93219915",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Jeep_V_page1_photos/93219915.json'"
+},{
+  "file_path": "res_json/Jeep_V_page1.json",
+  "lot_number": "92477595",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Jeep_V_page1_photos/92477595.json'"
+},{
+  "file_path": "res_json/Jeep_V_page1.json",
+  "lot_number": "89496475",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Jeep_V_page1_photos/89496475.json'"
+},{
+  "file_path": "res_json/Jeep_V_page1.json",
+  "lot_number": "87119535",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Jeep_V_page1_photos/87119535.json'"
+},{
+  "file_path": "res_json/Jeep_V_page1.json",
+  "lot_number": "86657305",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Jeep_V_page1_photos/86657305.json'"
+},{
+  "file_path": "res_json/Jeep_V_page1.json",
+  "lot_number": "86470225",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Jeep_V_page1_photos/86470225.json'"
+},{
+  "file_path": "res_json/Jeep_V_page1.json",
+  "lot_number": "81144205",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Jeep_V_page1_photos/81144205.json'"
+},{
+  "file_path": "res_json/Jeep_V_page1.json",
+  "lot_number": "93251575",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Jeep_V_page1_photos/93251575.json'"
+},{
+  "file_path": "res_json/Jeep_V_page1.json",
+  "lot_number": "92925105",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Jeep_V_page1_photos/92925105.json'"
+},{
+  "file_path": "res_json/Jeep_V_page1.json",
+  "lot_number": "92395555",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Jeep_V_page1_photos/92395555.json'"
+},{
+  "file_path": "res_json/Jeep_V_page1.json",
+  "lot_number": "92004195",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Jeep_V_page1_photos/92004195.json'"
+},{
+  "file_path": "res_json/Jeep_V_page1.json",
+  "lot_number": "85581585",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Jeep_V_page1_photos/85581585.json'"
+},{
+  "file_path": "res_json/Jeep_V_page1.json",
+  "lot_number": "69953665",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Jeep_V_page1_photos/69953665.json'"
+},{
+  "file_path": "res_json/Jeep_V_page1.json",
+  "lot_number": "96257565",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Jeep_V_page1_photos/96257565.json'"
+},{
+  "file_path": "res_json/Jeep_V_page1.json",
+  "lot_number": "96155845",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Jeep_V_page1_photos/96155845.json'"
+},{
+  "file_path": "res_json/Jeep_V_page1.json",
+  "lot_number": "96113545",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Jeep_V_page1_photos/96113545.json'"
+},{
+  "file_path": "res_json/Jeep_V_page1.json",
+  "lot_number": "95948235",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Jeep_V_page1_photos/95948235.json'"
+},{
+  "file_path": "res_json/Jeep_V_page1.json",
+  "lot_number": "95864275",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Jeep_V_page1_photos/95864275.json'"
+},{
+  "file_path": "res_json/KIA_V_page1.json",
+  "lot_number": "92866065",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/KIA_V_page1_photos/92866065.json'"
+},{
+  "file_path": "res_json/KIA_V_page1.json",
+  "lot_number": "92731445",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/KIA_V_page1_photos/92731445.json'"
+},{
+  "file_path": "res_json/KIA_V_page1.json",
+  "lot_number": "92196405",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/KIA_V_page1_photos/92196405.json'"
+},{
+  "file_path": "res_json/KIA_V_page1.json",
+  "lot_number": "91821125",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/KIA_V_page1_photos/91821125.json'"
+},{
+  "file_path": "res_json/KIA_V_page1.json",
+  "lot_number": "90852915",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/KIA_V_page1_photos/90852915.json'"
+},{
+  "file_path": "res_json/KIA_V_page1.json",
+  "lot_number": "90493015",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/KIA_V_page1_photos/90493015.json'"
+},{
+  "file_path": "res_json/KIA_V_page1.json",
+  "lot_number": "83875365",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/KIA_V_page1_photos/83875365.json'"
+},{
+  "file_path": "res_json/KIA_V_page1.json",
+  "lot_number": "82039625",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/KIA_V_page1_photos/82039625.json'"
+},{
+  "file_path": "res_json/KIA_V_page1.json",
+  "lot_number": "67028715",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/KIA_V_page1_photos/67028715.json'"
+},{
+  "file_path": "res_json/KIA_V_page1.json",
+  "lot_number": "90830035",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/KIA_V_page1_photos/90830035.json'"
+},{
+  "file_path": "res_json/KIA_V_page1.json",
+  "lot_number": "90360345",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/KIA_V_page1_photos/90360345.json'"
+},{
+  "file_path": "res_json/KIA_V_page1.json",
+  "lot_number": "86860185",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/KIA_V_page1_photos/86860185.json'"
+},{
+  "file_path": "res_json/KIA_V_page1.json",
+  "lot_number": "86479375",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/KIA_V_page1_photos/86479375.json'"
+},{
+  "file_path": "res_json/KIA_V_page1.json",
+  "lot_number": "85573365",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/KIA_V_page1_photos/85573365.json'"
+},{
+  "file_path": "res_json/KIA_V_page1.json",
+  "lot_number": "84996435",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/KIA_V_page1_photos/84996435.json'"
+},{
+  "file_path": "res_json/KIA_V_page1.json",
+  "lot_number": "96423845",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/KIA_V_page1_photos/96423845.json'"
+},{
+  "file_path": "res_json/KIA_V_page1.json",
+  "lot_number": "96410555",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/KIA_V_page1_photos/96410555.json'"
+},{
+  "file_path": "res_json/KIA_V_page1.json",
+  "lot_number": "96076095",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/KIA_V_page1_photos/96076095.json'"
+},{
+  "file_path": "res_json/KIA_V_page1.json",
+  "lot_number": "96067215",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/KIA_V_page1_photos/96067215.json'"
+},{
+  "file_path": "res_json/Lexus_V_page1.json",
+  "lot_number": "90732295",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Lexus_V_page1_photos/90732295.json'"
+},{
+  "file_path": "res_json/Lexus_V_page1.json",
+  "lot_number": "93765905",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Lexus_V_page1_photos/93765905.json'"
+},{
+  "file_path": "res_json/Lexus_V_page1.json",
+  "lot_number": "92074305",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Lexus_V_page1_photos/92074305.json'"
+},{
+  "file_path": "res_json/Lexus_V_page1.json",
+  "lot_number": "92041095",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Lexus_V_page1_photos/92041095.json'"
+},{
+  "file_path": "res_json/Lexus_V_page1.json",
+  "lot_number": "91963945",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Lexus_V_page1_photos/91963945.json'"
+},{
+  "file_path": "res_json/Lexus_V_page1.json",
+  "lot_number": "91589875",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Lexus_V_page1_photos/91589875.json'"
+},{
+  "file_path": "res_json/Lexus_V_page1.json",
+  "lot_number": "91414295",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Lexus_V_page1_photos/91414295.json'"
+},{
+  "file_path": "res_json/Lexus_V_page1.json",
+  "lot_number": "91164395",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Lexus_V_page1_photos/91164395.json'"
+},{
+  "file_path": "res_json/Lexus_V_page1.json",
+  "lot_number": "90949025",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Lexus_V_page1_photos/90949025.json'"
+},{
+  "file_path": "res_json/Lexus_V_page1.json",
+  "lot_number": "89866345",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Lexus_V_page1_photos/89866345.json'"
+},{
+  "file_path": "res_json/Lexus_V_page1.json",
+  "lot_number": "87289205",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Lexus_V_page1_photos/87289205.json'"
+},{
+  "file_path": "res_json/Lexus_V_page1.json",
+  "lot_number": "85526675",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Lexus_V_page1_photos/85526675.json'"
+},{
+  "file_path": "res_json/Lexus_V_page1.json",
+  "lot_number": "85304605",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Lexus_V_page1_photos/85304605.json'"
+},{
+  "file_path": "res_json/Lexus_V_page1.json",
+  "lot_number": "85304515",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Lexus_V_page1_photos/85304515.json'"
+},{
+  "file_path": "res_json/Lexus_V_page1.json",
+  "lot_number": "85117235",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Lexus_V_page1_photos/85117235.json'"
+},{
+  "file_path": "res_json/Lexus_V_page1.json",
+  "lot_number": "71582105",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Lexus_V_page1_photos/71582105.json'"
+},{
+  "file_path": "res_json/Lexus_V_page1.json",
+  "lot_number": "71052585",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Lexus_V_page1_photos/71052585.json'"
+},{
+  "file_path": "res_json/Lexus_V_page1.json",
+  "lot_number": "69989025",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Lexus_V_page1_photos/69989025.json'"
+},{
+  "file_path": "res_json/Lexus_V_page1.json",
+  "lot_number": "68118925",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Lexus_V_page1_photos/68118925.json'"
+},{
+  "file_path": "res_json/Lincoln_V_page1.json",
+  "lot_number": "92705505",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Lincoln_V_page1_photos/92705505.json'"
+},{
+  "file_path": "res_json/Lincoln_V_page1.json",
+  "lot_number": "89729265",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Lincoln_V_page1_photos/89729265.json'"
+},{
+  "file_path": "res_json/Lincoln_V_page1.json",
+  "lot_number": "87435225",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Lincoln_V_page1_photos/87435225.json'"
+},{
+  "file_path": "res_json/Lincoln_V_page1.json",
+  "lot_number": "86795015",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Lincoln_V_page1_photos/86795015.json'"
+},{
+  "file_path": "res_json/Lincoln_V_page1.json",
+  "lot_number": "97149275",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Lincoln_V_page1_photos/97149275.json'"
+},{
+  "file_path": "res_json/Lincoln_V_page1.json",
+  "lot_number": "97084055",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Lincoln_V_page1_photos/97084055.json'"
+},{
+  "file_path": "res_json/Lincoln_V_page1.json",
+  "lot_number": "97082945",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Lincoln_V_page1_photos/97082945.json'"
+},{
+  "file_path": "res_json/Lincoln_V_page1.json",
+  "lot_number": "97025915",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Lincoln_V_page1_photos/97025915.json'"
+},{
+  "file_path": "res_json/Lincoln_V_page1.json",
+  "lot_number": "97004025",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Lincoln_V_page1_photos/97004025.json'"
+},{
+  "file_path": "res_json/Lincoln_V_page1.json",
+  "lot_number": "96985985",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Lincoln_V_page1_photos/96985985.json'"
+},{
+  "file_path": "res_json/Lincoln_V_page1.json",
+  "lot_number": "96985945",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Lincoln_V_page1_photos/96985945.json'"
+},{
+  "file_path": "res_json/Lincoln_V_page1.json",
+  "lot_number": "96981525",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Lincoln_V_page1_photos/96981525.json'"
+},{
+  "file_path": "res_json/Lincoln_V_page1.json",
+  "lot_number": "96975415",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Lincoln_V_page1_photos/96975415.json'"
+},{
+  "file_path": "res_json/Lincoln_V_page1.json",
+  "lot_number": "96973035",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Lincoln_V_page1_photos/96973035.json'"
+},{
+  "file_path": "res_json/Lincoln_V_page1.json",
+  "lot_number": "96966555",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Lincoln_V_page1_photos/96966555.json'"
+},{
+  "file_path": "res_json/Lincoln_V_page1.json",
+  "lot_number": "96949185",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Lincoln_V_page1_photos/96949185.json'"
+},{
+  "file_path": "res_json/Lincoln_V_page1.json",
+  "lot_number": "96948305",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Lincoln_V_page1_photos/96948305.json'"
+},{
+  "file_path": "res_json/Lincoln_V_page1.json",
+  "lot_number": "96941895",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Lincoln_V_page1_photos/96941895.json'"
+},{
+  "file_path": "res_json/Lincoln_V_page1.json",
+  "lot_number": "96930835",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Lincoln_V_page1_photos/96930835.json'"
+},{
+  "file_path": "res_json/Maserati_V_page1.json",
+  "lot_number": "81382525",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Maserati_V_page1_photos/81382525.json'"
+},{
+  "file_path": "res_json/Maserati_V_page1.json",
+  "lot_number": "97181495",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Maserati_V_page1_photos/97181495.json'"
+},{
+  "file_path": "res_json/Maserati_V_page1.json",
+  "lot_number": "96896005",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Maserati_V_page1_photos/96896005.json'"
+},{
+  "file_path": "res_json/Maserati_V_page1.json",
+  "lot_number": "96837755",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Maserati_V_page1_photos/96837755.json'"
+},{
+  "file_path": "res_json/Maserati_V_page1.json",
+  "lot_number": "96827845",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Maserati_V_page1_photos/96827845.json'"
+},{
+  "file_path": "res_json/Maserati_V_page1.json",
+  "lot_number": "96814645",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Maserati_V_page1_photos/96814645.json'"
+},{
+  "file_path": "res_json/Maserati_V_page1.json",
+  "lot_number": "96773845",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Maserati_V_page1_photos/96773845.json'"
+},{
+  "file_path": "res_json/Maserati_V_page1.json",
+  "lot_number": "96737895",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Maserati_V_page1_photos/96737895.json'"
+},{
+  "file_path": "res_json/Maserati_V_page1.json",
+  "lot_number": "96612575",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Maserati_V_page1_photos/96612575.json'"
+},{
+  "file_path": "res_json/Maserati_V_page1.json",
+  "lot_number": "96605515",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Maserati_V_page1_photos/96605515.json'"
+},{
+  "file_path": "res_json/Maserati_V_page1.json",
+  "lot_number": "96550965",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Maserati_V_page1_photos/96550965.json'"
+},{
+  "file_path": "res_json/Maserati_V_page1.json",
+  "lot_number": "96521615",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Maserati_V_page1_photos/96521615.json'"
+},{
+  "file_path": "res_json/Maserati_V_page1.json",
+  "lot_number": "96515495",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Maserati_V_page1_photos/96515495.json'"
+},{
+  "file_path": "res_json/Maserati_V_page1.json",
+  "lot_number": "96490205",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Maserati_V_page1_photos/96490205.json'"
+},{
+  "file_path": "res_json/Maserati_V_page1.json",
+  "lot_number": "96381345",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Maserati_V_page1_photos/96381345.json'"
+},{
+  "file_path": "res_json/Maserati_V_page1.json",
+  "lot_number": "96370265",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Maserati_V_page1_photos/96370265.json'"
+},{
+  "file_path": "res_json/Maserati_V_page1.json",
+  "lot_number": "96266725",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Maserati_V_page1_photos/96266725.json'"
+},{
+  "file_path": "res_json/Maserati_V_page1.json",
+  "lot_number": "96251455",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Maserati_V_page1_photos/96251455.json'"
+},{
+  "file_path": "res_json/Maserati_V_page1.json",
+  "lot_number": "96242195",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Maserati_V_page1_photos/96242195.json'"
+},{
+  "file_path": "res_json/Mercury_V_page1.json",
+  "lot_number": "97154115",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Mercury_V_page1_photos/97154115.json'"
+},{
+  "file_path": "res_json/Mercury_V_page1.json",
+  "lot_number": "96948405",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Mercury_V_page1_photos/96948405.json'"
+},{
+  "file_path": "res_json/Mercury_V_page1.json",
+  "lot_number": "96928435",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Mercury_V_page1_photos/96928435.json'"
+},{
+  "file_path": "res_json/Mercury_V_page1.json",
+  "lot_number": "96804825",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Mercury_V_page1_photos/96804825.json'"
+},{
+  "file_path": "res_json/Mercury_V_page1.json",
+  "lot_number": "96796725",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Mercury_V_page1_photos/96796725.json'"
+},{
+  "file_path": "res_json/Mercury_V_page1.json",
+  "lot_number": "96764415",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Mercury_V_page1_photos/96764415.json'"
+},{
+  "file_path": "res_json/Mercury_V_page1.json",
+  "lot_number": "96717495",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Mercury_V_page1_photos/96717495.json'"
+},{
+  "file_path": "res_json/Mercury_V_page1.json",
+  "lot_number": "96715355",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Mercury_V_page1_photos/96715355.json'"
+},{
+  "file_path": "res_json/Mercury_V_page1.json",
+  "lot_number": "96704645",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Mercury_V_page1_photos/96704645.json'"
+},{
+  "file_path": "res_json/Mercury_V_page1.json",
+  "lot_number": "96660985",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Mercury_V_page1_photos/96660985.json'"
+},{
+  "file_path": "res_json/Mercury_V_page1.json",
+  "lot_number": "96606755",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Mercury_V_page1_photos/96606755.json'"
+},{
+  "file_path": "res_json/Mercury_V_page1.json",
+  "lot_number": "96592425",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Mercury_V_page1_photos/96592425.json'"
+},{
+  "file_path": "res_json/Mercury_V_page1.json",
+  "lot_number": "96561835",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Mercury_V_page1_photos/96561835.json'"
+},{
+  "file_path": "res_json/Mercury_V_page1.json",
+  "lot_number": "96559715",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Mercury_V_page1_photos/96559715.json'"
+},{
+  "file_path": "res_json/Mercury_V_page1.json",
+  "lot_number": "96558775",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Mercury_V_page1_photos/96558775.json'"
+},{
+  "file_path": "res_json/Mercury_V_page1.json",
+  "lot_number": "96523945",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Mercury_V_page1_photos/96523945.json'"
+},{
+  "file_path": "res_json/Mercury_V_page1.json",
+  "lot_number": "96521225",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Mercury_V_page1_photos/96521225.json'"
+},{
+  "file_path": "res_json/Mercury_V_page1.json",
+  "lot_number": "96520895",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Mercury_V_page1_photos/96520895.json'"
+},{
+  "file_path": "res_json/Mercury_V_page1.json",
+  "lot_number": "96515735",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Mercury_V_page1_photos/96515735.json'"
+},{
+  "file_path": "res_json/Oldsmobile_V_page1.json",
+  "lot_number": "96827675",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Oldsmobile_V_page1_photos/96827675.json'"
+},{
+  "file_path": "res_json/Oldsmobile_V_page1.json",
+  "lot_number": "96765945",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Oldsmobile_V_page1_photos/96765945.json'"
+},{
+  "file_path": "res_json/Oldsmobile_V_page1.json",
+  "lot_number": "96707245",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Oldsmobile_V_page1_photos/96707245.json'"
+},{
+  "file_path": "res_json/Oldsmobile_V_page1.json",
+  "lot_number": "96526375",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Oldsmobile_V_page1_photos/96526375.json'"
+},{
+  "file_path": "res_json/Oldsmobile_V_page1.json",
+  "lot_number": "96229535",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Oldsmobile_V_page1_photos/96229535.json'"
+},{
+  "file_path": "res_json/Oldsmobile_V_page1.json",
+  "lot_number": "96156085",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Oldsmobile_V_page1_photos/96156085.json'"
+},{
+  "file_path": "res_json/Oldsmobile_V_page1.json",
+  "lot_number": "96067305",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Oldsmobile_V_page1_photos/96067305.json'"
+},{
+  "file_path": "res_json/Oldsmobile_V_page1.json",
+  "lot_number": "96033295",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Oldsmobile_V_page1_photos/96033295.json'"
+},{
+  "file_path": "res_json/Oldsmobile_V_page1.json",
+  "lot_number": "96008765",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Oldsmobile_V_page1_photos/96008765.json'"
+},{
+  "file_path": "res_json/Oldsmobile_V_page1.json",
+  "lot_number": "96001525",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Oldsmobile_V_page1_photos/96001525.json'"
+},{
+  "file_path": "res_json/Oldsmobile_V_page1.json",
+  "lot_number": "95951025",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Oldsmobile_V_page1_photos/95951025.json'"
+},{
+  "file_path": "res_json/Oldsmobile_V_page1.json",
+  "lot_number": "95875165",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Oldsmobile_V_page1_photos/95875165.json'"
+},{
+  "file_path": "res_json/Oldsmobile_V_page1.json",
+  "lot_number": "95775545",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Oldsmobile_V_page1_photos/95775545.json'"
+},{
+  "file_path": "res_json/Oldsmobile_V_page1.json",
+  "lot_number": "95744585",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Oldsmobile_V_page1_photos/95744585.json'"
+},{
+  "file_path": "res_json/Oldsmobile_V_page1.json",
+  "lot_number": "95709055",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Oldsmobile_V_page1_photos/95709055.json'"
+},{
+  "file_path": "res_json/Oldsmobile_V_page1.json",
+  "lot_number": "95626885",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Oldsmobile_V_page1_photos/95626885.json'"
+},{
+  "file_path": "res_json/Oldsmobile_V_page1.json",
+  "lot_number": "95574185",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Oldsmobile_V_page1_photos/95574185.json'"
+},{
+  "file_path": "res_json/Oldsmobile_V_page1.json",
+  "lot_number": "95562795",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Oldsmobile_V_page1_photos/95562795.json'"
+},{
+  "file_path": "res_json/Oldsmobile_V_page1.json",
+  "lot_number": "95549055",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Oldsmobile_V_page1_photos/95549055.json'"
+},{
+  "file_path": "res_json/Other_V_page1.json",
+  "lot_number": "96267115",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Other_V_page1_photos/96267115.json'"
+},{
+  "file_path": "res_json/Other_V_page1.json",
+  "lot_number": "96249265",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Other_V_page1_photos/96249265.json'"
+},{
+  "file_path": "res_json/Other_V_page1.json",
+  "lot_number": "96085965",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Other_V_page1_photos/96085965.json'"
+},{
+  "file_path": "res_json/Other_V_page1.json",
+  "lot_number": "95407585",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Other_V_page1_photos/95407585.json'"
+},{
+  "file_path": "res_json/Other_V_page1.json",
+  "lot_number": "94704835",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Other_V_page1_photos/94704835.json'"
+},{
+  "file_path": "res_json/Other_V_page1.json",
+  "lot_number": "94634415",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Other_V_page1_photos/94634415.json'"
+},{
+  "file_path": "res_json/Other_V_page1.json",
+  "lot_number": "93900735",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Other_V_page1_photos/93900735.json'"
+},{
+  "file_path": "res_json/Other_V_page1.json",
+  "lot_number": "93898325",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Other_V_page1_photos/93898325.json'"
+},{
+  "file_path": "res_json/Other_V_page1.json",
+  "lot_number": "93068325",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Other_V_page1_photos/93068325.json'"
+},{
+  "file_path": "res_json/Other_V_page1.json",
+  "lot_number": "92632585",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Other_V_page1_photos/92632585.json'"
+},{
+  "file_path": "res_json/Other_V_page1.json",
+  "lot_number": "92175725",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Other_V_page1_photos/92175725.json'"
+},{
+  "file_path": "res_json/Other_V_page1.json",
+  "lot_number": "91141305",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Other_V_page1_photos/91141305.json'"
+},{
+  "file_path": "res_json/Other_V_page1.json",
+  "lot_number": "87009335",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Other_V_page1_photos/87009335.json'"
+},{
+  "file_path": "res_json/Other_V_page1.json",
+  "lot_number": "82423195",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Other_V_page1_photos/82423195.json'"
+},{
+  "file_path": "res_json/Other_V_page1.json",
+  "lot_number": "80127465",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Other_V_page1_photos/80127465.json'"
+},{
+  "file_path": "res_json/Other_V_page1.json",
+  "lot_number": "65814865",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Other_V_page1_photos/65814865.json'"
+},{
+  "file_path": "res_json/Other_V_page1.json",
+  "lot_number": "64173015",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Other_V_page1_photos/64173015.json'"
+},{
+  "file_path": "res_json/Other_V_page1.json",
+  "lot_number": "58757002",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Other_V_page1_photos/58757002.json'"
+},{
+  "file_path": "res_json/Other_V_page1.json",
+  "lot_number": "56998305",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Other_V_page1_photos/56998305.json'"
+},{
+  "file_path": "res_json/Suzuki_C_page1.json",
+  "lot_number": "96741725",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Suzuki_C_page1_photos/96741725.json'"
+},{
+  "file_path": "res_json/Suzuki_C_page1.json",
+  "lot_number": "96526485",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Suzuki_C_page1_photos/96526485.json'"
+},{
+  "file_path": "res_json/Suzuki_C_page1.json",
+  "lot_number": "96510305",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Suzuki_C_page1_photos/96510305.json'"
+},{
+  "file_path": "res_json/Suzuki_C_page1.json",
+  "lot_number": "96496445",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Suzuki_C_page1_photos/96496445.json'"
+},{
+  "file_path": "res_json/Suzuki_C_page1.json",
+  "lot_number": "96487205",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Suzuki_C_page1_photos/96487205.json'"
+},{
+  "file_path": "res_json/Suzuki_C_page1.json",
+  "lot_number": "96358235",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Suzuki_C_page1_photos/96358235.json'"
+},{
+  "file_path": "res_json/Suzuki_C_page1.json",
+  "lot_number": "96356205",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Suzuki_C_page1_photos/96356205.json'"
+},{
+  "file_path": "res_json/Suzuki_C_page1.json",
+  "lot_number": "96354635",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Suzuki_C_page1_photos/96354635.json'"
+},{
+  "file_path": "res_json/Suzuki_C_page1.json",
+  "lot_number": "96275295",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Suzuki_C_page1_photos/96275295.json'"
+},{
+  "file_path": "res_json/Suzuki_C_page1.json",
+  "lot_number": "96263675",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Suzuki_C_page1_photos/96263675.json'"
+},{
+  "file_path": "res_json/Suzuki_C_page1.json",
+  "lot_number": "96076785",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Suzuki_C_page1_photos/96076785.json'"
+},{
+  "file_path": "res_json/Suzuki_C_page1.json",
+  "lot_number": "95986475",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Suzuki_C_page1_photos/95986475.json'"
+},{
+  "file_path": "res_json/Suzuki_C_page1.json",
+  "lot_number": "95965005",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Suzuki_C_page1_photos/95965005.json'"
+},{
+  "file_path": "res_json/Suzuki_C_page1.json",
+  "lot_number": "95911895",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Suzuki_C_page1_photos/95911895.json'"
+},{
+  "file_path": "res_json/Suzuki_C_page1.json",
+  "lot_number": "95805565",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Suzuki_C_page1_photos/95805565.json'"
+},{
+  "file_path": "res_json/Suzuki_C_page1.json",
+  "lot_number": "95785015",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Suzuki_C_page1_photos/95785015.json'"
+},{
+  "file_path": "res_json/Suzuki_C_page1.json",
+  "lot_number": "95727415",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Suzuki_C_page1_photos/95727415.json'"
+},{
+  "file_path": "res_json/Suzuki_C_page1.json",
+  "lot_number": "95697075",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Suzuki_C_page1_photos/95697075.json'"
+},{
+  "file_path": "res_json/Suzuki_C_page1.json",
+  "lot_number": "95680755",
+  "error_type": "Error reading photos file: [Errno 2] No such file or directory: 'res_json/Suzuki_C_page1_photos/95680755.json'"
 },

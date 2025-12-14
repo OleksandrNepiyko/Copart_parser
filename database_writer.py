@@ -69,6 +69,7 @@ def create_table(db_name, table_name):
     `brand` varchar(100) DEFAULT NULL,
     `model` varchar(100) DEFAULT NULL,
     `memberVehicleType` varchar(100) DEFAULT NULL, 
+    `vehicleTypeCode` varchar(100) DEFAULT NULL, 
     `manufacture_year` int DEFAULT NULL,
     `complectation` varchar(100) DEFAULT NULL,
     `full_url` text,
@@ -428,6 +429,7 @@ def parse_copart_lot(lot_obj, file_path, cursor, db, db_name, table_name): #extr
     brand = lot_obj.get("mkn")                               # VOLVO
     model = lot_obj.get("mmod")                              # XC60
     memberVehicleType = lot_obj.get("memberVehicleType")     #suv, automobile, motorcycle, etc.
+    vehicleTypeCode = lot_obj.get("vehicleTypeCode")         # VEHTYPE_C, VEHTYPE_V, etc.
     manufacture_year = lot_obj.get("lcy")                    # 2017
     complectation = lot_obj.get("lm")                        # XC60 T6 DY
 
@@ -558,7 +560,7 @@ def parse_copart_lot(lot_obj, file_path, cursor, db, db_name, table_name): #extr
     print(f"parse db_name: {db_name}")
     sql = f"""
     INSERT INTO {table_name} (
-        brand, model, memberVehicleType, manufacture_year, complectation, full_url, thumbnail_url, highres_url,
+        brand, model, memberVehicleType, vehicleTypeCode, manufacture_year, complectation, full_url, thumbnail_url, highres_url,
         lot_number, vin_number, ownership_certificate_code,
         odometer_km, primary_damage, secondary_damage, cylinders, color, engine_type,
         transmission, drive_type, vehicle_classification, fuel_type,
@@ -577,7 +579,7 @@ def parse_copart_lot(lot_obj, file_path, cursor, db, db_name, table_name): #extr
     """
 
     params = (
-        brand, model, memberVehicleType, manufacture_year, complectation, res_full_url, res_thumbnail_url, res_highres_url,
+        brand, model, memberVehicleType, vehicleTypeCode, manufacture_year, complectation, res_full_url, res_thumbnail_url, res_highres_url,
         lot_number, vin_number, ownership_certificate_code,
         odometer_km, primary_damage, secondary_damage, cylinders, color, engine_type,
         transmission, drive_type, vehicle_classification, fuel_type,

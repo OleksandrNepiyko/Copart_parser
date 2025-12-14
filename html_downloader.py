@@ -59,7 +59,7 @@ class HTML_downloader:
         # Це набагато безпечніше і швидше, ніж перезаписувати величезний масив [] щоразу.
         file_path = cls.tech_html / 'lots_and_links.json'
         with open(file_path, 'a', encoding='utf-8') as f:
-            f.write(json.dumps(data_object, ensure_ascii=False) + "\n")
+            f.write(json.dumps(data_object, f, indent=2, ensure_ascii=False) + "," + "\n")
 
     @classmethod
     def get_rendered_html(cls, lot_number: str, brand: str, page_number: str):
@@ -181,9 +181,10 @@ class HTML_downloader:
         # Сортуємо щоб page 1 йшла перед page 10
         files.sort(key=lambda f: int(re.search(r'page(\d+)', f).group(1)) if re.search(r'page(\d+)', f) else 0)
 
-        with open(output_file, "w", encoding="utf-8") as out:
-            for filename in files:
-                out.write(filename + "\n")
+        #tmp I think it's not needed to save them into file. There will be too many files (for each brand) without sense
+        # with open(output_file, "w", encoding="utf-8") as out:
+        #     for filename in files:
+        #         out.write(filename + "\n")
         return files
 
     @classmethod

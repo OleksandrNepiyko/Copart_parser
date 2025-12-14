@@ -16,5 +16,287 @@
     "description": "American Motors",
     "type": "AUTOMOBILE",
     "category": "VEHTYPE"
+  },
+  {
+    "code": "AMGN",
+    "description": "American General",
+    "type": "AUTOMOBILE",
+    "category": "VEHTYPE"
+  },
+  {
+    "code": "ASTO",
+    "description": "Aston Martin",
+    "type": "COUPE",
+    "category": "VEHTYPE"
+  },
+  {
+    "code": "AUDI",
+    "description": "Audi",
+    "type": "SEDAN",
+    "category": "VEHTYPE"
+  },
+  {
+    "code": "HOND",
+    "description": "Honda",
+    "type": "ATV",
+    "category": "VEHTYPE"
+  },
+  {
+    "code": "BENT",
+    "description": "Bentley",
+    "type": "COUPE",
+    "category": "VEHTYPE"
+  },
+  {
+    "code": "BERT",
+    "description": "Bertone",
+    "type": "AUTOMOBILE",
+    "category": "VEHTYPE"
+  },
+  {
+    "code": "BMW",
+    "description": "BMW",
+    "type": "AUTOMOBILE",
+    "category": "VEHTYPE"
+  },
+  {
+    "code": "BMW",
+    "description": "Bmw Motorrad",
+    "type": "AUTOMOBILE",
+    "category": "VEHTYPE"
+  },
+  {
+    "code": "BUIC",
+    "description": "Buick",
+    "type": "AUTOMOBILE",
+    "category": "VEHTYPE"
+  },
+  {
+    "code": "CADI",
+    "description": "Cadillac",
+    "type": "COUPE",
+    "category": "VEHTYPE"
+  },
+  {
+    "code": "CHEC",
+    "description": "Checker",
+    "type": "AUTOMOBILE",
+    "category": "VEHTYPE"
+  },
+  {
+    "code": "CHEV",
+    "description": "Chevrolet",
+    "type": "AUTOMOBILE",
+    "category": "VEHTYPE"
+  },
+  {
+    "code": "CHRY",
+    "description": "Chrysler",
+    "type": "COUPE",
+    "category": "VEHTYPE"
+  },
+  {
+    "code": "DAIH",
+    "description": "Daihatsu",
+    "type": "AUTOMOBILE",
+    "category": "VEHTYPE"
+  },
+  {
+    "code": "DODG",
+    "description": "Dodge",
+    "type": "AUTOMOBILE",
+    "category": "VEHTYPE"
+  },
+  {
+    "code": "DELO",
+    "description": "Delorean",
+    "type": "AUTOMOBILE",
+    "category": "VEHTYPE"
+  },
+  {
+    "code": "EGIL",
+    "description": "Eagle",
+    "type": "SEDAN",
+    "category": "VEHTYPE"
+  },
+  {
+    "code": "EXCL",
+    "description": "Excalibur",
+    "type": "AUTOMOBILE",
+    "category": "VEHTYPE"
+  },
+  {
+    "code": "FERR",
+    "description": "Ferrari",
+    "type": "AUTOMOBILE",
+    "category": "VEHTYPE"
+  },
+  {
+    "code": "FIAT",
+    "description": "Fiat",
+    "type": "COUPE",
+    "category": "VEHTYPE"
+  },
+  {
+    "code": "FORD",
+    "description": "Ford",
+    "type": "VAN",
+    "category": "VEHTYPE"
+  },
+  {
+    "code": "GEO",
+    "description": "GEO",
+    "type": "AUTOMOBILE",
+    "category": "VEHTYPE"
+  },
+  {
+    "code": "GM",
+    "description": "GM",
+    "type": "AUTOMOBILE",
+    "category": "VEHTYPE"
+  },
+  {
+    "code": "GMC",
+    "description": "GMC",
+    "type": "AUTOMOBILE",
+    "category": "VEHTYPE"
+  },
+  {
+    "code": "HYUN",
+    "description": "Hyundai",
+    "type": "SEDAN",
+    "category": "VEHTYPE"
+  },
+  {
+    "code": "INFI",
+    "description": "Infiniti",
+    "type": "SEDAN",
+    "category": "VEHTYPE"
+  },
+  {
+    "code": "ISU",
+    "description": "Isuzu",
+    "type": "AUTOMOBILE",
+    "category": "VEHTYPE"
+  },
+  {
+    "code": "JAGU",
+    "description": "Jaguar",
+    "type": "AUTOMOBILE",
+    "category": "VEHTYPE"
+  },
+  {
+    "code": "JEP",
+    "description": "Jeep",
+    "type": "AUTOMOBILE",
+    "category": "VEHTYPE"
+  },
+  {
+    "code": "KIA",
+    "description": "KIA",
+    "type": "AUTOMOBILE",
+    "category": "VEHTYPE"
+  },
+  {
+    "code": "SUZI",
+    "description": "Suzuki",
+    "type": "MOTORCYCLE",
+    "category": "VEHTYPE"
+  },
+  {
+    "code": "DUNE",
+    "description": "Other",
+    "type": "AUTOMOBILE",
+    "category": "VEHTYPE"
+  },
+  {
+    "code": "MERZ",
+    "description": "Mercedes Benz",
+    "type": "AUTOMOBILE",
+    "category": "VEHTYPE"
+  },
+  {
+    "code": "LAFZ",
+    "description": "Laforza",
+    "type": "SUV",
+    "category": "VEHTYPE"
+  },
+  {
+    "code": "LANC",
+    "description": "Lancia",
+    "type": "AUTOMOBILE",
+    "category": "VEHTYPE"
+  },
+  {
+    "code": "LEXS",
+    "description": "Lexus",
+    "type": "AUTOMOBILE",
+    "category": "VEHTYPE"
+  },
+  {
+    "code": "LINC",
+    "description": "Lincoln",
+    "type": "AUTOMOBILE",
+    "category": "VEHTYPE"
+  },
+  {
+    "code": "LOTU",
+    "description": "Lotus",
+    "type": "COUPE",
+    "category": "VEHTYPE"
+  },
+  {
+    "code": "MASE",
+    "description": "Maserati",
+    "type": "AUTOMOBILE",
+    "category": "VEHTYPE"
+  },
+  {
+    "code": "MAZD",
+    "description": "Mazda",
+    "type": "PICKUP",
+    "category": "VEHTYPE"
+  },
+  {
+    "code": "MERC",
+    "description": "Mercury",
+    "type": "AUTOMOBILE",
+    "category": "VEHTYPE"
+  },
+  {
+    "code": "MERK",
+    "description": "Merkur",
+    "type": "SEDAN",
+    "category": "VEHTYPE"
+  },
+  {
+    "code": "MITS",
+    "description": "Mitsubishi",
+    "type": "COUPE",
+    "category": "VEHTYPE"
+  },
+  {
+    "code": "NISS",
+    "description": "Nissan",
+    "type": "SEDAN",
+    "category": "VEHTYPE"
+  },
+  {
+    "code": "OLDS",
+    "description": "Oldsmobile",
+    "type": "AUTOMOBILE",
+    "category": "VEHTYPE"
+  },
+  {
+    "code": "PANT",
+    "description": "Pantera",
+    "type": "AUTOMOBILE",
+    "category": "VEHTYPE"
+  },
+  {
+    "code": "PEUG",
+    "description": "Peugeot",
+    "type": "SEDAN",
+    "category": "VEHTYPE"
   }
 ]

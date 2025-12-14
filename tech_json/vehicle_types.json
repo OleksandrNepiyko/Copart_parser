@@ -1,0 +1,50 @@
+[
+  {
+    "vehicle_type_code": "V",
+    "vehicle_type_description": "Automobiles"
+  },
+  {
+    "vehicle_type_code": "C",
+    "vehicle_type_description": "Motorcycles"
+  },
+  {
+    "vehicle_type_code": "K",
+    "vehicle_type_description": "Medium Duty/Box Trucks"
+  },
+  {
+    "vehicle_type_code": "U",
+    "vehicle_type_description": "Heavy Duty Trucks"
+  },
+  {
+    "vehicle_type_code": "E",
+    "vehicle_type_description": "Industrial Equipment"
+  },
+  {
+    "vehicle_type_code": "L",
+    "vehicle_type_description": "Trailers"
+  },
+  {
+    "vehicle_type_code": "M",
+    "vehicle_type_description": "Boats"
+  },
+  {
+    "vehicle_type_code": "R",
+    "vehicle_type_description": "Recreational Vehicles (RVs)"
+  },
+  {
+    "vehicle_type_code": "A",
+    "vehicle_type_description": "ATVs"
+  },
+  {
+    "vehicle_type_code": "J",
+    "vehicle_type_description": "Jet Skis"
+  },
+  {
+    "vehicle_type_code": "S",
+    "vehicle_type_description": "Snowmobiles"
+  },
+  {
+    "vehicle_type_code": "D",
+    "vehicle_type_description": "Dirt Bikes"
+  }
+]

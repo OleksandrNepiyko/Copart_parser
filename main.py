@@ -125,6 +125,64 @@ def extract_json_from_list_of_all_brands():
                 'error_type': f"Variable {name_of_var_inside} not found"
             })
         
+def extract_vehicle_types():
+    #extracts vehicle types from tech_json/list_of_brands.json and saves it in tech_json/vehicle_types.json
+    default_member_choises = []
+    try:
+        with open(tech_json_path / 'list_of_brands.json', 'r', encoding='utf-8') as f:
+            content = json.load(f)
+            default_member_choises = content['defaultMemberChoices']
+    except FileNotFoundError:
+        print("Error: data_from_js.json not found. Run extract_json_from_list_of_all_brands() first.")
+        save_error({
+                'error_type': "data_from_js.json not found. Run extract_json_from_list_of_all_brands() first."
+            })
+        return
+    except KeyError:
+        print("Error: 'vehicleTypes' key not found in JSON.")
+        save_error({
+                'error_type': "'vehicleTypes' key not found in JSON."
+            })
+        return
+    except json.JSONDecodeError as e:
+        print(f"Error: Invalid JSON format - {e}")
+        save_error({
+                'error_type': f"Invalid JSON format - {e}"
+            })
+        return
+    try:
+        vehicle_types_codes = []
+        for obj in default_member_choises:
+            if obj['questionDescr'] == 'Vehicle Type':
+                vehicle_types_codes = obj['answers']
+                break
+    except Exception as e:
+        print(f"Error extracting vehicle types: {e}")
+        save_error({
+                'error_type': f"Error extracting vehicle types: {e}"
+            })
+        return
+    
+    try:
+        vehicle_types = []
+        for vt in vehicle_types_codes:
+            vehicle_types.append({
+                'vehicle_type_code': vt['answerCode'],
+                'vehicle_type_description': vt['answerDescr']
+            })
+    except Exception as e:
+        print(f"Error processing vehicle types: {e}")
+        save_error({
+                'error_type': f"Error processing vehicle types: {e}"
+            })
+        return
+    
+    try:
+        with open(tech_json_path / 'vehicle_types.json', 'w', encoding='utf-8') as f:
+            json.dump(vehicle_types, f, indent=2, ensure_ascii=False)
+    except IOError as e:
+        print(f"Error: Could not write to file - {e}")
+
 def filter_unique_brands(brands_list):
     """
     Приймає список словників брендів.
@@ -168,7 +226,7 @@ def extract_automobile_brands_list(extract_only_automobile):
     automobile_brands_list_with_automobile_type = []
 
     #tmp
-    # automobile_brands_list = automobile_brands_list[:3]
+    automobile_brands_list = automobile_brands_list[:50]
 
     for brand in automobile_brands_list:
         try:
@@ -188,7 +246,7 @@ def extract_automobile_brands_list(extract_only_automobile):
         print(f"Error: Could not write to file - {e}")
 
 
-def download_photos_from_lot(brand, page, arr_of_lot_numbers, restart_object):
+def download_photos_from_lot(brand, page, type_param, arr_of_lot_numbers, restart_object):
     #goes through arr of lot numbers that is provided and downloads photos links
     print(f"Download_photos_for_lot: {arr_of_lot_numbers}")
     brand_with_underscores = brand.replace(" ", "_")
@@ -251,7 +309,7 @@ def download_photos_from_lot(brand, page, arr_of_lot_numbers, restart_object):
     skip = restart_lot_number != 0
 
     #tmp
-    # arr_of_lot_numbers = arr_of_lot_numbers[:3]
+    arr_of_lot_numbers = arr_of_lot_numbers[:1]
 
     for number in arr_of_lot_numbers:
         if skip:
@@ -291,9 +349,9 @@ def download_photos_from_lot(brand, page, arr_of_lot_numbers, restart_object):
                 'error_type': f"Exception in r.json() in photos {e}"
             })
             
-        (res_json_path / f"{brand_with_underscores}_page{page + 1}_photos").mkdir(exist_ok=True)
+        (res_json_path / f"{brand_with_underscores}_{type_param}_page{page + 1}_photos").mkdir(exist_ok=True)
 
-        with open(res_json_path / f"{brand_with_underscores}_page{page + 1}_photos" / f"{number}.json", "w", encoding="utf-8") as f:
+        with open(res_json_path / f"{brand_with_underscores}_{type_param}_page{page + 1}_photos" / f"{number}.json", "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
 
         with open(tech_json_path /'restart_point.json', 'w', encoding='utf-8') as f:
@@ -332,7 +390,7 @@ def clean_payload(payload: dict) -> dict:
     return clean
 
 
-def download_data_from_pages_of_single_brand(brand, restart_object):
+def download_data_from_pages_of_single_brand(brand, type_param, restart_object):
     #for transmited brand goes through all 50 pages and downloads data about each lot on page (? does all data is available on this page or 
     # it's needed to open each lot (you will open each lot because you need photos for this lot))
     
@@ -342,7 +400,7 @@ def download_data_from_pages_of_single_brand(brand, restart_object):
     brand_with_underscores = brand.replace(" ", "_")
     
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36',
     }
 
     cookies = {
@@ -359,13 +417,19 @@ def download_data_from_pages_of_single_brand(brand, restart_object):
     else:
         restart_page = restart_object['page']
 #tmp
-    # for page in range (restart_page, 1):
-    for page in range (restart_page, 51):
+    for page in range (restart_page, 1):
+    # for page in range (restart_page, 51):
         time.sleep(0.1)
         print(f"Brand: {brand}, page: {page + 1}")
         start = page * 20
         #change page and start = page * 20;   pages starts from 0  i.e. page 2: "page":2,"size":20,"start":40
-        payload = clean_payload({"query":["*"],"filter":{"MAKE":[f"lot_make_desc:\"{brand_upper}\""]},"sort":["salelight_priority asc","member_damage_group_priority asc","auction_date_type desc","auction_date_utc asc"],"page":page,"size":20,"start":start,"watchListOnly":False,"freeFormSearch":False,"hideImages":False,"defaultSort":False,"specificRowProvided":False,"displayName":"","searchName":"","backUrl":"","includeTagByField":{"MAKE":"{!tag=MAKE}"},"rawParams":{}})
+        payload = clean_payload({"query":["*"],"filter":{"VEHT":[f"vehicle_type_code:VEHTYPE_{type_param}"],"MAKE":[f"lot_make_desc:\"{brand_upper}\""]},"sort":["salelight_priority asc","member_damage_group_priority asc","auction_date_type desc","auction_date_utc asc"],"page":page,"size":20,"start":start,"watchListOnly":False,"freeFormSearch":False,"hideImages":False,"defaultSort":False,"specificRowProvided":False,"displayName":"","searchName":"","backUrl":"","includeTagByField":{"VEHT":"{!tag=VEHT}","MAKE":"{!tag=MAKE}"},"rawParams":{}})
+        # print(f"Payload for brand {brand} page {page + 1}: {payload}")
+
+        #old but working version of payload below
+        # payload = clean_payload({"query":["*"],"filter":{"MAKE":[f"lot_make_desc:\"{brand_upper}\""]},"sort":["salelight_priority asc","member_damage_group_priority asc","auction_date_type desc","auction_date_utc asc"],"page":page,"size":20,"start":start,"watchListOnly":False,"freeFormSearch":False,"hideImages":False,"defaultSort":False,"specificRowProvided":False,"displayName":"","searchName":"","backUrl":"","includeTagByField":{"MAKE":"{!tag=MAKE}"},"rawParams":{}})
+        # print(f"Payload 2 for brand {brand} page {page + 1}: {payload}")
+
         # payload = clean_payload({"query":["*"],"filter":{"ODM":["odometer_reading_received:[0 TO 9999999]"],"YEAR":["lot_year:[2015 TO 2026]"],"MISC":["#VehicleTypeCode:VEHTYPE_V","#MakeCode:ALFA OR #MakeDesc:Alfa Romeo"]},"sort":["salelight_priority asc","member_damage_group_priority asc","auction_date_type desc","auction_date_utc asc"],"page":0,"size":20,"start":0,"watchListOnly":False,"freeFormSearch":False,"hideImages":False,"defaultSort":False,"specificRowProvided":False,"displayName":"","searchName":"","backUrl":"","includeTagByField":{},"rawParams":{}})
         
         # this one site sends to load list of models in the bottom:    
@@ -397,7 +461,7 @@ def download_data_from_pages_of_single_brand(brand, restart_object):
             if response_json.get('data', {}).get('results', {}).get('content', []) == []:
                 break
             
-            with open(res_json_path / f'{brand_with_underscores}_page{page + 1}.json', 'w', encoding='utf-8') as f:
+            with open(res_json_path / f'{brand_with_underscores}_{type_param}_page{page + 1}.json', 'w', encoding='utf-8') as f:
                 json.dump(response_json, f, ensure_ascii=False, indent=2)
         except Exception as e:
             print(f"Failed to get json in response download_data_from_pages_of_single_brand for {brand} page: {page + 1}")
@@ -425,7 +489,7 @@ def download_data_from_pages_of_single_brand(brand, restart_object):
         if restart_object and isinstance(restart_object, dict) and restart_object.get('page') == page:
             per_page_restart = restart_object
         if len(all_ln_values) != 0:
-            download_photos_from_lot(brand, page, all_ln_values, per_page_restart)
+            download_photos_from_lot(brand, page, type_param, all_ln_values, per_page_restart)
 
         with open(tech_json_path / 'restart_point.json', 'w', encoding='utf-8') as f:
             json.dump({"brand": brand, "page": page + 1, "lot_number": 0}, f)
@@ -440,6 +504,65 @@ def download_data_from_pages_of_each_brand():
     except Exception as e:
         print(e)
         return
+    
+    # Завантажуємо доступні типи Copart
+    try:
+        with open(tech_json_path / 'vehicle_types.json', 'r', encoding='utf-8') as f:
+            vehicle_types_data = json.load(f)
+    except Exception as e:
+        print(f"Error loading vehicle_types.json: {e}")
+        return
+
+    # 1. Список типів, які треба ПРОПУСКАТИ (щоб уникнути дублів або зайвих запитів)
+    types_to_skip = {
+        "COUPE", "SEDAN", "SUV", "VAN", "PICKUP", 
+        "CONVERTIBLE", "WAGON", "HATCHBACK"
+    }
+
+    # --- СЛОВНИК ВІДПОВІДНОСТЕЙ (MAPPING) ---
+    # Зліва: те, що приходить з list_of_automobile_brands.json (ваші дані)
+    # Справа: те, що очікує Copart (з vehicle_types.json)
+    type_mapping = {
+        # Легкові автомобілі
+        "AUTOMOBILE": "Automobiles",
+        "COUPE": "Automobiles",
+        "SEDAN": "Automobiles",
+        "SUV": "Automobiles",
+        "VAN": "Automobiles",
+        "PICKUP": "Automobiles",
+        "CONVERTIBLE": "Automobiles",
+        "WAGON": "Automobiles",
+        "HATCHBACK": "Automobiles",
+        
+        # Мототехніка
+        "MOTORCYCLE": "Motorcycles",
+        "DIRT BIKE": "Dirt Bikes",
+        "ATV": "ATVs",
+        "SCOOTER": "Motorcycles", # Якщо є скутери, кидаємо до мотоциклів
+        
+        # Водний транспорт
+        "BOAT": "Boats",
+        "JET SKI": "Jet Skis",
+        "PWC": "Boats", # Personal Water Craft
+        
+        # Снігоходи
+        "SNOWMOBILE": "Snowmobiles",
+        
+        # Причепи та будинки на колесах
+        "TRAILERS": "Trailers",
+        "RECREATIONAL VEHICLE (RV)": "Recreational Vehicles (RVs)",
+        
+        # Вантажівки
+        "HEAVY DUTY TRUCKS": "Heavy Duty Trucks",
+        "MEDIUM DUTY/BOX TRUCKS": "Medium Duty/Box Trucks",
+        
+        # Спецтехніка (все, що не увійшло в окремі категорії, йде в Industrial)
+        "INDUSTRIAL EQUIPMENT": "Industrial Equipment",
+        "CONSTRUCTION EQUIPMENT": "Industrial Equipment",
+        "AGRICULTURE AND FARM EQUIPMENT": "Industrial Equipment",
+        "FORKLIFT": "Industrial Equipment"
+    }
+
     restart_brand = None
     restart_obj = None
 
@@ -454,16 +577,54 @@ def download_data_from_pages_of_each_brand():
     skip = restart_brand is not None
     for brand in content:
         brand_description = brand['description']
-        # if restart_brand == '' or content == None or brand_description == restart_brand:
-        #     download_data_from_pages_of_single_brand(brand_description, restart_obj)
-        #     restart_brand = 
+        type_param = brand['type']
+        
+        # try:
+        #     with open(tech_json_path /'vehicle_types.json', 'r', encoding='utf-8') as f:
+        #         vehicle_types = json.load(f)
+        #         for vt in vehicle_types:
+        #             print(f"Comparing {vt['vehicle_type_description']} with {type_param}")
+        #             if vt['vehicle_type_description'] == type_param:
+        #                 type_param = vt['vehicle_type_code']
+        #                 break
+        # except Exception as e:
+        #     print(f"download_data_from_pages_of_each_brand vehicle types file opening error {e}")
+        #     save_error({
+        #         'brand': brand_description,
+        #         'error_type': f"vehicle types file opening error {e}"
+        #     })
+        #     type_param = None
+
+        raw_type_from_file = brand.get('type', 'AUTOMOBILE') # Якщо типу немає, вважаємо машиною
+        
+        if raw_type_from_file in types_to_skip:
+            continue
+
+        # 1. Знаходимо правильну назву категорії через наш словник
+        # Якщо ключа немає в словнику, спробуємо використати оригінал, зробивши першу букву великою (на удачу)
+        target_category_name = type_mapping.get(raw_type_from_file, raw_type_from_file.title())
+
+        # 2. Знаходимо код (V, C, M тощо) у vehicle_types.json
+        type_param = None
+        
+        for vt in vehicle_types_data:
+            # Порівнюємо без урахування регістру для надійності
+            if vt['vehicle_type_description'].strip().lower() == target_category_name.strip().lower():
+                type_param = vt['vehicle_type_code']
+                break
+        
+        # Якщо код не знайдено, за замовчуванням ставимо 'V' (Automobiles) або пропускаємо
+        if type_param is None:
+            print(f"Warning: Could not map type '{raw_type_from_file}' for brand '{brand_description}'. Defaulting to 'V' (Automobiles).")
+            type_param = "V"
+
         if skip:
             if brand_description == restart_brand:
                 skip = False
-                download_data_from_pages_of_single_brand(brand_description, restart_obj)
+                download_data_from_pages_of_single_brand(brand_description, type_param, restart_obj)
             continue
         else:
-            download_data_from_pages_of_single_brand(brand_description, None)
+            download_data_from_pages_of_single_brand(brand_description, type_param, None)
 
 def clean_working_files():
     """Clean all working files and directories"""
@@ -510,6 +671,7 @@ def main():
         clean_working_files()
     extract_only_automobile = False
     extract_json_from_list_of_all_brands()
+    extract_vehicle_types()
     extract_automobile_brands_list(extract_only_automobile) #if True then only vehicles with 'automobile' type will be extracted
                                             # if False then all vehicles types will be extracted
     
