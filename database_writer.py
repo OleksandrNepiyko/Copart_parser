@@ -568,7 +568,7 @@ def parse_copart_lot(lot_obj, file_path, cursor, db, db_name, table_name): #extr
         current_bid, price_without_auction, starting_bid,
         sale_name, sale_location, sale_date, last_updated, video, png
     ) VALUES (
-        %s, %s, %s, %s, %s, %s, %s, %s,
+        %s, %s, %s, %s, %s, %s, %s, %s, %s,
         %s, %s, %s,
         %s, %s, %s, %s, %s, %s,
         %s, %s, %s, %s,
@@ -848,7 +848,7 @@ def main(db_name, table_name, results_json_path):
     formatted_datetime = current_date.strftime("%Y-%m-%d")
     try:
         with open(f'{formatted_datetime}_{backup_name}.sql', 'w', encoding='utf-8') as f:
-            subprocess.run(['mysqldump', '-u', 'root', '-proot', f"{table_name}"], stdout=f, check=True)
+            subprocess.run(['mysqldump', '-u', 'root', '-proot', f"{db_name}"], stdout=f, check=True)
         print(f"Database exported to {formatted_datetime}_{backup_name}.sql")
     except Exception as e:
         print(f"Export error: {e}")
@@ -867,5 +867,5 @@ def main(db_name, table_name, results_json_path):
     cursor.close()
     db.close()
 
-if __name__ == "__main__":
-    main('copart_lots_test', 'copart_lots_test')
+# if __name__ == "__main__":
+#     main('copart_lots_test', 'copart_lots_test')

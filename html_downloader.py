@@ -59,17 +59,17 @@ class HTML_downloader:
         # Це набагато безпечніше і швидше, ніж перезаписувати величезний масив [] щоразу.
         file_path = cls.tech_html / 'lots_and_links.json'
         with open(file_path, 'a', encoding='utf-8') as f:
-            f.write(json.dumps(data_object, f, indent=2, ensure_ascii=False) + "," + "\n")
+            f.write(json.dumps(data_object, indent=2, ensure_ascii=False) + "," + "\n")
 
     @classmethod
-    def get_rendered_html(cls, lot_number: str, brand: str, page_number: str):
+    def get_rendered_html(cls, lot_number: str, brand: str, page_number: str, vehicle_type: str = "unknown"):
         """
         Завантажує сторінку лоту, перевіряє рендер і зберігає результат.
         Приймає також brand та page_number для правильної структури папок.
         """
         
         # Створюємо папку для конкретної марки та сторінки: html_results/Brand/page_X
-        save_dir = cls.html_results / brand / f"page_{page_number}"
+        save_dir = Path(f"{cls.html_results}/{brand}_{vehicle_type}/page_{page_number}")
         save_dir.mkdir(parents=True, exist_ok=True)
         
         save_path = save_dir / f"{lot_number}.html"
@@ -197,17 +197,20 @@ class HTML_downloader:
         with open(path, "r", encoding="utf-8") as f:
             content = json.load(f)
         
-        brands = []
+        brands_data = []
         try:
             # Адаптуй цей шлях до структури твого JSON, якщо він відрізняється
             # Наприклад, якщо це чистий список: return content
             for brand in content:
                 if isinstance(brand, dict) and 'description' in brand:
-                     brands.append(brand['description'])
+                    brands_data.append({
+                        'name': brand['description'],
+                        'type': brand.get('type', 'unknown') # Отримуємо type або 'unknown', якщо його немає
+                    })
                 else:
-                     # Fallback якщо формат інший
-                     brands.append(str(brand))
-            return brands
+                    # Fallback якщо формат інший
+                    brands_data.append(str(brand))
+            return brands_data
         except Exception as e:
             print(f"Error parsing brands: {e}")
             return []
@@ -244,14 +247,14 @@ class HTML_downloader:
         print(f"Found {len(brands)} brands to process.")
 
         for brand in brands: 
-            safe_brand_name = brand.replace(" ", "_").replace("/", "-") # Для назв файлів
-            
+            safe_brand_name = brand['name'].replace(" ", "_").replace("/", "-") # Для назв файлів
+            vehicle_type = brand['type'] if isinstance(brand, dict) else "unknown"
             # Генеруємо список файлів для бренду
-            path_to_file_with_names_of_all_pages_for_single_brand = cls.tech_html / f"json_files_{safe_brand_name}.txt"
+            path_to_file_with_names_of_all_pages_for_single_brand = cls.tech_html / f"json_files_{safe_brand_name}.txt"#unused
             filenames = cls.save_filenames(
                 cls.res_json_dir, 
                 path_to_file_with_names_of_all_pages_for_single_brand, 
-                f"{brand}" # Фільтр по назві файлу
+                safe_brand_name
             )
             
             print(f"--- Processing Brand: {brand} ({len(filenames)} pages) ---")
@@ -262,12 +265,14 @@ class HTML_downloader:
                 page_number = page_match.group(1) if page_match else "unknown"
 
                 lots = cls.get_all_lot_numbers(filename)
+                #tmp 
+                # lots = lots [:1]
                 
                 print(f"  > Page {page_number}: Found {len(lots)} lots")
 
                 for lot in lots:
                     # Основний виклик
-                    cls.get_rendered_html(str(lot), safe_brand_name, str(page_number))
+                    cls.get_rendered_html(str(lot), safe_brand_name, str(page_number), str(vehicle_type))
 
 # Для запуску:
 # if __name__ == "__main__":
