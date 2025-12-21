@@ -740,7 +740,7 @@ def save_filenames(directory_path, output_file, starts_with=""):
             out.write(filename + "\n")
     return files
 
-def main(db_name, table_name, results_json_path):
+def main(db_name, table_name, results_json_path, table_index):
     create_db(db_name)
     cursor, db = create_table(db_name, table_name)
     # Check if directory exists
@@ -846,12 +846,10 @@ def main(db_name, table_name, results_json_path):
     
     print(f"Completed! Total added {total_inserted} reviews")
     
-    current_date = datetime.now()
-    formatted_datetime = current_date.strftime("%Y-%m-%d")
     try:
-        with open(f'{formatted_datetime}_{backup_name}.sql', 'w', encoding='utf-8') as f:
+        with open(f'{table_index}_{backup_name}.sql', 'w', encoding='utf-8') as f:
             subprocess.run(['mysqldump', '-h10.30.0.100', '-P3310', '-u', 'root', '-proot', f"{db_name}"], stdout=f, check=True)
-        print(f"Database exported to {formatted_datetime}_{backup_name}.sql")
+        print(f"Database exported to {table_index}_{backup_name}.sql")
     except Exception as e:
         print(f"Export error: {e}")
     if db is None:

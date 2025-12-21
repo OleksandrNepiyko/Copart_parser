@@ -686,10 +686,21 @@ def main():
             time.sleep(60)
 
     #launch database writing
-    current_date = datetime.now()
-    formatted_datetime = current_date.strftime("%Y_%m_%d")
-    table_name = f"copart_lots_{formatted_datetime}"
-    db_main('copart_lots_test', table_name, res_json_path)
+    table_index = 0
+    try:
+        with open (db_tech_json_path / 'table_index.json', 'r', encoding='utf-8') as f:
+            table_index_data = json.load(f)
+            table_index = table_index_data.get('table_index', 0)
+            table_index += 1
+            with open (db_tech_json_path / 'table_index.json', 'w', encoding='utf-8') as f_w:
+                json.dump({'table_index': table_index}, f_w, indent=2, ensure_ascii=False)
+    except Exception as e:
+        print(f"Error reading table_index.json: {e}")
+        save_error({
+                'error_type': f"Error reading table_index.json: {e}"
+            })
+    table_name = f"copart_lots_{table_index}"
+    db_main('copart_lots_test', table_name, res_json_path, table_index)
 
     # if you wont to download html pages with photos uncomment the line below 
     # and fix tudu at the start of this file
