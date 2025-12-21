@@ -1,0 +1,51 @@
+[
+  {
+    "lot": "96603425",
+    "brand": "Acura",
+    "page": "5",
+    "error": "Max retries exceeded",
+    "details": "Unknown"
+  },
+  {
+    "lot": "96602745",
+    "brand": "Acura",
+    "page": "5",
+    "error": "Max retries exceeded",
+    "details": "Unknown"
+  },
+  {
+    "lot": "96495895",
+    "brand": "Acura",
+    "page": "7",
+    "error": "Max retries exceeded",
+    "details": "Unknown"
+  },
+  {
+    "lot": "96276795",
+    "brand": "Acura",
+    "page": "11",
+    "error": "Max retries exceeded",
+    "details": "Unknown"
+  },
+  {
+    "lot": "96072005",
+    "brand": "Acura",
+    "page": "18",
+    "error": "Max retries exceeded",
+    "details": "Unknown"
+  },
+  {
+    "lot": "95955115",
+    "brand": "Acura",
+    "page": "22",
+    "error": "Max retries exceeded",
+    "details": "Unknown"
+  },
+  {
+    "lot": "95897875",
+    "brand": "Acura",
+    "page": "23",
+    "error": "Max retries exceeded",
+    "details": "Unknown"
+  }
+]

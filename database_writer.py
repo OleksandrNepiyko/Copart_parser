@@ -32,7 +32,8 @@ db = None
 
 def create_db(db_name):
     db = mysql.connector.connect(
-        host="db", 
+        host="10.30.0.100",
+		port=3310, 
         user="root",
         password="root",
         auth_plugin='mysql_native_password'
@@ -42,7 +43,8 @@ def create_db(db_name):
 
 def create_table(db_name, table_name):
     db = mysql.connector.connect(
-        host="db", 
+        host="10.30.0.100",
+		port=3310, 
         user="root",
         password="root",
         database=f"{db_name}",
@@ -848,7 +850,7 @@ def main(db_name, table_name, results_json_path):
     formatted_datetime = current_date.strftime("%Y-%m-%d")
     try:
         with open(f'{formatted_datetime}_{backup_name}.sql', 'w', encoding='utf-8') as f:
-            subprocess.run(['mysqldump', '-u', 'root', '-proot', f"{db_name}"], stdout=f, check=True)
+            subprocess.run(['mysqldump', '-h10.30.0.100', '-P3310', '-u', 'root', '-proot', f"{db_name}"], stdout=f, check=True)
         print(f"Database exported to {formatted_datetime}_{backup_name}.sql")
     except Exception as e:
         print(f"Export error: {e}")

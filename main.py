@@ -249,7 +249,7 @@ def extract_automobile_brands_list(extract_only_automobile):
 def download_photos_from_lot(brand, page, type_param, arr_of_lot_numbers, restart_object):
     #goes through arr of lot numbers that is provided and downloads photos links
     print(f"Download_photos_for_lot: {arr_of_lot_numbers}")
-    brand_with_underscores = brand.replace(" ", "_")
+    brand_with_underscores = brand.replace(" ", "_").replace("/","_")
     headers = {
         'Accept': 'application/json, text/plain, */*',
         'Content-Type': 'application/json',
@@ -397,7 +397,7 @@ def download_data_from_pages_of_single_brand(brand, type_param, restart_object):
     print(f"download_data_from_pages_of_single_brand: {brand}")
 
     brand_upper = brand.upper()
-    brand_with_underscores = brand.replace(" ", "_")
+    brand_with_underscores = brand.replace(" ", "_").replace("/","_")
     
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36',
