@@ -23,7 +23,7 @@ import time
 from requests_html import HTMLSession
 import os
 from html_downloader import HTML_downloader
-from database_writer import main as db_main
+from database_writer import main as db_main, drop_database
 import shutil
 from datetime import datetime
 
@@ -31,6 +31,7 @@ tech_json_path = Path('tech_json')
 res_json_path = Path('res_json')
 db_tech_json_path = Path('db_tech_json')
 SESSION = requests.Session()
+DB_NAME = 'copart_lots_test'
 
 def safe_post(url, **kwargs):
     for attempt in range(5):
@@ -46,6 +47,114 @@ def save_error(error_obj):
     #if an error occurs it should be saved here (only problems in automatic part of the program will be saved)
     with open(tech_json_path / 'errors.json', 'a', encoding='utf-8') as f:
         json.dump(error_obj, f, indent=2, ensure_ascii=False)
+        f.write(',\n')
+
+def refresh_table_index():
+    try:
+        with open (db_tech_json_path / 'table_index.json', 'r', encoding='utf-8') as f:
+            table_index_data = json.load(f)
+            table_index = table_index_data.get('table_index', 0)
+            table_index += 1
+            with open (db_tech_json_path / 'table_index.json', 'w', encoding='utf-8') as f_w:
+                json.dump({'table_index': table_index}, f_w, indent=2, ensure_ascii=False)
+    except Exception as e:
+        print(f"refresh() Error reading table_index.json: {e}")
+        save_error({
+                'error_type': f"refresh() Error reading table_index.json: {e}"
+            })
+        
+def get_table_index():
+    try:
+        with open (db_tech_json_path / 'table_index.json', 'r', encoding='utf-8') as f:
+            table_index_data = json.load(f)
+            table_index = table_index_data.get('table_index', 0)
+            return table_index
+    except Exception as e:
+        print(f"get() Error reading table_index.json: {e}")
+        save_error({
+                'error_type': f"get() Error reading table_index.json: {e}"
+            })
+        return 0
+
+def save_start_or_finish_time(writing_start_time):
+    table_index = get_table_index()
+    history = []
+    
+    # 1. Завантажуємо існуючий список
+    try:
+        with open(tech_json_path / 'working_time.json', 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            # Перевіряємо, чи це список. Якщо там старий формат (словник), скидаємо в порожній список
+            if isinstance(data, list):
+                history = data
+            else:
+                history = []
+    except (FileNotFoundError, json.JSONDecodeError):
+        history = []
+
+    # Якщо записів більше 10, залишаємо тільки останні 10
+    if len(history) > 10:
+        history = history[-10:]
+
+    current_time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    if writing_start_time:
+        # START: Створюємо НОВИЙ об'єкт і додаємо в кінець списку
+        new_obj = {
+            "table_index": table_index,
+            "start_time": current_time_str,
+            "finished_writing_to_db": "",
+            "time_of_parsing": ""
+        }
+        history.append(new_obj)
+    else:
+        # FINISH: Редагуємо ОСТАННІЙ об'єкт у списку
+        if not history:
+            # Якщо список порожній, але ми намагаємось записати фініш — це помилка логіки,
+            # але щоб не крашити, створимо запис з помилкою
+            history.append({
+                "table_index": table_index,
+                "start_time": "",
+                "finished_writing_to_db": current_time_str,
+                "time_of_parsing": "Error: No start time recorded"
+            })
+        
+        # Беремо останній елемент (над яким зараз працюємо)
+        current_obj = history[-1]
+        
+        # Перевірка: чи збігається індекс (опціонально, але корисно для дебагу)
+        # current_obj["table_index"] = table_index # Можна примусово оновити, якщо треба
+
+        start_time_str = current_obj.get('start_time', "")
+        duration = "Error: No start time found"
+
+        if start_time_str:
+            try:
+                start_dt = datetime.strptime(start_time_str, "%Y-%m-%d %H:%M:%S")
+                duration = str(datetime.now() - start_dt)
+            except ValueError:
+                duration = "Error: Invalid start time format"
+
+        current_obj["finished_writing_to_db"] = current_time_str
+        current_obj["time_of_parsing"] = duration
+
+    # Ще раз перевіряємо ліміт перед збереженням (на випадок, якщо ми додали 11-й елемент)
+    if len(history) > 10:
+        history = history[-10:]
+
+    # 2. Зберігаємо список у файл
+    try:
+        with open(tech_json_path / 'working_time.json', 'w', encoding='utf-8') as f:
+            json.dump(history, f, indent=2, ensure_ascii=False)
+    except Exception as e:
+        print(f"Error saving history: {e}")
+        try:
+            save_error({'error_type': f"Error saving history: {e}"})
+        except:
+            pass
+        return False
+        
+    return True
 
 def extract_json_from_list_of_all_brands(): 
     #extracts all data from js file, but not everything is needed. result is in tech_json/data_from_js.json
@@ -258,10 +367,42 @@ def download_photos_from_lot(brand, page, type_param, arr_of_lot_numbers, restar
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36',
         'x-xsrf-token': 'b1817ad8-085b-4983-8cde-11c795c671b6'
     }
+    # cookies = {
+    #     "anonymousCrmId": "7f62f400-a31c-40a1-9ec6-3882600d94af",
+    #     "nlbi_242093": "GtLwHyNVDAsWMox4ie/jegAAAAAJbMaLBXI7o0sn1hVYNNVy",
+    #     "_gcl_au": "1.1.135331524.1763655305",
+    #     "userCategory": "RPU",
+    #     "timezone": "Europe%2FKiev",
+    #     "googtrans": "/en/ru",
+    #     "visid_incap_242093": "l4BVG1w4S8yiXVL+fdF8idscHmkAAAAAREIPAAAAAACAYJHAAbmSeb5ni73/A+8E5nZBukKZqgd5",
+    #     "OptanonAlertBoxClosed": "2025-11-24T13:12:10.554Z",
+    #     "__eoi": "ID=3643d9cf80e64b0b:T=1763678384:RT=1764066291:S=AA-AfjbApzZYR5-V4goE6TvOXwWQ",
+    #     "userLangChanged_CPRTUS": "true",
+    #     "userLang": "ru",
+    #     "incap_ses_519_242093": "dcXgbcfvwEzIqrtEJNwzB/R2NmkAAAAADGSYNxs20bLHXesgDl0c4w==",
+    #     "incap_ses_108_242093": "CpdrAjc1yGqm5cdl3bF/Adl/NmkAAAAA0btxx6LjxwHSDd2l4UvMrg==",
+    #     "incap_ses_788_242093": "yEHEXtUmaWtcu0wu/YnvCsHfNmkAAAAAi/vfWRkPK6v/hsM73clJ7w==",
+    #     "incap_ses_255_242093": "ZZUvMzBrP3BSDx/pr/GJAyXUN2kAAAAAer74fUKmMCdKyvVxk139hg==",
+    #     "incap_ses_687_242093": "0Z0wdVeKAhyyOxQMTLeICQbxN2kAAAAAKGBK/MrWSq2wwreDKbdFlg==",
+    #     "g2usersessionid": "2763b116147121b40f878f6069f35fe2",
+    #     "g2app.search-table-rows": "20",
+    #     "usersessionid": "054dd1c973a5d0a46e2164cc622ffe17",
+    #     "G2JSESSIONID": "3D552CD3BE64314EF22D94E21CDE962D-n1",
+    #     "incap_ses_686_242093": "rMllJWSiaQhfXZRwzSmFCYO1OWkAAAAANrgBCParNcfeoq4eyJdb+Q==",
+    #     "reese84": "3:yJzc+ilHwkSymjIG6YlouA==:AH39SW66JSv/5sFOWuqLZApn2VSiMWRh8IEIEgy8yrR2b809t2WRqmZKznvWQJe08w7mG53wS0IKwV3EEdEujfAbUSFiM5UDbXKTu+b1QZ/TY18fioNIloYKqnKCqHsksH32mEnJgZCZippUhRK1IHNWDcOatO64qS6XhB8M8h08+CR/AftMqtQbCz+az1lQ55yTjF7c6DLHjqc40bCZxD+BRecuyvMc4Qmtw+tSMQNOlN4t7I6ydUppzjC9KFy03tSfXRaAtUc1bifWIyT6j7r3ZtLQk9UgEg3wtJQw1lEpLY5F67+rTmL83F6TChLGmtlOzXOmfPaU0wkbbaOzLoFZ/67hHQdXNbyYKWnIsiEYlRm41ub8DxcJWpq/l2I+D84wwtVz1PfG3YCquJivI6WivEWyAZ4tYIJdQpiCb5De+9DBoJ0YSMrRhqM6D2l2Uhv3D0k3dtNHW3wyBr5hGA==:xDGzO0tTCrWetTWoQvpchKbkgEEm/9kVEAHDoxLb9RM=",
+    #     "FCNEC": "%5B%5B%22AKsRol820AzPw9CCLzQ38o4eycoiceZdq8TzanJxJRXKY5GGGOY__3qTer-_mGdnVYHwbn3W5pODlfjdn-EPer7ptuJORB5dvERgWgLKuhqR0rt-wliKCMVdiN6XB1nQ40VPyRuc_0liDnYHISmWY_XyjNOoyt75lw%3D%3D%22%5D%5D",
+    #     "OptanonConsent": "isGpcEnabled=0&datestamp=Wed+Dec+10+2025+20%3A02%3A48+GMT%2B0200+(Eastern+European+Standard+Time)&version=202510.2.0&browserGpcFlag=0&isIABGlobal=false&hosts=&consentId=8dda50fe-1f46-4974-b215-351ce89ca87c&interactionCount=2&isAnonUser=1&landingPath=NotLandingPage&groups=C0001%3A1%2CC0002%3A0%2CC0003%3A0%2CC0004%3A0%2CC0005%3A0&AwaitingReconsent=false&intType=3&geolocation=UA%3B05",
+    #     "nlbi_242093_2147483392": "Wc8wJGxi/m062mwBie/jegAAAACh2TegyUfRmPhkfWXbyH/z",
+    #     "copartTimezonePref": "%7B%22displayStr%22%3A%22GMT%2B2%22%2C%22offset%22%3A2%2C%22dst%22%3Afalse%2C%22windowsTz%22%3Anull%7D",
+    #     "lhnStorageType": "cookie",
+    #     "_uetsid": "6965b820d5d111f08abd956bdcf7cd89",
+    #     "_uetvid": "13491b80c62c11f08525d5471aa25869",
+    #     "FCCDCF": "%5Bnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2C%5B%5B32%2C%22%5B%5C%2248c5e301-e5b2-463e-bfe9-3992203a711b%5C%22%2C%5B1763655305%2C452000000%5D%5D%22%5D%5D%5D"
+    # }
+
     cookies = {
         "anonymousCrmId": "7f62f400-a31c-40a1-9ec6-3882600d94af",
         "nlbi_242093": "GtLwHyNVDAsWMox4ie/jegAAAAAJbMaLBXI7o0sn1hVYNNVy",
-        "_gcl_au": "1.1.135331524.1763655305",
         "userCategory": "RPU",
         "timezone": "Europe%2FKiev",
         "googtrans": "/en/ru",
@@ -270,25 +411,18 @@ def download_photos_from_lot(brand, page, type_param, arr_of_lot_numbers, restar
         "__eoi": "ID=3643d9cf80e64b0b:T=1763678384:RT=1764066291:S=AA-AfjbApzZYR5-V4goE6TvOXwWQ",
         "userLangChanged_CPRTUS": "true",
         "userLang": "ru",
-        "incap_ses_519_242093": "dcXgbcfvwEzIqrtEJNwzB/R2NmkAAAAADGSYNxs20bLHXesgDl0c4w==",
-        "incap_ses_108_242093": "CpdrAjc1yGqm5cdl3bF/Adl/NmkAAAAA0btxx6LjxwHSDd2l4UvMrg==",
-        "incap_ses_788_242093": "yEHEXtUmaWtcu0wu/YnvCsHfNmkAAAAAi/vfWRkPK6v/hsM73clJ7w==",
-        "incap_ses_255_242093": "ZZUvMzBrP3BSDx/pr/GJAyXUN2kAAAAAer74fUKmMCdKyvVxk139hg==",
-        "incap_ses_687_242093": "0Z0wdVeKAhyyOxQMTLeICQbxN2kAAAAAKGBK/MrWSq2wwreDKbdFlg==",
-        "g2usersessionid": "2763b116147121b40f878f6069f35fe2",
+        "incap_ses_689_242093": "T44mEGl83myqlZGgS9KPCaG2S2kAAAAAPf3tUwli6FMaVgBUEVA7Zw==",
+        "g2usersessionid": "c9373878dc3b9b4059de393ec138166b",
         "g2app.search-table-rows": "20",
-        "usersessionid": "054dd1c973a5d0a46e2164cc622ffe17",
-        "G2JSESSIONID": "3D552CD3BE64314EF22D94E21CDE962D-n1",
-        "incap_ses_686_242093": "rMllJWSiaQhfXZRwzSmFCYO1OWkAAAAANrgBCParNcfeoq4eyJdb+Q==",
-        "reese84": "3:yJzc+ilHwkSymjIG6YlouA==:AH39SW66JSv/5sFOWuqLZApn2VSiMWRh8IEIEgy8yrR2b809t2WRqmZKznvWQJe08w7mG53wS0IKwV3EEdEujfAbUSFiM5UDbXKTu+b1QZ/TY18fioNIloYKqnKCqHsksH32mEnJgZCZippUhRK1IHNWDcOatO64qS6XhB8M8h08+CR/AftMqtQbCz+az1lQ55yTjF7c6DLHjqc40bCZxD+BRecuyvMc4Qmtw+tSMQNOlN4t7I6ydUppzjC9KFy03tSfXRaAtUc1bifWIyT6j7r3ZtLQk9UgEg3wtJQw1lEpLY5F67+rTmL83F6TChLGmtlOzXOmfPaU0wkbbaOzLoFZ/67hHQdXNbyYKWnIsiEYlRm41ub8DxcJWpq/l2I+D84wwtVz1PfG3YCquJivI6WivEWyAZ4tYIJdQpiCb5De+9DBoJ0YSMrRhqM6D2l2Uhv3D0k3dtNHW3wyBr5hGA==:xDGzO0tTCrWetTWoQvpchKbkgEEm/9kVEAHDoxLb9RM=",
-        "FCNEC": "%5B%5B%22AKsRol820AzPw9CCLzQ38o4eycoiceZdq8TzanJxJRXKY5GGGOY__3qTer-_mGdnVYHwbn3W5pODlfjdn-EPer7ptuJORB5dvERgWgLKuhqR0rt-wliKCMVdiN6XB1nQ40VPyRuc_0liDnYHISmWY_XyjNOoyt75lw%3D%3D%22%5D%5D",
-        "OptanonConsent": "isGpcEnabled=0&datestamp=Wed+Dec+10+2025+20%3A02%3A48+GMT%2B0200+(Eastern+European+Standard+Time)&version=202510.2.0&browserGpcFlag=0&isIABGlobal=false&hosts=&consentId=8dda50fe-1f46-4974-b215-351ce89ca87c&interactionCount=2&isAnonUser=1&landingPath=NotLandingPage&groups=C0001%3A1%2CC0002%3A0%2CC0003%3A0%2CC0004%3A0%2CC0005%3A0&AwaitingReconsent=false&intType=3&geolocation=UA%3B05",
-        "nlbi_242093_2147483392": "Wc8wJGxi/m062mwBie/jegAAAACh2TegyUfRmPhkfWXbyH/z",
-        "copartTimezonePref": "%7B%22displayStr%22%3A%22GMT%2B2%22%2C%22offset%22%3A2%2C%22dst%22%3Afalse%2C%22windowsTz%22%3Anull%7D",
-        "lhnStorageType": "cookie",
-        "_uetsid": "6965b820d5d111f08abd956bdcf7cd89",
-        "_uetvid": "13491b80c62c11f08525d5471aa25869",
-        "FCCDCF": "%5Bnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2C%5B%5B32%2C%22%5B%5C%2248c5e301-e5b2-463e-bfe9-3992203a711b%5C%22%2C%5B1763655305%2C452000000%5D%5D%22%5D%5D%5D"
+        "usersessionid": "8b7a8968a7dfa001c484e404e5df0266",
+        "incap_ses_325_242093": "uRqaQY/W/Fok0838RKKCBOQ2UGkAAAAAVyPUMeq7xBa/3RkKvTfl4g==",
+        "G2JSESSIONID": "F4FBE00970E8DF31A5B98F92C0A9A598-n1",
+        "OptanonConsent": "isGpcEnabled=0&datestamp=Sat+Dec+27+2025+22%3A16%3A37+GMT%2B0200+(Eastern+European+Standard+Time)&version=202510.2.0&browserGpcFlag=0&isIABGlobal=false&hosts=&consentId=8dda50fe-1f46-4974-b215-351ce89ca87c&interactionCount=2&isAnonUser=1&landingPath=NotLandingPage&groups=C0001%3A1%2CC0002%3A0%2CC0003%3A0%2CC0004%3A0%2CC0005%3A0&AwaitingReconsent=false&intType=3&geolocation=UA%3B05",
+        "copartTimezonePref": "%7B%22displayStr%22%3A%22GMT%2B2%22%2C%22offset%22%3A2%2C%22dst%22%3Afalse%2C%22windowsTz%22%3A%22Europe%2FKiev%22%7D",
+        "FCCDCF": "%5Bnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2C%5B%5B32%2C%22%5B%5C%2248c5e301-e5b2-463e-bfe9-3992203a711b%5C%22%2C%5B1763655305%2C452000000%5D%5D%22%5D%5D%5D",
+        "FCNEC": "%5B%5B%22AKsRol_l2_i2JL6Gcvd7mjJB33CE8uHkf5jCpqPvym6GjUxC-RvGFxHzn5CPhk7R4q4PhKL6BaKjBws6u1_BYh3LlD0BcSFVAG7AmnW-d33rkRhqCWZw_Z97yP9oI4JGqf8vGrWEDm-TaUDvT8OjFkwLXm7VmPFCPQ%3D%3D%22%5D%5D",
+        "nlbi_242093_2147483392": "wZXoQjtkfFoU1L74ie/jegAAAADzGBq+c4FpkfuUN3hrvQfx",
+        "reese84": "3:6txKIsm6aIapxRA9MJhluA==:MTOxXoCgsJhmBzsuRmHkHDrptuCUF+UySp4vdqHBqeDp61q9p1NZXZDSrwAdRW5bMZg1QaMBoTOHEhsvQa6TRz+xGlf6ge1c8+slaRxfySODQiq/U1CQolgNtdM8FfG51Wzna/hTm63RyDBOm7xaX5g0R1Xz3VzBJnus1NJLp/CPJdhiYKlS5xtZyaQvsdgUza1ymdOl+yx2t/43FW/xnZL1E++OHpAdwCBZh5e7do83YT5vBOb4a5hyT7f1UeKIcRwpeXQGkPOQBY1inogG8FRJpYU83GCuEPi56A5gMuRWEObz6ZhWVS2XxYwP0fXAgwDnX5v9kq1R4qbjHYn+moqhAsWyGTWOH1/7Q+1/7wp35oCpSGK21/5t8uHT+nMwLEBnAfp38L5YkK5TgYP87qjOVZCiXHHFMOexMXXkRlybpRTO/OxaUj3W96mju3iCyog6F9IEOPJRmUJC6G05OQ==:pNldynT4mMexaxFeAt6yCYbjYwdUXLKb+LnswJ2UdB4="
     }
 
     url = "https://www.copart.com/public/data/lotdetails/solr/lot-images/"
@@ -349,7 +483,9 @@ def download_photos_from_lot(brand, page, type_param, arr_of_lot_numbers, restar
                 'error_type': f"Exception in r.json() in photos {e}"
             })
             
-        (res_json_path / f"{brand_with_underscores}_{type_param}_page{page + 1}_photos").mkdir(exist_ok=True)
+        # (res_json_path / f"{brand_with_underscores}_{type_param}_page{page + 1}_photos").mkdir(exist_ok=True)
+        # Додаємо parents=True, щоб воно створило і папку res_json, якщо її немає
+        (res_json_path / f"{brand_with_underscores}_{type_param}_page{page + 1}_photos").mkdir(parents=True, exist_ok=True)
 
         with open(res_json_path / f"{brand_with_underscores}_{type_param}_page{page + 1}_photos" / f"{number}.json", "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
@@ -515,8 +651,8 @@ def download_data_from_pages_of_each_brand():
 
     # 1. Список типів, які треба ПРОПУСКАТИ (щоб уникнути дублів або зайвих запитів)
     types_to_skip = {
-        "COUPE", "SEDAN", "SUV", "VAN", "PICKUP", 
-        "CONVERTIBLE", "WAGON", "HATCHBACK"
+        # "COUPE", "SEDAN", "SUV", "VAN", "PICKUP", 
+        # "CONVERTIBLE", "WAGON", "HATCHBACK"
     }
 
     # --- СЛОВНИК ВІДПОВІДНОСТЕЙ (MAPPING) ---
@@ -525,14 +661,17 @@ def download_data_from_pages_of_each_brand():
     type_mapping = {
         # Легкові автомобілі
         "AUTOMOBILE": "Automobiles",
-        "COUPE": "Automobiles",
-        "SEDAN": "Automobiles",
-        "SUV": "Automobiles",
-        "VAN": "Automobiles",
-        "PICKUP": "Automobiles",
-        "CONVERTIBLE": "Automobiles",
-        "WAGON": "Automobiles",
-        "HATCHBACK": "Automobiles",
+        "COUPE": "Coupes",
+        "SEDAN": "Sedans",
+        "SUV": "Suvs",   # або SUVs, код робить .lower(), тому регістр не важливий, головне 's' в кінці
+        "VAN": "Vans",
+        "PICKUP": "Pickups",
+        "CONVERTIBLE": "Convertibles",
+        "WAGON": "Wagons",
+        "HATCHBACK": "Hatchbacks",
+
+        #не знаю чи так правильно для буса, але треба спробувати
+        "BUS": "Buses",
         
         # Мототехніка
         "MOTORCYCLE": "Motorcycles",
@@ -616,6 +755,13 @@ def download_data_from_pages_of_each_brand():
         # Якщо код не знайдено, за замовчуванням ставимо 'V' (Automobiles) або пропускаємо
         if type_param is None:
             print(f"Warning: Could not map type '{raw_type_from_file}' for brand '{brand_description}'. Defaulting to 'V' (Automobiles).")
+            try:
+                with open (tech_json_path / 'vehicle_type_problems.json', 'r', encoding='utf-8') as f:
+                    json.dump({
+                        'type_param': type_param
+                    })
+            except Exception as e:
+                print(f"type param error: {e}")
             type_param = "V"
 
         if skip:
@@ -627,8 +773,11 @@ def download_data_from_pages_of_each_brand():
             download_data_from_pages_of_single_brand(brand_description, type_param, None)
 
 def clean_working_files():
-    """Clean all working files and directories"""
+    """Clean all working files and directories AND DROPS DATABASE"""
     
+    drop_database(DB_NAME) 
+    # --------------------------------------
+
     # 1. Clean JSON files (create empty ones)
     tech_json_path.mkdir(exist_ok=True)
     db_tech_json_path.mkdir(exist_ok=True)
@@ -667,6 +816,9 @@ def clean_working_files():
     print(f"Cleaned and recreated directory: {res_json_path}")
 
 def main():
+    saved_start_time = save_start_or_finish_time(True)
+    if not saved_start_time:
+        return
     clean_working_files_bool = False
     if clean_working_files_bool:
         clean_working_files()
@@ -675,7 +827,8 @@ def main():
     extract_vehicle_types()
     extract_automobile_brands_list(extract_only_automobile) #if True then only vehicles with 'automobile' type will be extracted
                                             # if False then all vehicles types will be extracted
-    
+    res_json_path.mkdir(parents=True, exist_ok=True)
+
     while True:
         try:
             download_data_from_pages_of_each_brand()
@@ -686,21 +839,11 @@ def main():
             time.sleep(60)
 
     #launch database writing
-    table_index = 0
-    try:
-        with open (db_tech_json_path / 'table_index.json', 'r', encoding='utf-8') as f:
-            table_index_data = json.load(f)
-            table_index = table_index_data.get('table_index', 0)
-            table_index += 1
-            with open (db_tech_json_path / 'table_index.json', 'w', encoding='utf-8') as f_w:
-                json.dump({'table_index': table_index}, f_w, indent=2, ensure_ascii=False)
-    except Exception as e:
-        print(f"Error reading table_index.json: {e}")
-        save_error({
-                'error_type': f"Error reading table_index.json: {e}"
-            })
+    refresh_table_index()
+    table_index = get_table_index()
     table_name = f"copart_lots_{table_index}"
-    db_main('copart_lots_test', table_name, res_json_path, table_index)
+    db_main(DB_NAME, table_name, res_json_path, table_index)
+    save_start_or_finish_time(False)
 
     # if you wont to download html pages with photos uncomment the line below 
     # and fix tudu at the start of this file

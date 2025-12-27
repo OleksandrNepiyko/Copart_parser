@@ -41,6 +41,24 @@ def create_db(db_name):
     cursor = db.cursor()
     cursor.execute(f"CREATE DATABASE IF NOT EXISTS {db_name}")
 
+def drop_database(db_name):
+    try:
+        db = mysql.connector.connect(
+            host="10.30.0.100",
+            port=3310, 
+            user="root",
+            password="root",
+            auth_plugin='mysql_native_password'
+        )
+        cursor = db.cursor()
+        cursor.execute(f"DROP DATABASE IF EXISTS {db_name}")
+        db.commit()
+        cursor.close()
+        db.close()
+        print(f"Database {db_name} dropped successfully.")
+    except Exception as e:
+        print(f"Error dropping database: {e}")
+
 def create_table(db_name, table_name):
     db = mysql.connector.connect(
         host="10.30.0.100",
