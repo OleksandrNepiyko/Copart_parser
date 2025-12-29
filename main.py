@@ -259,9 +259,9 @@ def extract_vehicle_types():
                     'error_type': "vehicle_types.json is empty or None"
                 })    
     except Exception as e:
-        print("extract_vehicle_types(): Exception: {e}")
+        print(f"extract_vehicle_types(): Exception: {e}")
         save_error({
-                'error_type': "extract_vehicle_types(): Exception: {e}"
+                'error_type': f"extract_vehicle_types(): Exception: {e}"
             })
         return
 
@@ -385,17 +385,17 @@ def download_photos_from_lot(brand, page, type_param, arr_of_lot_numbers, restar
         "userLangChanged_CPRTUS": "true",
         "userLang": "ru",
         "incap_ses_689_242093": "T44mEGl83myqlZGgS9KPCaG2S2kAAAAAPf3tUwli6FMaVgBUEVA7Zw==",
-        "g2usersessionid": "c9373878dc3b9b4059de393ec138166b",
         "g2app.search-table-rows": "20",
+        "g2usersessionid": "2763b116147121b40f878f6069f35fe2",
+        "G2JSESSIONID": "7B6438A87708185219E86BFDB68E1B76-n1",
+        "incap_ses_325_242093": "D2U8c01KgX6Ux1X/RKKCBBjfUmkAAAAANqB8L2+u+/cjsTDG+Hiz9g==",
         "usersessionid": "8b7a8968a7dfa001c484e404e5df0266",
-        "incap_ses_325_242093": "uRqaQY/W/Fok0838RKKCBOQ2UGkAAAAAVyPUMeq7xBa/3RkKvTfl4g==",
-        "G2JSESSIONID": "F4FBE00970E8DF31A5B98F92C0A9A598-n1",
-        "OptanonConsent": "isGpcEnabled=0&datestamp=Sat+Dec+27+2025+22%3A16%3A37+GMT%2B0200+(Eastern+European+Standard+Time)&version=202510.2.0&browserGpcFlag=0&isIABGlobal=false&hosts=&consentId=8dda50fe-1f46-4974-b215-351ce89ca87c&interactionCount=2&isAnonUser=1&landingPath=NotLandingPage&groups=C0001%3A1%2CC0002%3A0%2CC0003%3A0%2CC0004%3A0%2CC0005%3A0&AwaitingReconsent=false&intType=3&geolocation=UA%3B05",
-        "copartTimezonePref": "%7B%22displayStr%22%3A%22GMT%2B2%22%2C%22offset%22%3A2%2C%22dst%22%3Afalse%2C%22windowsTz%22%3A%22Europe%2FKiev%22%7D",
         "FCCDCF": "%5Bnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2C%5B%5B32%2C%22%5B%5C%2248c5e301-e5b2-463e-bfe9-3992203a711b%5C%22%2C%5B1763655305%2C452000000%5D%5D%22%5D%5D%5D",
-        "FCNEC": "%5B%5B%22AKsRol_l2_i2JL6Gcvd7mjJB33CE8uHkf5jCpqPvym6GjUxC-RvGFxHzn5CPhk7R4q4PhKL6BaKjBws6u1_BYh3LlD0BcSFVAG7AmnW-d33rkRhqCWZw_Z97yP9oI4JGqf8vGrWEDm-TaUDvT8OjFkwLXm7VmPFCPQ%3D%3D%22%5D%5D",
-        "nlbi_242093_2147483392": "wZXoQjtkfFoU1L74ie/jegAAAADzGBq+c4FpkfuUN3hrvQfx",
-        "reese84": "3:6txKIsm6aIapxRA9MJhluA==:MTOxXoCgsJhmBzsuRmHkHDrptuCUF+UySp4vdqHBqeDp61q9p1NZXZDSrwAdRW5bMZg1QaMBoTOHEhsvQa6TRz+xGlf6ge1c8+slaRxfySODQiq/U1CQolgNtdM8FfG51Wzna/hTm63RyDBOm7xaX5g0R1Xz3VzBJnus1NJLp/CPJdhiYKlS5xtZyaQvsdgUza1ymdOl+yx2t/43FW/xnZL1E++OHpAdwCBZh5e7do83YT5vBOb4a5hyT7f1UeKIcRwpeXQGkPOQBY1inogG8FRJpYU83GCuEPi56A5gMuRWEObz6ZhWVS2XxYwP0fXAgwDnX5v9kq1R4qbjHYn+moqhAsWyGTWOH1/7Q+1/7wp35oCpSGK21/5t8uHT+nMwLEBnAfp38L5YkK5TgYP87qjOVZCiXHHFMOexMXXkRlybpRTO/OxaUj3W96mju3iCyog6F9IEOPJRmUJC6G05OQ==:pNldynT4mMexaxFeAt6yCYbjYwdUXLKb+LnswJ2UdB4="
+        "FCNEC": "%5B%5B%22AKsRol_YfWVGVxjMGtk7aqA0THWfFfCobBQ5H8JQj8WuVy4xQLvfvVB8DpZRtecwL1fNe3j4KI0H7A_UvHR_Tj3MwdODritHTnRsLdu0uHCBy-52z6EKNhuea4zIzwsMQLWA_F5B1wcdVb-6f4iIbLaXvRwXu7BHbQ%3D%3D%22%5D%5D",
+        "reese84": "3:wuKjpzmFnZgdiYzbB+/SHw==:aS2Gq7bu+qtS3ezIm4mw6RWqVAWNttiEEKyOlFPrbQdBzfNDwnC+7eunWkV2skS6tTwYSFeDpjtEnpA2A8ExLUgsMziMwsJk9lNsKEyoYGLa6daeA1NoJlcogz00nJH/JMdLaaV87btx3yQ+X5MKBodimG1rVVdHPmvnChPHmS0T0PWQoPpJPQ1M1Onl22s6bI0dr10THjhrSH5oipnlDiF91BF2utTqJgeOF1NIEnbmKB15yL/hRBXeeIvjWcZNORQCBOjmHnejdMx6SJuUjmI9F1I9+O8qlFLoIkkAFD9SS2Xs+nqfprq72HbtdMCiT7C6hrYpcLZSSjM+8jKCIDonpfCB6AmLaAyc6ZWtMRhJ1ofZE/QkORn2HbYN8TCvxqhzno7qCDy4hCHyO2TgWyI9TixWVpmt/t2LHOZvUb4e7xcL1M/aZ9cTs9T0NW0D2oiddGQBdF7Zyzz7mRAjTg==:PZAOBmEq0j4DHSc6EySBszJl5H4XZ0kG77rQ/vsr3tk=",
+        "nlbi_242093_2147483392": "EPnvUUp5fiC3fAgJie/jegAAAAAcXnMBn5xdOcO5RDTcN+Z8",
+        "OptanonConsent": "isGpcEnabled=0&datestamp=Mon+Dec+29+2025+22%3A12%3A54+GMT%2B0200+(Eastern+European+Standard+Time)&version=202510.2.0&browserGpcFlag=0&isIABGlobal=false&hosts=&consentId=8dda50fe-1f46-4974-b215-351ce89ca87c&interactionCount=2&isAnonUser=1&landingPath=NotLandingPage&groups=C0001%3A1%2CC0002%3A0%2CC0003%3A0%2CC0004%3A0%2CC0005%3A0&AwaitingReconsent=false&intType=3&geolocation=UA%3B05",
+        "copartTimezonePref": "%7B%22displayStr%22%3A%22GMT%2B2%22%2C%22offset%22%3A2%2C%22dst%22%3Afalse%2C%22windowsTz%22%3Anull%7D"
     }
 
     url = "https://www.copart.com/public/data/lotdetails/solr/lot-images/"
@@ -675,10 +675,14 @@ def download_data_from_pages_of_each_brand():
         if type_param is None:
             print(f"Warning: Could not map type '{raw_type_from_file}' for brand '{brand_description}'. Defaulting to 'V' (Automobiles).")
             try:
-                with open (tech_json_path / 'vehicle_type_problems.json', 'r', encoding='utf-8') as f:
+                # vehicle_types_path = Path(tech_json_path/'vehicle_type_problems.json')
+                # vehicle_types_path.mkdir(exist_ok=True)
+                with open (tech_json_path / 'vehicle_type_problems.json', 'a', encoding='utf-8') as f:
                     json.dump({
-                        'type_param': type_param
-                    })
+                        'raw_type_from_file': raw_type_from_file,
+                        'brand_description': brand_description
+                    }, f, indent=2, ensure_ascii=False)
+                    f.write(',\n')
             except Exception as e:
                 print(f"type param error: {e} for brand: {brand}")
                 save_error({
@@ -740,7 +744,7 @@ def main():
     saved_start_time = save_start_or_finish_time(True)
     if not saved_start_time:
         return
-    clean_working_files_bool = True
+    clean_working_files_bool = False
     if clean_working_files_bool:
         clean_working_files()
     extract_only_automobile = False
