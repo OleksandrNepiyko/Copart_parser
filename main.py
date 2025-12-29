@@ -534,7 +534,11 @@ def download_data_from_pages_of_single_brand(brand, type_param, restart_object):
         #change page and start = page * 20;   pages starts from 0  i.e. page 2: "page":2,"size":20,"start":40
         payload = clean_payload({"query":["*"],"filter":{"VEHT":[f"vehicle_type_code:VEHTYPE_{type_param}"],"MAKE":[f"lot_make_desc:\"{brand_upper}\""]},"sort":["salelight_priority asc","member_damage_group_priority asc","auction_date_type desc","auction_date_utc asc"],"page":page,"size":20,"start":start,"watchListOnly":False,"freeFormSearch":False,"hideImages":False,"defaultSort":False,"specificRowProvided":False,"displayName":"","searchName":"","backUrl":"","includeTagByField":{"VEHT":"{!tag=VEHT}","MAKE":"{!tag=MAKE}"},"rawParams":{}})
         # print(f"Payload for brand {brand} page {page + 1}: {payload}")
+<<<<<<< HEAD
         # print(f"payload: {payload}")
+=======
+        print(f"payload: {payload}")
+>>>>>>> 02ebc422b6f184330d9e8e20a9bbe81112e9d87c
 
         #old but working version of payload below
         # payload = clean_payload({"query":["*"],"filter":{"MAKE":[f"lot_make_desc:\"{brand_upper}\""]},"sort":["salelight_priority asc","member_damage_group_priority asc","auction_date_type desc","auction_date_utc asc"],"page":page,"size":20,"start":start,"watchListOnly":False,"freeFormSearch":False,"hideImages":False,"defaultSort":False,"specificRowProvided":False,"displayName":"","searchName":"","backUrl":"","includeTagByField":{"MAKE":"{!tag=MAKE}"},"rawParams":{}})
