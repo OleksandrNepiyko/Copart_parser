@@ -1,50 +1,170 @@
 [
   {
-    "vehicle_type_code": "V",
-    "vehicle_type_description": "Automobiles"
+    "code": "AUTOMOBILE",
+    "description": "AUTOMOBILE",
+    "type": "VEHTYPE",
+    "category": "VEHTYPE",
+    "groupCode": "V",
+    "groupDescription": "AUTOMOBILE"
   },
   {
-    "vehicle_type_code": "C",
-    "vehicle_type_description": "Motorcycles"
+    "code": "SUV",
+    "description": "SUV",
+    "type": "VEHTYPE",
+    "category": "VEHTYPE",
+    "groupCode": "V",
+    "groupDescription": "AUTOMOBILE"
   },
   {
-    "vehicle_type_code": "K",
-    "vehicle_type_description": "Medium Duty/Box Trucks"
+    "code": "ATV",
+    "description": "ATV",
+    "type": "VEHTYPE",
+    "category": "VEHTYPE",
+    "groupCode": "A",
+    "groupDescription": "ATV"
   },
   {
-    "vehicle_type_code": "U",
-    "vehicle_type_description": "Heavy Duty Trucks"
+    "code": "VAN",
+    "description": "VAN",
+    "type": "VEHTYPE",
+    "category": "VEHTYPE",
+    "groupCode": "V",
+    "groupDescription": "AUTOMOBILE"
   },
   {
-    "vehicle_type_code": "E",
-    "vehicle_type_description": "Industrial Equipment"
+    "code": "PICKUP",
+    "description": "PICKUP",
+    "type": "VEHTYPE",
+    "category": "VEHTYPE",
+    "groupCode": "V",
+    "groupDescription": "AUTOMOBILE"
   },
   {
-    "vehicle_type_code": "L",
-    "vehicle_type_description": "Trailers"
+    "code": "MOTORCYCLE",
+    "description": "MOTORCYCLE",
+    "type": "VEHTYPE",
+    "category": "VEHTYPE",
+    "groupCode": "C",
+    "groupDescription": "MOTORCYCLE"
   },
   {
-    "vehicle_type_code": "M",
-    "vehicle_type_description": "Boats"
+    "code": "SNOWMOBILE",
+    "description": "SNOWMOBILE",
+    "type": "VEHTYPE",
+    "category": "VEHTYPE",
+    "groupCode": "S",
+    "groupDescription": "SNOWMOBILE"
   },
   {
-    "vehicle_type_code": "R",
-    "vehicle_type_description": "Recreational Vehicles (RVs)"
+    "code": "DIRT BIKE",
+    "description": "DIRT BIKE",
+    "type": "VEHTYPE",
+    "category": "VEHTYPE",
+    "groupCode": "D",
+    "groupDescription": "DIRT BIKE"
   },
   {
-    "vehicle_type_code": "A",
-    "vehicle_type_description": "ATVs"
+    "code": "MEDIUM DUTY/BOX TRUCKS",
+    "description": "MEDIUM DUTY/BOX TRUCKS",
+    "type": "VEHTYPE",
+    "category": "VEHTYPE",
+    "groupCode": "K",
+    "groupDescription": "MEDIUM DUTY/BOX TRUCKS"
   },
   {
-    "vehicle_type_code": "J",
-    "vehicle_type_description": "Jet Skis"
+    "code": "OTHER GOODS",
+    "description": "OTHER GOODS",
+    "type": "VEHTYPE",
+    "category": "VEHTYPE",
+    "groupCode": "H",
+    "groupDescription": "OTHER GOODS"
   },
   {
-    "vehicle_type_code": "S",
-    "vehicle_type_description": "Snowmobiles"
+    "code": "BOAT",
+    "description": "BOAT",
+    "type": "VEHTYPE",
+    "category": "VEHTYPE",
+    "groupCode": "M",
+    "groupDescription": "BOAT"
   },
   {
-    "vehicle_type_code": "D",
-    "vehicle_type_description": "Dirt Bikes"
+    "code": "RECREATIONAL VEHICLE (RV)",
+    "description": "RECREATIONAL VEHICLE (RV)",
+    "type": "VEHTYPE",
+    "category": "VEHTYPE",
+    "groupCode": "R",
+    "groupDescription": "RECREATIONAL VEHICLE (RV)"
+  },
+  {
+    "code": "TRAILERS",
+    "description": "TRAILERS",
+    "type": "VEHTYPE",
+    "category": "VEHTYPE",
+    "groupCode": "L",
+    "groupDescription": "TRAILERS"
+  },
+  {
+    "code": "INDUSTRIAL EQUIPMENT",
+    "description": "INDUSTRIAL EQUIPMENT",
+    "type": "VEHTYPE",
+    "category": "VEHTYPE",
+    "groupCode": "E",
+    "groupDescription": "INDUSTRIAL EQUIPMENT"
+  },
+  {
+    "code": "HEAVY DUTY TRUCKS",
+    "description": "HEAVY DUTY TRUCKS",
+    "type": "VEHTYPE",
+    "category": "VEHTYPE",
+    "groupCode": "U",
+    "groupDescription": "HEAVY DUTY TRUCKS"
+  },
+  {
+    "code": "JET SKI",
+    "description": "JET SKI",
+    "type": "VEHTYPE",
+    "category": "VEHTYPE",
+    "groupCode": "J",
+    "groupDescription": "JET SKI"
+  },
+  {
+    "code": "INSPECTION",
+    "description": "INSPECTION",
+    "type": "VEHTYPE",
+    "category": "VEHTYPE",
+    "groupCode": "I",
+    "groupDescription": "INSPECTION"
+  },
+  {
+    "code": "TRANSPORT",
+    "description": "TRANSPORT",
+    "type": "VEHTYPE",
+    "category": "VEHTYPE",
+    "groupCode": "T",
+    "groupDescription": "TRANSPORT"
+  },
+  {
+    "code": "CONSTRUCTION EQUIPMENT",
+    "description": "CONSTRUCTION EQUIPMENT",
+    "type": "VEHTYPE",
+    "category": "VEHTYPE",
+    "groupCode": "N",
+    "groupDescription": "CONSTRUCTION EQUIPMENT"
+  },
+  {
+    "code": "AGRICULTURE AND FARM EQUIPMENT",
+    "description": "AGRICULTURE AND FARM EQUIPMENT",
+    "type": "VEHTYPE",
+    "category": "VEHTYPE",
+    "groupCode": "F",
+    "groupDescription": "AGRICULTURE AND FARM EQUIPMENT"
+  },
+  {
+    "code": "BUS",
+    "description": "BUS",
+    "type": "VEHTYPE",
+    "category": "VEHTYPE",
+    "groupCode": "B",
+    "groupDescription": "BUS"
   }
 ]
