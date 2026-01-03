@@ -21,9 +21,30 @@ from datetime import datetime
 import time 
 from natsort import natsorted
 
+
+reviews_json_path = Path("res_json")
+db_tech_json_path = Path("db_tech_json")
+backup_name = 'copart_backup'
+# last_saved_review_in_file_id = 0
+
+def get_table_index():
+    try:
+        with open (db_tech_json_path / 'table_index.json', 'r', encoding='utf-8') as f:
+            table_index_data = json.load(f)
+            table_index = table_index_data.get('table_index', 0)
+            return table_index
+    except Exception as e:
+        print(f"get() Error reading table_index.json: {e}")
+        save_error({
+                'error_type': f"get() Error reading table_index.json: {e}"
+            })
+        return 0
+
 def save_error(error_obj):
     #if an error occurs it should be saved here (only problems in automatic part of the program will be saved)
     with open(db_tech_json_path / 'error_list.json', 'a', encoding='utf-8') as f:
+        error_obj['time_of_errror'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        error_obj['table_index'] = get_table_index()
         json.dump(error_obj, f, indent=2, ensure_ascii=False)
         f.write(',')
 
@@ -139,11 +160,6 @@ def create_table(db_name, table_name):
     db.commit()
     return cursor, db
         
-
-reviews_json_path = Path("res_json")
-db_tech_json_path = Path("db_tech_json")
-backup_name = 'copart_backup'
-# last_saved_review_in_file_id = 0
 
 def extract_brand_model_from_url(url):
     """

@@ -5,6 +5,7 @@ import re
 from pathlib import Path
 import json
 import os
+from datetime import datetime
 
 class HTML_downloader:
     tech_json = Path('tech_json')
@@ -19,6 +20,7 @@ class HTML_downloader:
 
     @classmethod
     def save_error(cls, error_object):
+        error_object['time_of_errror'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         """Зберігає помилку у файл (додає в масив або створює новий)"""
         file_path = cls.tech_html / 'html_downloader_errors.json'
         

@@ -9,12 +9,11 @@ logic:
 2.4 step 2. again
 """
 
-#BUG somehow there were few page files with 50th index with just error inside, but the problem that 
-# they were saved and there were only 10 of them and as a result of final code version
-
 #TODO question about priority of vehicles, now there is no priority
 
 #TODO data_from_js.json should be saved dynamicaly from the site
+#TODO ти не парсиш ще два розділи: Salvage vehicles  і Used vehicles. Треба і їх додати
+#TODO make smth with bans 
 
 import re
 from pathlib import Path
@@ -47,6 +46,7 @@ def safe_post(url, **kwargs):
 
 def save_error(error_obj):
     #if an error occurs it should be saved here (only problems in automatic part of the program will be saved)
+    error_obj['time_of_errror'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     with open(tech_json_path / 'errors.json', 'a', encoding='utf-8') as f:
         json.dump(error_obj, f, indent=2, ensure_ascii=False)
         f.write(',\n')
@@ -336,9 +336,9 @@ def download_photos_from_lot(brand, page, type_param, arr_of_lot_numbers, restar
         'Accept': 'application/json, text/plain, */*',
         'Content-Type': 'application/json',
         'Origin': 'https://www.copart.com',
-        'Referer': 'https://www.copart.com/ru/lot/91444005/clean-title-2006-acura-rl-ny-long-island',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36',
-        'x-xsrf-token': 'b1817ad8-085b-4983-8cde-11c795c671b6'
+        'Referer': 'https://www.copart.com/lot/92156325/clean-title-2024-toyota-rav4-xse-la-baton-rouge',
+        'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Mobile Safari/537.36',
+        'x-xsrf-token': 'd2ab64f8-f4b4-4375-b62f-046feffc7b07'
     }
     # cookies = {
     #     "anonymousCrmId": "7f62f400-a31c-40a1-9ec6-3882600d94af",
@@ -374,27 +374,22 @@ def download_photos_from_lot(brand, page, type_param, arr_of_lot_numbers, restar
     # }
 
     cookies = {
-        "anonymousCrmId": "7f62f400-a31c-40a1-9ec6-3882600d94af",
-        "nlbi_242093": "GtLwHyNVDAsWMox4ie/jegAAAAAJbMaLBXI7o0sn1hVYNNVy",
+        "anonymousCrmId": "a1f7ba15-f8bc-4767-a015-ff9451e3a8f3",
         "userCategory": "RPU",
-        "timezone": "Europe%2FKiev",
-        "googtrans": "/en/ru",
-        "visid_incap_242093": "l4BVG1w4S8yiXVL+fdF8idscHmkAAAAAREIPAAAAAACAYJHAAbmSeb5ni73/A+8E5nZBukKZqgd5",
-        "OptanonAlertBoxClosed": "2025-11-24T13:12:10.554Z",
-        "__eoi": "ID=3643d9cf80e64b0b:T=1763678384:RT=1764066291:S=AA-AfjbApzZYR5-V4goE6TvOXwWQ",
-        "userLangChanged_CPRTUS": "true",
-        "userLang": "ru",
-        "incap_ses_689_242093": "T44mEGl83myqlZGgS9KPCaG2S2kAAAAAPf3tUwli6FMaVgBUEVA7Zw==",
-        "g2app.search-table-rows": "20",
+        "visid_incap_242093": "l4BVG1w4S8yiXVL+fdF8idscHmkAAAAAQkIPAAAAAACAT4XAAbmSeb51M8Y/FbD51Q9/o5KtkDHe",
         "g2usersessionid": "2763b116147121b40f878f6069f35fe2",
-        "G2JSESSIONID": "7B6438A87708185219E86BFDB68E1B76-n1",
-        "incap_ses_325_242093": "D2U8c01KgX6Ux1X/RKKCBBjfUmkAAAAANqB8L2+u+/cjsTDG+Hiz9g==",
-        "usersessionid": "8b7a8968a7dfa001c484e404e5df0266",
-        "FCCDCF": "%5Bnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2C%5B%5B32%2C%22%5B%5C%2248c5e301-e5b2-463e-bfe9-3992203a711b%5C%22%2C%5B1763655305%2C452000000%5D%5D%22%5D%5D%5D",
-        "FCNEC": "%5B%5B%22AKsRol_YfWVGVxjMGtk7aqA0THWfFfCobBQ5H8JQj8WuVy4xQLvfvVB8DpZRtecwL1fNe3j4KI0H7A_UvHR_Tj3MwdODritHTnRsLdu0uHCBy-52z6EKNhuea4zIzwsMQLWA_F5B1wcdVb-6f4iIbLaXvRwXu7BHbQ%3D%3D%22%5D%5D",
-        "reese84": "3:wuKjpzmFnZgdiYzbB+/SHw==:aS2Gq7bu+qtS3ezIm4mw6RWqVAWNttiEEKyOlFPrbQdBzfNDwnC+7eunWkV2skS6tTwYSFeDpjtEnpA2A8ExLUgsMziMwsJk9lNsKEyoYGLa6daeA1NoJlcogz00nJH/JMdLaaV87btx3yQ+X5MKBodimG1rVVdHPmvnChPHmS0T0PWQoPpJPQ1M1Onl22s6bI0dr10THjhrSH5oipnlDiF91BF2utTqJgeOF1NIEnbmKB15yL/hRBXeeIvjWcZNORQCBOjmHnejdMx6SJuUjmI9F1I9+O8qlFLoIkkAFD9SS2Xs+nqfprq72HbtdMCiT7C6hrYpcLZSSjM+8jKCIDonpfCB6AmLaAyc6ZWtMRhJ1ofZE/QkORn2HbYN8TCvxqhzno7qCDy4hCHyO2TgWyI9TixWVpmt/t2LHOZvUb4e7xcL1M/aZ9cTs9T0NW0D2oiddGQBdF7Zyzz7mRAjTg==:PZAOBmEq0j4DHSc6EySBszJl5H4XZ0kG77rQ/vsr3tk=",
-        "nlbi_242093_2147483392": "EPnvUUp5fiC3fAgJie/jegAAAAAcXnMBn5xdOcO5RDTcN+Z8",
-        "OptanonConsent": "isGpcEnabled=0&datestamp=Mon+Dec+29+2025+22%3A12%3A54+GMT%2B0200+(Eastern+European+Standard+Time)&version=202510.2.0&browserGpcFlag=0&isIABGlobal=false&hosts=&consentId=8dda50fe-1f46-4974-b215-351ce89ca87c&interactionCount=2&isAnonUser=1&landingPath=NotLandingPage&groups=C0001%3A1%2CC0002%3A0%2CC0003%3A0%2CC0004%3A0%2CC0005%3A0&AwaitingReconsent=false&intType=3&geolocation=UA%3B05",
+        "G2JSESSIONID": "313694319C269FD1CEEE37099DA9BDD3-n1",
+        "userLang": "en",
+        "nlbi_242093": "UovxHpRulCtpyl3Nie/jegAAAAAt466XoZiQTIWi0ovgSAdU",
+        "incap_ses_325_242093": "zi8xJURInBvPeWD/RKKCBATpUmkAAAAA4uR/0XTlvPtYpTuO8Wi3Eg==",
+        "timezone": "Europe%2FKiev",
+        "reese84": "3:TD1VVR4cjsNCM3iBpWxDZg==:UIC0zy3Igfbhgh4Zd3GbZeRVp1GbNHPAORuKi0ggPbkkfP4Moxymm7DN7RrEtB86GQb0YXOtzfPkkTg8Z4DnINRtR5azKZLpr4YEvgC2g8ju5gCMipf+sTgb98eNCVHAk+1JPHQe7UkCiW0cIUu1DKUSeHp29o7szaEiqTTsEg8dpU/+Oifk+hwb5ETmanCNCbZcmZXDOpYAnPOIujOauxsfs6oql4XlyfgPHppwZF/lhulPSGuCqJHKnrAYljvlPuIii3AZyxiicczlKgcRqWbrpDOneQ+5DRDCacYYk7FRNLtEhhoqulMTf9IDLtvfa8HnP0egM9LTsyc421xHc160KhqkNFQot/LqtUzkGMKpF3aFeSXdwH3Xi0dOpTmnzN9nH5l+kg6L3HJEmr9Xa1Fs2ai4NNKFYAsaCJmwJ4MRJgW6hCCBCF0WXZgMK7tWAf0GeRWnyUNQvJqUT2c8qg==:k8OTfdE7YWAJwRQwzeuEw3hLlRX0Rc2IlsSb3FNGkgM=",
+        "FCCDCF": "%5Bnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2C%5B%5B32%2C%22%5B%5C%224f0bb0dc-4cca-42ab-b226-de8b2b20a0e2%5C%22%2C%5B1763581155%2C60000000%5D%5D%22%5D%5D%5D",
+        "FCNEC": "%5B%5B%22AKsRol_rt591JzshIGYsUVgpm1rOD55pg8EXa8u2dEM0_oKzb9njjGD9pBsYMWyBMvwdnwxsbcetFJ09lLI-ihvRjVe5Npf7CDr5XujL8ejGmU_J7zkFdYt_U5WO4LYJsYpvYC3OZ2XV3qVtYbbsGrNDkXKpDgWWuA%3D%3D%22%5D%5D",
+        "usersessionid": "054dd1c973a5d0a46e2164cc622ffe17",
+        "g2app.search-table-rows": "20",
+        "nlbi_242093_2147483392": "2qIxJJHJAkZ8UPZBie/jegAAAACT0JxrW3zHjSLWB3+Ld+wh",
+        "OptanonConsent": "isGpcEnabled=0&datestamp=Mon+Dec+29+2025+22%3A50%3A26+GMT%2B0200+(Eastern+European+Standard+Time)&version=202510.2.0&browserGpcFlag=0&isIABGlobal=false&hosts=&consentId=caa4939f-136d-4205-8de3-a787b51ac75d&interactionCount=0&isAnonUser=1&landingPath=NotLandingPage&groups=C0001%3A1%2CC0002%3A0%2CC0003%3A0%2CC0004%3A0%2CC0005%3A0&AwaitingReconsent=false",
         "copartTimezonePref": "%7B%22displayStr%22%3A%22GMT%2B2%22%2C%22offset%22%3A2%2C%22dst%22%3Afalse%2C%22windowsTz%22%3Anull%7D"
     }
 
@@ -509,7 +504,7 @@ def download_data_from_pages_of_single_brand(brand, type_param, restart_object):
     brand_with_underscores = brand.replace(" ", "_").replace("/","_")
     
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36',
+        'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Mobile Safari/537.36',
     }
 
     cookies = {
@@ -574,11 +569,12 @@ def download_data_from_pages_of_single_brand(brand, type_param, restart_object):
             with open(res_json_path / f'{brand_with_underscores}_{type_param}_page{page + 1}.json', 'w', encoding='utf-8') as f:
                 json.dump(response_json, f, ensure_ascii=False, indent=2)
         except Exception as e:
-            print(f"Failed to get json in response download_data_from_pages_of_single_brand for {brand} page: {page + 1}")
+            print(f"download_data_from_pages_of_single_brand for {brand} page: {page + 1} exception: {e}")
             save_error({
                 'brand': brand,
                 'page': page + 1,                    
-                'error_type': "Failed to get json in response download_data_from_pages_of_single_brand"
+                # 'error_type': "Failed to get json in response download_data_from_pages_of_single_brand"
+                'error_type': f"download_data_from_pages_of_single_brand() for {brand} page: {page + 1} exception: {e}"
             })
 
         all_ln_values = []
@@ -591,10 +587,10 @@ def download_data_from_pages_of_single_brand(brand, type_param, restart_object):
                     all_ln_values.append(item['ln'])
         except Exception as e:
             print(f"Error extracting ln values on page {page + 1}: {e}")
-            save_error({
-                'page': page + 1,
-                'error_type': str(e)
-            })
+            # save_error({ #to avoid duplicates (it is already saved in the except block above)
+            #     'page': page + 1,
+            #     'error_type': str(e)
+            # })
         per_page_restart = None
         if restart_object and isinstance(restart_object, dict) and restart_object.get('page') == page:
             per_page_restart = restart_object
