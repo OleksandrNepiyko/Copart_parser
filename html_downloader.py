@@ -6,6 +6,7 @@ from pathlib import Path
 import json
 import os
 from datetime import datetime
+from sbvirtualdisplay import Display
 
 class HTML_downloader:
     tech_json = Path('tech_json')
@@ -89,78 +90,78 @@ class HTML_downloader:
         for attempt in range(1, MAX_RETRIES + 1):
             if attempt > 1:
                 print(f"   Retry {attempt}/{MAX_RETRIES}...")
+            with Display(visible=0, size=(1440, 900)):
+                try:
+                    with SB(uc=True, test=False, headless=True) as sb: # headless=False щоб бачити роботу, можна змінити на True
+                        sb.driver.set_page_load_timeout(60)
+                        sb.activate_cdp_mode()
+                        
+                        sb.open(url)
+                        
+                        # --- Перевірка на анти-бот (Cloudflare/Captcha) ---
+                        if sb.is_element_visible("#challenge-form") or sb.is_element_visible('iframe[src*="cloudflare"]'):
+                            print("Cloudflare challenge visible! Waiting/Retrying...")
+                            sb.sleep(5) 
+                            # Якщо не зникло - ретрай
+                            if sb.is_element_visible("#challenge-form"):
+                                continue
 
-            try:
-                with SB(uc=True, test=False, headless=False) as sb: # headless=False щоб бачити роботу, можна змінити на True
-                    sb.driver.set_page_load_timeout(60)
-                    sb.activate_cdp_mode()
-                    
-                    sb.open(url)
-                    
-                    # --- Перевірка на анти-бот (Cloudflare/Captcha) ---
-                    if sb.is_element_visible("#challenge-form") or sb.is_element_visible('iframe[src*="cloudflare"]'):
-                        print("Cloudflare challenge visible! Waiting/Retrying...")
-                        sb.sleep(5) 
-                        # Якщо не зникло - ретрай
-                        if sb.is_element_visible("#challenge-form"):
-                             continue
+                        # --- Чекаємо рендер контенту (Заголовок або блок лоту) ---
+                        # Якщо цього елементу нема - значить сторінка пуста або не прогрузилась
+                        try:
+                            sb.wait_for_element(".lot-vehicle-info, h1.lot-details-heading, .lot-details-page", timeout=15)
+                        except Exception:
+                            # Спробуємо зловити Access Denied
+                            if "access denied" in sb.get_page_title().lower():
+                                raise Exception("Access Denied by Server")
+                            print("Element not found, simple retry.")
+                            continue
 
-                    # --- Чекаємо рендер контенту (Заголовок або блок лоту) ---
-                    # Якщо цього елементу нема - значить сторінка пуста або не прогрузилась
-                    try:
-                        sb.wait_for_element(".lot-vehicle-info, h1.lot-details-heading, .lot-details-page", timeout=15)
-                    except Exception:
-                        # Спробуємо зловити Access Denied
-                        if "access denied" in sb.get_page_title().lower():
-                            raise Exception("Access Denied by Server")
-                        print("Element not found, simple retry.")
-                        continue
+                        # --- Скрол і пауза ---
+                        sb.scroll_to_bottom()
+                        sb.sleep(1)
 
-                    # --- Скрол і пауза ---
-                    sb.scroll_to_bottom()
-                    sb.sleep(1)
+                        # --- Отримання даних ---
+                        final_url = sb.get_current_url()
+                        html = sb.get_page_source()
 
-                    # --- Отримання даних ---
-                    final_url = sb.get_current_url()
-                    html = sb.get_page_source()
+                        # Перевірка чи лот взагалі існує (чи не редіректнуло на головну/пошук)
+                        if "lot-not-found" in final_url or "member-home" in final_url:
+                            error_obj = {
+                                "lot": lot_number,
+                                "brand": brand,
+                                "page": page_number,
+                                "error": "Lot not found (redirected)",
+                                "final_url": final_url
+                            }
+                            print(f"Lot not found: {lot_number}")
+                            cls.save_error(error_obj)
+                            return False # Не зберігаємо HTML, бо він неправильний
 
-                    # Перевірка чи лот взагалі існує (чи не редіректнуло на головну/пошук)
-                    if "lot-not-found" in final_url or "member-home" in final_url:
-                        error_obj = {
-                            "lot": lot_number,
-                            "brand": brand,
-                            "page": page_number,
-                            "error": "Lot not found (redirected)",
-                            "final_url": final_url
+                        # --- ЗБЕРЕЖЕННЯ ---
+                        
+                        # 1. Зберігаємо HTML
+                        with open(save_path, "w", encoding="utf-8") as f:
+                            f.write(html)
+                        
+                        # 2. Зберігаємо посилання в базу
+                        link_data = {
+                            'brand': brand, 
+                            'page': page_number, 
+                            'lot': lot_number, 
+                            'final_link': final_url
                         }
-                        print(f"Lot not found: {lot_number}")
-                        cls.save_error(error_obj)
-                        return False # Не зберігаємо HTML, бо він неправильний
+                        cls.append_final_link_data(link_data)
 
-                    # --- ЗБЕРЕЖЕННЯ ---
-                    
-                    # 1. Зберігаємо HTML
-                    with open(save_path, "w", encoding="utf-8") as f:
-                        f.write(html)
-                    
-                    # 2. Зберігаємо посилання в базу
-                    link_data = {
-                        'brand': brand, 
-                        'page': page_number, 
-                        'lot': lot_number, 
-                        'final_link': final_url
-                    }
-                    cls.append_final_link_data(link_data)
+                        # 3. Оновлюємо стейт (щоб знати де зупинились)
+                        cls.save_current_state(brand, page_number, lot_number)
 
-                    # 3. Оновлюємо стейт (щоб знати де зупинились)
-                    cls.save_current_state(brand, page_number, lot_number)
+                        print(f"Saved: {brand}/page_{page_number}/{lot_number}.html")
+                        return True
 
-                    print(f"Saved: {brand}/page_{page_number}/{lot_number}.html")
-                    return True
-
-            except Exception as ex:
-                print(f"   Error on attempt {attempt}: {ex}")
-                time.sleep(2) # Пауза перед наступною спробою
+                except Exception as ex:
+                    print(f"   Error on attempt {attempt}: {ex}")
+                    time.sleep(2) # Пауза перед наступною спробою
         
         # Якщо всі спроби вичерпано
         print(f"FAILED to download lot {lot_number}")
