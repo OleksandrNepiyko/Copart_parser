@@ -4,3 +4,4 @@ downloaded_files
 __pycache__/
 code_and_files_that_are_not_used_in_program/
 *.sql
+request_data_extractor.py

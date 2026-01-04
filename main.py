@@ -27,22 +27,20 @@ from html_downloader import HTML_downloader
 from database_writer import main as db_main, drop_database
 import shutil
 from datetime import datetime
+from seleniumbase import SB
 
 tech_json_path = Path('tech_json')
 res_json_path = Path('res_json')
 db_tech_json_path = Path('db_tech_json')
 SESSION = requests.Session()
 DB_NAME = 'copart_lots_test'
+POST_COUNT = 0
+POST_LIMITER = 105  # Number of POST requests before refreshing
+#session (it includes pages and photos requests, so one full page = 1 page reques + 20 photos requests = 21 POST requests per full page)
 
-def safe_post(url, **kwargs):
-    for attempt in range(5):
-        try:
-            return SESSION.post(url, **kwargs)
-        except requests.exceptions.ConnectionError as e:
-            print(f"Connection error, retry {attempt+1}/5")
-            time.sleep(5)
-
-    raise RuntimeError("Network failed after 5 retries")
+# Global Session Object
+# This acts as the "bridge" between the token extractor and safe_post.
+SESSION = requests.Session()
 
 def save_error(error_obj):
     #if an error occurs it should be saved here (only problems in automatic part of the program will be saved)
@@ -50,6 +48,145 @@ def save_error(error_obj):
     with open(tech_json_path / 'errors.json', 'a', encoding='utf-8') as f:
         json.dump(error_obj, f, indent=2, ensure_ascii=False)
         f.write(',\n')
+
+def kill_chrome_processes():
+    """Force kill stuck chrome/driver processes to prevent port errors on Windows."""
+    if os.name == 'nt':
+        try:
+            os.system("taskkill /f /im chrome.exe >nul 2>&1")
+            os.system("taskkill /f /im chromedriver.exe >nul 2>&1")
+        except: 
+            pass
+
+def get_copart_session_data(headless=False):
+    """
+    Launches a browser (UC mode), bypasses Cloudflare/CAPTCHA, 
+    and returns a dictionary of cookies and headers.
+    """
+    kill_chrome_processes()
+    
+    # Base structure for the result
+    data = {
+        "cookies": {},
+        "headers": {
+            "User-Agent": "",
+            "X-XSRF-TOKEN": "",
+            "X-Requested-With": "XMLHttpRequest", # Critical for Copart POST requests
+            "Content-Type": "application/json;charset=UTF-8"
+        }
+    }
+
+    # uc=True is mandatory for Cloudflare bypass
+    # with SB(uc=True, incognito=True, test=True, headless=headless) as sb: 
+    with SB(uc=True, incognito=True, headless=headless) as sb:# test=True removed to not see reduntant logs
+        try:
+            sb.open("https://www.copart.com/vehicleFinder")
+            
+            # --- Smart Wait Logic ---
+            # Loops for up to 60s to ensure page is fully loaded and CAPTCHA is solved
+            page_loaded = False
+            for _ in range(60):
+                # Check for success indicators (URL or Element)
+                if "vehicle" in sb.get_current_url().lower() and \
+                   (sb.is_element_visible('#serverSideDataTable') or sb.is_element_visible('.inner-wrap')):
+                    page_loaded = True
+                    break
+                
+                # Auto-solve Cloudflare checkbox if visible
+                if sb.is_element_visible('iframe[src*="cloudflare"]'):
+                    sb.uc_gui_click_captcha()
+                
+                time.sleep(1)
+            
+            if not page_loaded:
+                raise TimeoutError("Copart page failed to load (Cloudflare or Timeout).")
+
+            time.sleep(2) # Stabilization time for final cookies
+
+            # --- Data Extraction ---
+            # 1. User Agent
+            data["headers"]["User-Agent"] = sb.get_user_agent()
+            
+            # 2. Cookies (via CDP for completeness)
+            cookies_data = sb.cdp.get_all_cookies()
+            cookie_dict = {}
+            xsrf_token = None
+
+            for cookie in cookies_data:
+                # Handle SeleniumBase object vs dict differences
+                if isinstance(cookie, dict):
+                    name = cookie.get('name', '')
+                    value = cookie.get('value', '')
+                else:
+                    name = getattr(cookie, 'name', '')
+                    value = getattr(cookie, 'value', '')
+
+                if name:
+                    cookie_dict[name] = value
+                    # Capture XSRF token if found in cookies
+                    if 'xsrf' in name.lower() or 'csrf' in name.lower():
+                        xsrf_token = value
+
+            data["cookies"] = cookie_dict
+            
+            # 3. XSRF Token (Check Cookies -> then LocalStorage)
+            if xsrf_token:
+                data["headers"]["X-XSRF-TOKEN"] = xsrf_token
+            else:
+                try:
+                    ls = sb.execute_script("return window.localStorage;")
+                    for k, v in ls.items():
+                        if 'xsrf' in k.lower():
+                            data["headers"]["X-XSRF-TOKEN"] = v
+                            break
+                except: pass
+
+            return data
+
+        except Exception as e:
+            print(f"Error fetching Copart session data: {e}")
+            save_error({
+                'error_type': f"get_copart_session_data() Exception: {e}"
+            })
+            return None
+
+def refresh_copart_session(headless=False):
+    """
+    Helper function to update the global SESSION object.
+    Call this ONCE at the start of your program.
+    """
+    session_data = get_copart_session_data(headless=headless)
+    if session_data:
+        SESSION.headers.update(session_data['headers'])
+        SESSION.cookies.update(session_data['cookies'])
+        return True
+    return False
+
+def safe_post(url, **kwargs):
+    global POST_COUNT
+    global POST_LIMITER
+
+    if POST_COUNT >= POST_LIMITER:
+        POST_COUNT = 0
+    
+    if POST_COUNT == 0:
+        if not refresh_copart_session():
+            raise RuntimeError("Failed to refresh session.")
+            
+    POST_COUNT += 1
+
+    # 2. Perform the request
+    for attempt in range(5):
+        try:
+            return SESSION.post(url, **kwargs)
+        except requests.exceptions.ConnectionError:
+            print(f"Connection error, retry {attempt+1}/5")
+            time.sleep(5)
+        except Exception as e:
+             print(f"Request error: {e}")
+             break
+
+    raise RuntimeError("Network failed after 5 retries")
 
 def refresh_table_index():
     try:
@@ -251,7 +388,7 @@ def extract_vehicle_types():
     
     try:
         if len(vehicleTypes)>0 and vehicleTypes != None:
-            with open(tech_json_path / 'vehicle_types.json', 'r', encoding='utf-8') as f:
+            with open(tech_json_path / 'vehicle_types.json', 'w', encoding='utf-8') as f:
                 json.dump(vehicleTypes, f, indent=2, ensure_ascii=False)
         else:
             print("vehicle_types.json is empty or None")
