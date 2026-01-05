@@ -155,6 +155,7 @@ def refresh_copart_session(headless=False):
     Helper function to update the global SESSION object.
     Call this ONCE at the start of your program.
     """
+    print("taking cookies and headers")
     session_data = get_copart_session_data(headless=headless)
     if session_data:
         SESSION.headers.update(session_data['headers'])
@@ -402,7 +403,11 @@ def extract_vehicle_types():
             })
         return
 
-def filter_unique_brands(brands_list):
+def filter_unique_brands(brands_list): 
+    #unused now (it deletes based on brand name while the same brand can 
+    # produce different types of vehicles, like buses and automobiles from chevrolet etc)
+    # after its work remaining 50270 lines vs 62293 lines originally
+    # that is 12567 vs 15573 vehicle classes 
     """
     Приймає список словників брендів.
     Повертає новий список, де для кожного унікального 'description' 
@@ -440,7 +445,7 @@ def extract_automobile_brands_list(extract_only_automobile):
         return
     
     # to filter duplicates based on 'description' field
-    automobile_brands_list = filter_unique_brands(automobile_brands_list)
+    # automobile_brands_list = filter_unique_brands(automobile_brands_list)
 
     automobile_brands_list_with_automobile_type = []
 
@@ -665,6 +670,8 @@ def download_data_from_pages_of_single_brand(brand, type_param, restart_object):
         start = page * 20
         #change page and start = page * 20;   pages starts from 0  i.e. page 2: "page":2,"size":20,"start":40
         payload = clean_payload({"query":["*"],"filter":{"VEHT":[f"vehicle_type_code:VEHTYPE_{type_param}"],"MAKE":[f"lot_make_desc:\"{brand_upper}\""]},"sort":["salelight_priority asc","member_damage_group_priority asc","auction_date_type desc","auction_date_utc asc"],"page":page,"size":20,"start":start,"watchListOnly":False,"freeFormSearch":False,"hideImages":False,"defaultSort":False,"specificRowProvided":False,"displayName":"","searchName":"","backUrl":"","includeTagByField":{"VEHT":"{!tag=VEHT}","MAKE":"{!tag=MAKE}"},"rawParams":{}})
+        #списание тобто salvage
+        # payload = clean_payload({"query":["*"],"filter":{"VEHT":["vehicle_type_code:VEHTYPE_V"],            "MISC":["member_lot_condition:SALVAGE"]},    "sort":["salelight_priority asc","member_damage_group_priority asc","auction_date_type desc","auction_date_utc asc"],"page":0,"size":20,"start":0,       "watchListOnly":false,"freeFormSearch":false,"hideImages":false,"defaultSort":false,"specificRowProvided":false,"displayName":"","searchName":"","backUrl":"","includeTagByField":{"VEHT":"{!tag=VEHT}"},"rawParams":{}})
         # print(f"Payload for brand {brand} page {page + 1}: {payload}")
         # print(f"payload: {payload}")
 
