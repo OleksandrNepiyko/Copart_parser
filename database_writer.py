@@ -9,8 +9,6 @@
 
 #it's completely ready-to-run* version of json->db saver (*read the text above)
 
-#TODO make that if you restart the main func do not resave the last files which are already inserted before the program stopped
-
 import mysql.connector
 import os
 import re
