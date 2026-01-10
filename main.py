@@ -587,7 +587,7 @@ def process_single_lot(brand, page, type_param, number, sloc_display_name):
              # Перевіряємо, може хтось вже оновив поки ми спали
              refresh_copart_session()
 
-def download_photos_from_lot(brand, page, type_param, arr_of_lot_numbers, restart_object, sloc_query_index, sloc_display_name):
+def download_photos_from_lot(brand, page, type_param, arr_of_lot_numbers, restart_object, sloc_query_index = -1, sloc_display_name = None):
     print(f"Download_photos_for_lot: {arr_of_lot_numbers} (Total: {len(arr_of_lot_numbers)})")
 
     # --- Логіка RESTART ---
@@ -704,7 +704,7 @@ def download_photos_from_lot_vehicle_type(file_name, page, all_ln_values, search
         json.dump(restart_point, f, indent=2, ensure_ascii=False)
 
 #old iconic version to download photos (use it as a core fo new versions)
-def download_photos_from_lot(brand, page, type_param, arr_of_lot_numbers, restart_object):
+def download_photos_from_lot_old(brand, page, type_param, arr_of_lot_numbers, restart_object):
     print(f"Download_photos_for_lot: {arr_of_lot_numbers} (Total: {len(arr_of_lot_numbers)})")
 
     # --- Логіка RESTART ---
@@ -758,7 +758,7 @@ def download_photos_from_lot(brand, page, type_param, arr_of_lot_numbers, restar
 
 
 #old iconic version to download data from pages of single brand (use it as a core fo new versions)
-def download_data_from_pages_of_single_brand(brand, type_param, restart_object):
+def download_data_from_pages_of_single_brand_old(brand, type_param, restart_object):
     print(f"download_data_from_pages_of_single_brand: {brand}")
 
     brand_upper = brand.upper()
@@ -774,18 +774,17 @@ def download_data_from_pages_of_single_brand(brand, type_param, restart_object):
     else:
         restart_page = max(0, restart_object['page'] - 1)
 
-    for page in range (restart_page, 51):
+    for page in range (restart_page, 21):
         # time.sleep(0.1)
         print(f"Brand: {brand}, page: {page + 1}")
-        start = page * 20
+        start = page * 100
 
-        payload = clean_payload({"query":["*"],"filter":{"VEHT":[f"vehicle_type_code:VEHTYPE_{type_param}"],"MAKE":[f"lot_make_desc:\"{brand_upper}\""]},"sort":["salelight_priority asc","member_damage_group_priority asc","auction_date_type desc","auction_date_utc asc"],"page":page,"size":20,"start":start,"watchListOnly":False,"freeFormSearch":False,"hideImages":False,"defaultSort":False,"specificRowProvided":False,"displayName":"","searchName":"","backUrl":"","includeTagByField":{"VEHT":"{!tag=VEHT}","MAKE":"{!tag=MAKE}"},"rawParams":{}})
+        payload = clean_payload({"query":["*"],"filter":{"VEHT":[f"vehicle_type_code:VEHTYPE_{type_param}"],"MAKE":[f"lot_make_desc:\"{brand_upper}\""]},"sort":["salelight_priority asc","member_damage_group_priority asc","auction_date_type desc","auction_date_utc asc"],"page":page,"size":100,"start":start,"watchListOnly":False,"freeFormSearch":False,"hideImages":False,"defaultSort":False,"specificRowProvided":False,"displayName":"","searchName":"","backUrl":"","includeTagByField":{"VEHT":"{!tag=VEHT}","MAKE":"{!tag=MAKE}"},"rawParams":{}})
 
         url = "https://www.copart.com/public/lots/vehicle-finder-search-results"
 
-        # --- FIX: Очищаємо змінні перед запитом ---
+        # for correct multi-threading
         response_json = None
-        # ------------------------------------------
 
         response = safe_post(
             url,
@@ -845,12 +844,13 @@ def download_data_from_pages_of_single_brand(brand, type_param, restart_object):
         with open(tech_json_path / 'restart_point.json', 'w', encoding='utf-8') as f:
             json.dump({"brand": brand, "page": page + 1, "lot_number": 0}, f)
 
-def request_with_vehicle_type(search_query, include_tag_by_field, restart_object):
+def request_with_vehicle_type(search_query, include_tag_by_field, restart_object, download_photos_bool):
     """
     makes one request for whole vehicle type
 
     returns:
     - False if no content found
+    - dict with response_json if download_photos_bool is True
     """
 
     headers = {
@@ -867,7 +867,8 @@ def request_with_vehicle_type(search_query, include_tag_by_field, restart_object
         start = page * 100
         payload = clean_payload({"query":["*"],"filter":{"VEHT":[f"{search_query}"]},"sort":["salelight_priority asc","member_damage_group_priority asc","auction_date_type desc","auction_date_utc asc"],"page":page,"size":100,"start":start,"watchListOnly":False,"freeFormSearch":False,"hideImages":False,"defaultSort":False,"specificRowProvided":False,"displayName":"","searchName":"","backUrl":"","includeTagByField":{"VEHT":f"{include_tag_by_field}"},"rawParams":{}})
 
-        print(payload)
+        #tmp
+        # print(f"1\n\n{payload}\n\n")
         url = "https://www.copart.com/public/lots/vehicle-finder-search-results"
 
         # --- FIX: Очищаємо змінні перед запитом ---
@@ -904,8 +905,11 @@ def request_with_vehicle_type(search_query, include_tag_by_field, restart_object
             return False
 
         if response_json.get('data', {}).get('results', {}).get('content', []) == []:
-            print(f"Error request_with_vehicle_type No content.")
+            print(f"No content request_with_vehicle_type for {search_query} page {page}. Probably no more pages.")
             return False
+
+        if download_photos_bool:
+            return response_json
 
         file_name = search_query.split(":")[1]
         try:
@@ -936,22 +940,25 @@ def request_with_vehicle_type(search_query, include_tag_by_field, restart_object
 
 def get_search_results_without_sloc_query(restart_page, brand, headers, cookies, type_param, brand_upper):
     """
+    SHOULD BE USED FOR BRANDS THAT HAVE MORE THAT 1000 LOTS ONLY
     makes one request for specific brand and page but without specifying the SLOC To get all the possible SLOCs for that brand
 
     returns:
     - False if no content found (indicating no more pages for this brand)
-    - dict with 'queries' and 'display_names' lists if successful
+    - Sale locations (dict with 'queries' and 'display_names' lists if successful)
     """
 
     brand_description_configs = [brand_upper]
-    brand_description_configs = get_brand_description_variants(brand_upper)
+    # now get_brand_description_variants is useless because I already have all the right brands
+    # brand_description_configs = get_brand_description_variants(brand_upper)
     for brand_description_config in brand_description_configs: #to try for all configuration of brand name variants
         for page in range (restart_page, 21):
             # time.sleep(0.1)
             print(f"Brand: {brand}, page: {page + 1}")
             start = page * 100
 
-            payload = clean_payload({"query":["*"],"filter":{"VEHT":[f"vehicle_type_code:VEHTYPE_{type_param}"],"MAKE":[f"lot_make_desc:\"{brand_description_config}\""]},"sort":["salelight_priority asc","member_damage_group_priority asc","auction_date_type desc","auction_date_utc asc"],"page":page,"size":100,"start":start,"watchListOnly":False,"freeFormSearch":False,"hideImages":False,"defaultSort":False,"specificRowProvided":False,"displayName":"","searchName":"","backUrl":"","includeTagByField":{"VEHT":"{!tag=VEHT}","MAKE":"{!tag=MAKE}"},"rawParams":{}})
+            print(f"type param: {type_param}, brand_description_config: {brand_description_config}")
+            payload = clean_payload({"query":["*"],"filter":{"VEHT":[f"vehicle_type_code:{type_param}"],"MAKE":[f"lot_make_desc:\"{brand_description_config}\""]},"sort":["salelight_priority asc","member_damage_group_priority asc","auction_date_type desc","auction_date_utc asc"],"page":page,"size":100,"start":start,"watchListOnly":False,"freeFormSearch":False,"hideImages":False,"defaultSort":False,"specificRowProvided":False,"displayName":"","searchName":"","backUrl":"","includeTagByField":{"VEHT":"{!tag=VEHT}","MAKE":"{!tag=MAKE}"},"rawParams":{}})
 
             url = "https://www.copart.com/public/lots/vehicle-finder-search-results"
 
@@ -959,6 +966,8 @@ def get_search_results_without_sloc_query(restart_page, brand, headers, cookies,
             response_json = None
             # ------------------------------------------
 
+            #tmp
+            # print(f"2\n\n{payload}\n\n")
             response = safe_post(
                 url,
                 headers=headers,
@@ -988,6 +997,9 @@ def get_search_results_without_sloc_query(restart_page, brand, headers, cookies,
                 print(f"No content for {brand} on page {page+1}. Finishing brand.")
                 return False
 
+            with open(res_json_path / f'{brand}_{type_param}_page{page + 1}_without_sloc_query.json', 'w', encoding='utf-8') as f:
+                json.dump(response_json, f, ensure_ascii=False, indent=2)
+
             try:
                 # Тут вже безпечно, бо ми перевірили response_json вище
                 content = response_json.get('data', {}).get('results', {}).get('facetFields', [])
@@ -1015,8 +1027,70 @@ def get_search_results_without_sloc_query(restart_page, brand, headers, cookies,
                 })
                 break
 
+def check_if_brand_has_at_least_one_page(restart_page, brand, headers, cookies, type_param, brand_upper):
+    """
+    makes one request for specific brand To get all the possible SLOCs for that brand
 
-def download_data_from_pages_of_single_brand(brand, type_param, restart_object):
+    returns:
+    - False if no content found (indicating no more pages for this brand)
+    - dict with 'queries' and 'display_names' lists if successful
+    """
+
+    brand_description_configs = [brand_upper]
+    # now get_brand_description_variants is useless because I already have all the right brands
+    # brand_description_configs = get_brand_description_variants(brand_upper)
+    for brand_description_config in brand_description_configs: #to try for all configuration of brand name variants
+        for page in range (restart_page, 21):
+            # time.sleep(0.1)
+            print(f"Brand: {brand}, page: {page + 1}")
+            start = page * 100
+
+            print(f"type param: {type_param}, brand_description_config: {brand_description_config}")
+            payload = clean_payload({"query":["*"],"filter":{"VEHT":[f"vehicle_type_code:{type_param}"],"MAKE":[f"lot_make_desc:\"{brand_description_config}\""]},"sort":["salelight_priority asc","member_damage_group_priority asc","auction_date_type desc","auction_date_utc asc"],"page":page,"size":100,"start":start,"watchListOnly":False,"freeFormSearch":False,"hideImages":False,"defaultSort":False,"specificRowProvided":False,"displayName":"","searchName":"","backUrl":"","includeTagByField":{"VEHT":"{!tag=VEHT}","MAKE":"{!tag=MAKE}"},"rawParams":{}})
+
+            url = "https://www.copart.com/public/lots/vehicle-finder-search-results"
+
+            # --- FIX: Очищаємо змінні перед запитом ---
+            response_json = None
+            # ------------------------------------------
+
+            #tmp
+            # print(f"2\n\n{payload}\n\n")
+            response = safe_post(
+                url,
+                headers=headers,
+                cookies=cookies,
+                json=payload,
+                timeout=30
+            )
+
+            if response.status_code != 200:
+                print(f"Failed to load page {page + 1} for {brand}. Status: {response.status_code}")
+                break
+
+            try:
+                response_json = response.json()
+            except Exception as e:
+                print(f"JSON Decode Error on page {page + 1}: {e}")
+                # Можливо, safe_post повернув HTML. Ми не можемо продовжувати з цією сторінкою.
+                break
+
+            # --- FIX: Перевірка на NoneType перед доступом ---
+            if response_json is None:
+                print(f"response_json is None for page {page + 1}. Skipping.")
+                break
+            # -------------------------------------------------
+
+            if response_json.get('data', {}).get('results', {}).get('content', []) == []:
+                print(f"No content for {brand} on page {page+1}. Finishing brand.")
+                return False
+            else:
+                return True
+
+def download_data_from_pages_of_single_brand_with_vehicle_type_and_brand(brand, type_param, restart_object):
+    """
+    makes requests for specific brand and vehicle type
+    """
     print(f"download_data_from_pages_of_single_brand: {brand}")
 
     brand_upper = brand.upper()
@@ -1032,20 +1106,126 @@ def download_data_from_pages_of_single_brand(brand, type_param, restart_object):
     else:
         restart_page = max(0, restart_object['page'] - 1)
 
-
-    home_content = {}
+    home_content = {} #to make it pretty json format, not one line
     with open (Path("tech_json/HOME.json"), "r", encoding="utf-8") as f:
         home_content = json.load(f)
 
     with open (Path("tech_json/HOME.json"), "w", encoding="utf-8") as f:
         json.dump(home_content, f, ensure_ascii=False, indent=2)
 
-    brand = home_content['brand']
+    brand_has_at_least_one_page = check_if_brand_has_at_least_one_page(restart_page, brand, headers, cookies, type_param, brand_upper)
 
+    if not brand_has_at_least_one_page:
+        print(f"Skipping {brand} because initial search returned no content.")
+        return
 
-    brand_has_at_least_one_page = get_search_results_without_sloc_query(restart_page, brand, headers, cookies, type_param, brand_upper)
+    # brand_upper = brand_has_at_least_one_page.get('brand_upper', brand_upper) #becaues if this
+    # brand have received response for some configuration of brand name variant,
+    # you should use this configuration because it's confirmed to work
 
-    brand_upper = brand_has_at_least_one_page.get('brand_upper', brand_upper) #becaues if this
+    for page in range (restart_page, 21):
+        # time.sleep(0.1)
+        print(f"Brand: {brand}, page: {page + 1}")
+        start = page * 100
+
+        payload = clean_payload({"query":["*"],"filter":{"VEHT":[f"vehicle_type_code:{type_param}"],"MAKE":[f"lot_make_desc:\"{brand_upper}\""]},"sort":["salelight_priority asc","member_damage_group_priority asc","auction_date_type desc","auction_date_utc asc"],"page":page,"size":100,"start":start,"watchListOnly":False,"freeFormSearch":False,"hideImages":False,"defaultSort":False,"specificRowProvided":False,"displayName":"","searchName":"","backUrl":"","includeTagByField":{"VEHT":"{!tag=VEHT}","MAKE":"{!tag=MAKE}"},"rawParams":{}})
+
+        url = "https://www.copart.com/public/lots/vehicle-finder-search-results"
+
+        # Очищаємо змінні перед запитом для багатопоточності
+        response_json = None
+
+        response = safe_post(
+            url,
+            headers=headers,
+            cookies=cookies,
+            json=payload,
+            timeout=30
+        )
+
+        if response.status_code != 200:
+            print(f"Failed to load page {page + 1} for {brand}. Status: {response.status_code}")
+            continue # Пропускаємо ітерацію, не йдемо вниз
+
+        try:
+            response_json = response.json()
+        except Exception as e:
+            print(f"JSON Decode Error on page {page + 1}: {e}")
+            # Можливо, safe_post повернув HTML. Ми не можемо продовжувати з цією сторінкою.
+            continue
+
+        # --- FIX: Перевірка на NoneType перед доступом ---
+        if response_json is None:
+            print(f"response_json is None for page {page + 1}. Skipping.")
+            continue
+        # -------------------------------------------------
+
+        if response_json.get('data', {}).get('results', {}).get('content', []) == []:
+            print(f"No content for {brand} on page {page+1}. Finishing brand.")
+            break
+
+        try:
+            with open(res_json_path / f'{brand_with_underscores}_{type_param}_page{page + 1}.json', 'w', encoding='utf-8') as f:
+                json.dump(response_json, f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            print(f"File save error: {e}")
+
+        all_ln_values = []
+        try:
+            # Тут вже безпечно, бо ми перевірили response_json вище
+            content = response_json.get('data', {}).get('results', {}).get('content', [])
+            for item in content:
+                if 'ln' in item:
+                    all_ln_values.append(item['ln'])
+        except Exception as e:
+            print(f"Error extracting ln values on page {page + 1}: {e}")
+            continue
+
+        per_page_restart = None
+        if restart_object and isinstance(restart_object, dict) and restart_object.get('page') == page:
+            per_page_restart = restart_object
+
+        if len(all_ln_values) != 0:
+            download_photos_from_lot(brand, page, type_param, all_ln_values, per_page_restart)
+        else:
+            print(f"No lot numbers found on page {page+1}")
+
+        with open(tech_json_path / 'restart_point.json', 'w', encoding='utf-8') as f:
+            json.dump({"brand": brand, "page": page + 1, 'sloc_query_index': -1, "lot_number": 0}, f)
+
+def download_data_from_pages_of_single_brand(brand, type_param, restart_object):
+    """
+    IT SHOULD BE RENAMED and USED FOR BRANDS THAT HAVE MORE THAT 1000 LOTS ONLY and add tag for SLOC queries if its needed
+    """
+    print(f"download_data_from_pages_of_single_brand: {brand}")
+
+    brand_upper = brand.upper()
+    brand_with_underscores = brand.replace(" ", "_").replace("/","_")
+
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Mobile Safari/537.36',
+    }
+    cookies = {}
+
+    if restart_object == None or restart_object == '':
+        restart_page = 0
+    else:
+        restart_page = max(0, restart_object['page'] - 1)
+
+    home_content = {} #to make it pretty json format, not one line
+    with open (Path("tech_json/HOME.json"), "r", encoding="utf-8") as f:
+        home_content = json.load(f)
+
+    with open (Path("tech_json/HOME.json"), "w", encoding="utf-8") as f:
+        json.dump(home_content, f, ensure_ascii=False, indent=2)
+
+    brand_has_at_least_one_page = check_if_brand_has_at_least_one_page(restart_page, brand, headers, cookies, type_param, brand_upper)
+
+    if not brand_has_at_least_one_page:
+        print(f"Skipping {brand} because initial search returned no content.")
+        return
+
+    # brand_upper = brand_has_at_least_one_page.get('brand_upper', brand_upper) #becaues if this
     # brand have received response for some configuration of brand name variant,
     # you should use this configuration because it's confirmed to work
 
@@ -1078,7 +1258,7 @@ def download_data_from_pages_of_single_brand(brand, type_param, restart_object):
             print(f"Brand: {brand}, page: {page + 1}")
             start = page * 100
 
-            payload = clean_payload({"query":["*"],"filter":{"VEHT":[f"vehicle_type_code:VEHTYPE_{type_param}"],"MAKE":[f"lot_make_desc:\"{brand_upper}\""],"SLOC":[f"{sloc_queries[sloc_query_index]}"]},"sort":["salelight_priority asc","member_damage_group_priority asc","auction_date_type desc","auction_date_utc asc"],"page":page,"size":100,"start":start,"watchListOnly":False,"freeFormSearch":False,"hideImages":False,"defaultSort":False,"specificRowProvided":False,"displayName":"","searchName":"","backUrl":"","includeTagByField":{"VEHT":"{!tag=VEHT}","MAKE":"{!tag=MAKE}"},"rawParams":{}})
+            payload = clean_payload({"query":["*"],"filter":{"VEHT":[f"vehicle_type_code:{type_param}"],"MAKE":[f"lot_make_desc:\"{brand_upper}\""],"SLOC":[f"{sloc_queries[sloc_query_index]}"]},"sort":["salelight_priority asc","member_damage_group_priority asc","auction_date_type desc","auction_date_utc asc"],"page":page,"size":100,"start":start,"watchListOnly":False,"freeFormSearch":False,"hideImages":False,"defaultSort":False,"specificRowProvided":False,"displayName":"","searchName":"","backUrl":"","includeTagByField":{"VEHT":"{!tag=VEHT}","MAKE":"{!tag=MAKE}"},"rawParams":{}})
 
             url = "https://www.copart.com/public/lots/vehicle-finder-search-results"
 
@@ -1213,8 +1393,42 @@ def download_data_from_pages_of_each_brand():
         current_restart_obj = restart_obj if search_query == restart_search_query else None
         if number_of_lots <= 1000:
             print(f"Processing vehicle type: {search_query} with {number_of_lots} lots.")
-            request_with_vehicle_type(search_query, include_tag_by_field, current_restart_obj)
+            request_with_vehicle_type(search_query, include_tag_by_field, current_restart_obj, False)
             restart_search_query = None
+        elif number_of_lots > 1000:
+            print(f"search_query: {search_query}")
+            response_json = request_with_vehicle_type(search_query, include_tag_by_field, current_restart_obj, True)
+            if response_json == False:
+                print(f"Error. The func: request_with_vehicle_type with {search_query} returned False instead of response_json.")
+                save_error({
+                    'search_query': search_query,
+                    'error_type': f"Error. The func: request_with_vehicle_type with {search_query} returned False instead of response_json."
+                })
+                continue
+            facet_fields = response_json.get('data', {}).get('results', {}).get('facetFields', [])
+            # This finds the FIRST item that matches and stops searching immediately
+            make_array = next((item for item in facet_fields if item.get("quickPickCode") == "MAKE"), None)
+            if make_array is None:
+                print(f"Error. No MAKE facet found for vehicle type: {search_query}. Skipping.")
+                save_error({
+                    'search_query': search_query,
+                    'error_type': f"Error. No MAKE facet found for vehicle type: {search_query}."
+                })
+                continue
+            brand_array = make_array.get('facetCounts', [])
+
+            for brand in brand_array:
+                brand_description = brand.get('displayName')
+                brand_count = brand.get('count')
+
+                if brand_count <= 1000:
+                    vehtype = search_query.split(":")[1]
+                    print(f"Processing brand: {brand_description} with {brand_count} lots under vehicle type: {vehtype}.")
+                    download_data_from_pages_of_single_brand_with_vehicle_type_and_brand(brand_description, vehtype, current_restart_obj)
+                    restart_obj = None
+                elif brand_count > 1000:
+                    print(f"Search for brand: {brand_description} with {brand_count} lots under vehicle type: {search_query} exceeds 1000 lots. Further subdivision needed.")
+
 
             # for brand in content:
             #     if skip_brand:
@@ -1295,6 +1509,9 @@ def main():
         except (requests.exceptions.ConnectionError, RuntimeError, Exception) as e:
             print(f"Critial error or Network error: {e}")
             print("Restarting in 60 sec...")
+            save_error({
+                'error_type': f"Critial error or Network error: {e}"
+            })
             time.sleep(60)
 
     #launch database writing
