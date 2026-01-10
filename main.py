@@ -55,16 +55,16 @@ def kill_chrome_processes():
         try:
             os.system("taskkill /f /im chrome.exe >nul 2>&1")
             os.system("taskkill /f /im chromedriver.exe >nul 2>&1")
-        except: 
+        except:
             pass
 
 def get_copart_session_data(headless=False):
     """
-    Launches a browser (UC mode), bypasses Cloudflare/CAPTCHA, 
+    Launches a browser (UC mode), bypasses Cloudflare/CAPTCHA,
     and returns a dictionary of cookies and headers.
     """
     kill_chrome_processes()
-    
+
     # Base structure for the result
     data = {
         "cookies": {},
@@ -77,11 +77,11 @@ def get_copart_session_data(headless=False):
     }
 
     # uc=True is mandatory for Cloudflare bypass
-    # with SB(uc=True, incognito=True, test=True, headless=headless) as sb: 
+    # with SB(uc=True, incognito=True, test=True, headless=headless) as sb:
     with SB(uc=True, incognito=True, headless=headless) as sb:# test=True removed to not see reduntant logs
         try:
             sb.open("https://www.copart.com/vehicleFinder")
-            
+
             # --- Smart Wait Logic ---
             # Loops for up to 60s to ensure page is fully loaded and CAPTCHA is solved
             page_loaded = False
@@ -91,13 +91,13 @@ def get_copart_session_data(headless=False):
                    (sb.is_element_visible('#serverSideDataTable') or sb.is_element_visible('.inner-wrap')):
                     page_loaded = True
                     break
-                
+
                 # Auto-solve Cloudflare checkbox if visible
                 if sb.is_element_visible('iframe[src*="cloudflare"]'):
                     sb.uc_gui_click_captcha()
-                
+
                 time.sleep(1)
-            
+
             if not page_loaded:
                 raise TimeoutError("Copart page failed to load (Cloudflare or Timeout).")
 
@@ -106,7 +106,7 @@ def get_copart_session_data(headless=False):
             # --- Data Extraction ---
             # 1. User Agent
             data["headers"]["User-Agent"] = sb.get_user_agent()
-            
+
             # 2. Cookies (via CDP for completeness)
             cookies_data = sb.cdp.get_all_cookies()
             cookie_dict = {}
@@ -128,7 +128,7 @@ def get_copart_session_data(headless=False):
                         xsrf_token = value
 
             data["cookies"] = cookie_dict
-            
+
             # 3. XSRF Token (Check Cookies -> then LocalStorage)
             if xsrf_token:
                 data["headers"]["X-XSRF-TOKEN"] = xsrf_token
@@ -180,14 +180,14 @@ def safe_post(url, **kwargs):
     for attempt in range(5):
         try:
             response = SESSION.post(url, **kwargs)
-            
+
             # Якщо успіх (200) - перевіряємо, чи це дійсно JSON, а не сторінка блокування Cloudflare
             if response.status_code == 200:
                 # Copart іноді віддає 200 OK, але всередині HTML з капчею.
                 # Спробуємо перевірити content-type або просто повернемо, а process_single_lot розбереться
                 if "application/json" in response.headers.get("Content-Type", ""):
                     return response
-                
+
                 # Якщо це не JSON, можливо нас блокують, але поки повернемо як є.
                 # (Але якщо це Cloudflare, наступний код впаде, тому див. нижче)
                 return response
@@ -195,14 +195,14 @@ def safe_post(url, **kwargs):
             # Якщо помилка 403 (Forbidden) або 429 (Too Many Requests) або 503
             if response.status_code in [403, 429, 503]:
                 print(f"[SafePost] Got status {response.status_code}. Attempt {attempt+1}/5. Forcing Refresh...")
-                
+
                 # Блокуємо, щоб інші потоки почекали
                 with SESSION_LOCK:
                     # Додаємо невелику затримку, щоб не спамити браузерами
-                    time.sleep(2) 
+                    time.sleep(2)
                     refresh_copart_session()
                     # Скидаємо лічильник, бо ми щойно оновились
-                    POST_COUNT = 0 
+                    POST_COUNT = 0
                 continue # Йдемо на наступну ітерацію циклу (повторний запит)
 
         except requests.exceptions.ConnectionError:
@@ -213,13 +213,13 @@ def safe_post(url, **kwargs):
              # Якщо сталася дивна помилка, теж спробуємо оновитись на всяк випадок
              with SESSION_LOCK:
                  refresh_copart_session()
-             
+
     # Якщо після 5 спроб і оновлень нічого не вийшло
     print("[SafePost] Failed after 5 retries.")
     # Повертаємо dummy об'єкт з кодом 500, щоб програма не крашилась, а просто пропускала лот
     dummy = requests.Response()
     dummy.status_code = 500
-    dummy._content = b"{}" 
+    dummy._content = b"{}"
     return dummy
 
 def refresh_table_index():
@@ -235,7 +235,7 @@ def refresh_table_index():
         save_error({
                 'error_type': f"refresh() Error reading table_index.json: {e}"
             })
-        
+
 def get_table_index():
     try:
         with open (db_tech_json_path / 'table_index.json', 'r', encoding='utf-8') as f:
@@ -252,7 +252,7 @@ def get_table_index():
 def save_start_or_finish_time(writing_start_time):
     table_index = get_table_index()
     history = []
-    
+
     # 1. Завантажуємо існуючий список
     try:
         with open(tech_json_path / 'working_time.json', 'r', encoding='utf-8') as f:
@@ -291,10 +291,10 @@ def save_start_or_finish_time(writing_start_time):
                 "finished_writing_to_db": current_time_str,
                 "time_of_parsing": "Error: No start time recorded"
             })
-        
+
         # Беремо останній елемент (над яким зараз працюємо)
         current_obj = history[-1]
-        
+
         # Перевірка: чи збігається індекс (опціонально, але корисно для дебагу)
         # current_obj["table_index"] = table_index # Можна примусово оновити, якщо треба
 
@@ -326,75 +326,75 @@ def save_start_or_finish_time(writing_start_time):
         except:
             pass
         return False
-        
+
     return True
 
-def extract_json_from_list_of_all_brands(): 
+def extract_json_from_list_of_all_brands():
     #extracts all data from js file, but not everything is needed. result is in tech_json/data_from_js.json
     tech_json_path.mkdir(exist_ok=True)
-    
+
     with open('data_from_base_page_with_all_brands.js', 'r', encoding='utf-8') as f:
         js_content = f.read()
-    
+
     name_of_var_inside = 'referenceDataLess'
-    
+
     # Method 1: Simple regex with json.loads
     pattern = rf'var\s+{name_of_var_inside}\s*=\s*(\{{[\s\S]*?\}})\s*;'
     match = re.search(pattern, js_content)
-    
+
     if match:
         raw_js_object = match.group(1)
         print(f"Found variable, raw length: {len(raw_js_object)}")
-        
+
         # Clean up - remove trailing commas that break JSON
         cleaned = re.sub(r',\s*}', '}', raw_js_object)
         cleaned = re.sub(r',\s*]', ']', cleaned)
-        
+
         # Fix the escape sequences that cause warnings
         cleaned = cleaned.replace(r'\/', '/')
-        
+
         try:
             # Parse as JSON directly
             data = json.loads(cleaned)
-            
+
             with open(tech_json_path / 'data_from_js.json', 'w', encoding='utf-8') as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
             print(f"Successfully extracted {name_of_var_inside}")
             return data
-            
+
         except json.JSONDecodeError as e:
             print(f"JSON decode error: {e}")
             print("Trying alternative method...")
-            
+
             # Alternative: Use execjs if available
             try:
-                
+
                 # Create JS context and extract the variable
                 ctx = execjs.compile(js_content + f"\nJSON.stringify({name_of_var_inside})")
                 json_str = ctx.eval(f"JSON.stringify({name_of_var_inside})")
                 data = json.loads(json_str)
-                
+
                 with open(tech_json_path / 'data_from_js.json', 'w', encoding='utf-8') as f:
                     json.dump(data, f, indent=2, ensure_ascii=False)
                 print(f"Successfully extracted {name_of_var_inside} using execjs")
                 return data
-                
+
             except ImportError:
                 print("execjs not available. Install with: pip install pyexecjs")
             except Exception as e2:
                 print(f"execjs also failed: {e2}")
-                
+
             # Last resort: manual conversion
             try:
                 # Convert JS to Python literals
                 cleaned = cleaned.replace('true', 'True').replace('false', 'False').replace('null', 'None')
                 data = eval(cleaned)
-                
+
                 with open(tech_json_path / 'data_from_js.json', 'w', encoding='utf-8') as f:
                     json.dump(data, f, indent=2, ensure_ascii=False)
                 print(f"Successfully extracted {name_of_var_inside} using eval")
                 return data
-                
+
             except Exception as e3:
                 print(f"All methods failed: {e3}")
                 # Save problematic content
@@ -406,9 +406,9 @@ def extract_json_from_list_of_all_brands():
         save_error({
                 'error_type': f"Variable {name_of_var_inside} not found"
             })
-        
+
 def get_brand_description_variants(brand_name):
-    #returns list of possible brand name with space variants for searching 
+    #returns list of possible brand name with space variants for searching
     variants = []
     # variants.append(brand_name) #because I've added it in the place of calling function
     variants.append(brand_name.replace(" ", "_"))
@@ -428,7 +428,7 @@ def extract_vehicle_types():
                 'error_type': "extract_vehicle_types() data_from_js.json not found. Run extract_json_from_list_of_all_brands() first."
             })
         return
-    
+
     try:
         if len(vehicleTypes)>0 and vehicleTypes != None:
             with open(tech_json_path / 'vehicle_types.json', 'w', encoding='utf-8') as f:
@@ -437,7 +437,7 @@ def extract_vehicle_types():
             print("vehicle_types.json is empty or None")
             save_error({
                     'error_type': "vehicle_types.json is empty or None"
-                })    
+                })
     except Exception as e:
         print(f"extract_vehicle_types(): Exception: {e}")
         save_error({
@@ -445,14 +445,14 @@ def extract_vehicle_types():
             })
         return
 
-def filter_unique_brands(brands_list): 
-    #unused now (it deletes based on brand name while the same brand can 
+def filter_unique_brands(brands_list):
+    #unused now (it deletes based on brand name while the same brand can
     # produce different types of vehicles, like buses and automobiles from chevrolet etc)
     # after its work remaining 50270 lines vs 62293 lines originally
-    # that is 12567 vs 15573 vehicle classes 
+    # that is 12567 vs 15573 vehicle classes
     """
     Приймає список словників брендів.
-    Повертає новий список, де для кожного унікального 'description' 
+    Повертає новий список, де для кожного унікального 'description'
     залишено лише один запис (перший знайдений).
     """
     seen_descriptions = set()
@@ -461,16 +461,16 @@ def filter_unique_brands(brands_list):
     for brand in brands_list:
         # Отримуємо значення description (наприклад "Acura", "BMW")
         description = brand.get('description')
-        
+
         # Якщо description існує і ми його ще не бачили
         if description and description not in seen_descriptions:
             unique_list.append(brand)
             seen_descriptions.add(description)
-            
+
     return unique_list
 
-def extract_automobile_brands_list(extract_only_automobile): 
-    #extracts from tech_json/data_from_js.json only automobile firms and ignores duplicates with suv/sedan/automobile duplications. 
+def extract_automobile_brands_list(extract_only_automobile):
+    #extracts from tech_json/data_from_js.json only automobile firms and ignores duplicates with suv/sedan/automobile duplications.
     # it extracts only with 'automobile' type and saves it in tech_json/list_of_automobile_brands.json
     try:
         with open(tech_json_path / 'data_from_js.json', 'r', encoding='utf-8') as f:
@@ -485,7 +485,7 @@ def extract_automobile_brands_list(extract_only_automobile):
     except json.JSONDecodeError as e:
         print(f"Error: Invalid JSON format - {e}")
         return
-    
+
     # to filter duplicates based on 'description' field
     # automobile_brands_list = filter_unique_brands(automobile_brands_list)
 
@@ -503,7 +503,7 @@ def extract_automobile_brands_list(extract_only_automobile):
         except KeyError:
             print(f"Warning: Brand missing 'type' field, skipping: {brand}")
             continue
-    
+
     try:
         with open(tech_json_path / 'list_of_automobile_brands.json', 'w', encoding='utf-8') as f:
             json.dump(automobile_brands_list_with_automobile_type, f, indent=2, ensure_ascii=False)
@@ -511,11 +511,48 @@ def extract_automobile_brands_list(extract_only_automobile):
     except IOError as e:
         print(f"Error: Could not write to file - {e}")
 
+def process_single_lot_vehicle_type(file_name, page, number):
+    # Випадкова затримка
+    time.sleep(random.uniform(0.5, 2.0))
+
+    url = "https://www.copart.com/public/data/lotdetails/solr/lot-images/"
+    payload = {"lotNumber": number}
+
+    # safe_post тепер сам спробує оновитись, якщо отримає 403
+    r = safe_post(url, json=payload)
+
+    if r.status_code != 200:
+        print(f"Error {r.status_code} for lot {number} in {file_name} page {page}")
+        save_error({
+            'file_name': file_name,
+            'page': page,
+            'lot_number': number,
+            'error_type': f"HTTP Error {r.status_code} for lot {number} in {file_name} page {page}"
+        })
+        return
+
+    try:
+        data = r.json()
+
+        target_dir = res_json_path / f"{file_name}_page{page + 1}_photos"
+        target_dir.mkdir(parents=True, exist_ok=True)
+
+        with open(target_dir / f"{number}.json", "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+
+    except Exception as e:
+        # Якщо ми тут, значить safe_post повернув 200 OK, але це НЕ JSON.
+        # Це 100% блок від Cloudflare. Треба оновлюватись.
+        print(f"JSON Error for lot {number} in {file_name} page {page} (Likely soft-block). Triggering refresh...")
+        with SESSION_LOCK:
+             # Перевіряємо, може хтось вже оновив поки ми спали
+             refresh_copart_session()
+
 def process_single_lot(brand, page, type_param, number, sloc_display_name):
     # Випадкова затримка
     time.sleep(random.uniform(0.5, 2.0))
     brand_with_underscores = brand.replace(" ", "_").replace("/","_")
-    
+
     headers = {
         'Accept': 'application/json, text/plain, */*',
         'Content-Type': 'application/json',
@@ -530,18 +567,18 @@ def process_single_lot(brand, page, type_param, number, sloc_display_name):
     r = safe_post(url, json=payload)
 
     if r.status_code != 200:
-        # print(f"Error {r.status_code} for lot {number}") 
+        # print(f"Error {r.status_code} for lot {number}")
         return
 
     try:
         data = r.json()
-        
+
         target_dir = res_json_path / f"{brand_with_underscores}_{type_param}_{sloc_display_name}_page{page + 1}_photos"
         target_dir.mkdir(parents=True, exist_ok=True)
 
         with open(target_dir / f"{number}.json", "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
-            
+
     except Exception as e:
         # Якщо ми тут, значить safe_post повернув 200 OK, але це НЕ JSON.
         # Це 100% блок від Cloudflare. Треба оновлюватись.
@@ -552,7 +589,7 @@ def process_single_lot(brand, page, type_param, number, sloc_display_name):
 
 def download_photos_from_lot(brand, page, type_param, arr_of_lot_numbers, restart_object, sloc_query_index, sloc_display_name):
     print(f"Download_photos_for_lot: {arr_of_lot_numbers} (Total: {len(arr_of_lot_numbers)})")
-    
+
     # --- Логіка RESTART ---
     # Фільтруємо список номерів ДО запуску потоків
     restart_lot_number = 0
@@ -573,13 +610,13 @@ def download_photos_from_lot(brand, page, type_param, arr_of_lot_numbers, restar
     # --- БАГАТОПОТОЧНІСТЬ ---
     # max_workers=5 означає, що одночасно буде качатися 5 фотографій.
     # Не ставте занадто багато (наприклад 20), бо Copart може забанити IP.
-    
+
     with ThreadPoolExecutor(max_workers=3) as executor:
         futures = []
         for number in lots_to_process:
             # Ми не викликаємо функцію, а плануємо її виконання (submit)
             futures.append(executor.submit(process_single_lot, brand, page, type_param, number, sloc_display_name))
-        
+
         # Чекаємо завершення всіх завдань на цій сторінці
         for future in as_completed(futures):
             try:
@@ -599,7 +636,7 @@ def download_photos_from_lot(brand, page, type_param, arr_of_lot_numbers, restar
             'brand': brand,
             'page': page + 1,
             'sloc_query_index': sloc_query_index,
-            'lot_number': 0 
+            'lot_number': 0
         }
         json.dump(restart_point, f, indent=2, ensure_ascii=False)
 
@@ -630,6 +667,273 @@ def clean_payload(payload: dict) -> dict:
 
     return clean
 
+def download_photos_from_lot_vehicle_type(file_name, page, all_ln_values, search_query):
+    print(f"Download_photos_for_lot {file_name}: {all_ln_values} (Total: {len(all_ln_values)})")
+
+    # --- БАГАТОПОТОЧНІСТЬ ---
+    # max_workers=3 означає, що одночасно буде качатися 3 фотографій.
+
+    with ThreadPoolExecutor(max_workers=3) as executor:
+        futures = []
+        for number in all_ln_values:
+            # Ми не викликаємо функцію, а плануємо її виконання (submit)
+            futures.append(executor.submit(process_single_lot_vehicle_type, file_name, page, number))
+
+        # Чекаємо завершення всіх завдань на цій сторінці
+        for future in as_completed(futures):
+            try:
+                future.result() # Тут вилетить помилка, якщо вона сталася всередині потоку
+            except Exception as e:
+                print(f"Thread execution failed: {e}")
+                save_error({
+                    'search_query': search_query,
+                    'brand': None,
+                    'page': page,
+                    'error_type': f"Thread execution failed: {e}"
+                })
+
+    # --- ЗБЕРЕЖЕННЯ ТОЧКИ ---
+    # Зберігаємо, що ми закінчили цю сторінку (обнуляємо lot_number)
+    with open(tech_json_path /'restart_point.json', 'w', encoding='utf-8') as f:
+        restart_point = {
+            'search_query': search_query,
+            'brand': None,
+            'page': page + 1,
+            'lot_number': 0
+        }
+        json.dump(restart_point, f, indent=2, ensure_ascii=False)
+
+#old iconic version to download photos (use it as a core fo new versions)
+def download_photos_from_lot(brand, page, type_param, arr_of_lot_numbers, restart_object):
+    print(f"Download_photos_for_lot: {arr_of_lot_numbers} (Total: {len(arr_of_lot_numbers)})")
+
+    # --- Логіка RESTART ---
+    # Фільтруємо список номерів ДО запуску потоків
+    restart_lot_number = 0
+    if restart_object and isinstance(restart_object, dict):
+        restart_lot_number = restart_object.get('lot_number', 0)
+
+    lots_to_process = []
+    if restart_lot_number != 0:
+        if restart_lot_number in arr_of_lot_numbers:
+            idx = arr_of_lot_numbers.index(restart_lot_number)
+            lots_to_process = arr_of_lot_numbers[idx:] # Починаємо з місця зупинки
+        else:
+            # Якщо номер не знайдено (дивна ситуація), беремо всі
+            lots_to_process = arr_of_lot_numbers
+    else:
+        lots_to_process = arr_of_lot_numbers
+
+    # --- БАГАТОПОТОЧНІСТЬ ---
+    # max_workers=5 означає, що одночасно буде качатися 5 фотографій.
+    # Не ставте занадто багато (наприклад 20), бо Copart може забанити IP.
+
+    with ThreadPoolExecutor(max_workers=3) as executor:
+        futures = []
+        for number in lots_to_process:
+            # Ми не викликаємо функцію, а плануємо її виконання (submit)
+            futures.append(executor.submit(process_single_lot, brand, page, type_param, number))
+
+        # Чекаємо завершення всіх завдань на цій сторінці
+        for future in as_completed(futures):
+            try:
+                future.result() # Тут вилетить помилка, якщо вона сталася всередині потоку
+            except Exception as e:
+                print(f"Thread execution failed: {e}")
+                save_error({
+                    'brand': brand,
+                    'page': page,
+                    'error_type': f"Thread execution failed: {e}"
+                })
+
+    # --- ЗБЕРЕЖЕННЯ ТОЧКИ ---
+    # Зберігаємо, що ми закінчили цю сторінку (обнуляємо lot_number)
+    with open(tech_json_path /'restart_point.json', 'w', encoding='utf-8') as f:
+        restart_point = {
+            'brand': brand,
+            'page': page + 1,
+            'lot_number': 0
+        }
+        json.dump(restart_point, f, indent=2, ensure_ascii=False)
+
+
+#old iconic version to download data from pages of single brand (use it as a core fo new versions)
+def download_data_from_pages_of_single_brand(brand, type_param, restart_object):
+    print(f"download_data_from_pages_of_single_brand: {brand}")
+
+    brand_upper = brand.upper()
+    brand_with_underscores = brand.replace(" ", "_").replace("/","_")
+
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Mobile Safari/537.36',
+    }
+    cookies = {}
+
+    if restart_object == None or restart_object == '':
+        restart_page = 0
+    else:
+        restart_page = max(0, restart_object['page'] - 1)
+
+    for page in range (restart_page, 51):
+        # time.sleep(0.1)
+        print(f"Brand: {brand}, page: {page + 1}")
+        start = page * 20
+
+        payload = clean_payload({"query":["*"],"filter":{"VEHT":[f"vehicle_type_code:VEHTYPE_{type_param}"],"MAKE":[f"lot_make_desc:\"{brand_upper}\""]},"sort":["salelight_priority asc","member_damage_group_priority asc","auction_date_type desc","auction_date_utc asc"],"page":page,"size":20,"start":start,"watchListOnly":False,"freeFormSearch":False,"hideImages":False,"defaultSort":False,"specificRowProvided":False,"displayName":"","searchName":"","backUrl":"","includeTagByField":{"VEHT":"{!tag=VEHT}","MAKE":"{!tag=MAKE}"},"rawParams":{}})
+
+        url = "https://www.copart.com/public/lots/vehicle-finder-search-results"
+
+        # --- FIX: Очищаємо змінні перед запитом ---
+        response_json = None
+        # ------------------------------------------
+
+        response = safe_post(
+            url,
+            headers=headers,
+            cookies=cookies,
+            json=payload,
+            timeout=30
+        )
+
+        if response.status_code != 200:
+            print(f"Failed to load page {page + 1} for {brand}. Status: {response.status_code}")
+            continue # Пропускаємо ітерацію, не йдемо вниз
+
+        try:
+            response_json = response.json()
+        except Exception as e:
+            print(f"JSON Decode Error on page {page + 1}: {e}")
+            # Можливо, safe_post повернув HTML. Ми не можемо продовжувати з цією сторінкою.
+            continue
+
+        # --- FIX: Перевірка на NoneType перед доступом ---
+        if response_json is None:
+            print(f"response_json is None for page {page + 1}. Skipping.")
+            continue
+        # -------------------------------------------------
+
+        if response_json.get('data', {}).get('results', {}).get('content', []) == []:
+            print(f"No content for {brand} on page {page+1}. Finishing brand.")
+            break
+
+        try:
+            with open(res_json_path / f'{brand_with_underscores}_{type_param}_page{page + 1}.json', 'w', encoding='utf-8') as f:
+                json.dump(response_json, f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            print(f"File save error: {e}")
+
+        all_ln_values = []
+        try:
+            # Тут вже безпечно, бо ми перевірили response_json вище
+            content = response_json.get('data', {}).get('results', {}).get('content', [])
+            for item in content:
+                if 'ln' in item:
+                    all_ln_values.append(item['ln'])
+        except Exception as e:
+            print(f"Error extracting ln values on page {page + 1}: {e}")
+            continue
+
+        per_page_restart = None
+        if restart_object and isinstance(restart_object, dict) and restart_object.get('page') == page:
+            per_page_restart = restart_object
+
+        if len(all_ln_values) != 0:
+            download_photos_from_lot(brand, page, type_param, all_ln_values, per_page_restart)
+        else:
+            print(f"No lot numbers found on page {page+1}")
+
+        with open(tech_json_path / 'restart_point.json', 'w', encoding='utf-8') as f:
+            json.dump({"brand": brand, "page": page + 1, "lot_number": 0}, f)
+
+def request_with_vehicle_type(search_query, include_tag_by_field, restart_object):
+    """
+    makes one request for whole vehicle type
+
+    returns:
+    - False if no content found
+    """
+
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Mobile Safari/537.36',
+    }
+    cookies = {}
+
+    if restart_object == None or restart_object == '':
+        restart_page = 0
+    else:
+        restart_page = max(0, restart_object['page'] - 1)
+
+    for page in range (restart_page, 21):
+        start = page * 100
+        payload = clean_payload({"query":["*"],"filter":{"VEHT":[f"{search_query}"]},"sort":["salelight_priority asc","member_damage_group_priority asc","auction_date_type desc","auction_date_utc asc"],"page":page,"size":100,"start":start,"watchListOnly":False,"freeFormSearch":False,"hideImages":False,"defaultSort":False,"specificRowProvided":False,"displayName":"","searchName":"","backUrl":"","includeTagByField":{"VEHT":f"{include_tag_by_field}"},"rawParams":{}})
+
+        print(payload)
+        url = "https://www.copart.com/public/lots/vehicle-finder-search-results"
+
+        # --- FIX: Очищаємо змінні перед запитом ---
+        response_json = None
+        # ------------------------------------------
+
+        response = safe_post(
+            url,
+            headers=headers,
+            cookies=cookies,
+            json=payload,
+            timeout=30
+        )
+
+        if response.status_code != 200:
+            print(f"Error request_with_vehicle_type Failed to load page Status: {response.status_code}")
+            save_error({
+                'search_query': search_query,
+                'brand': None,
+                'page': page,
+                'error_type': f"Error request_with_vehicle_type Failed to load page Status: {response.status_code}"
+            })
+            return False
+
+        try:
+            response_json = response.json()
+        except Exception as e:
+            print(f"Error request_with_vehicle_type JSON Decode Erro: {e}")
+            # Можливо, safe_post повернув HTML. Ми не можемо продовжувати з цією сторінкою.
+            return False
+
+        if response_json is None:
+            print(f"Error request_with_vehicle_type response_json is None")
+            return False
+
+        if response_json.get('data', {}).get('results', {}).get('content', []) == []:
+            print(f"Error request_with_vehicle_type No content.")
+            return False
+
+        file_name = search_query.split(":")[1]
+        try:
+            with open(res_json_path / f'{file_name}_page{page + 1}.json', 'w', encoding='utf-8') as f:
+                json.dump(response_json, f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            print(f"File save error: {e}")
+
+        all_ln_values = []
+        try:
+            # Тут вже безпечно, бо ми перевірили response_json вище
+            content = response_json.get('data', {}).get('results', {}).get('content', [])
+            for item in content:
+                if 'ln' in item:
+                    all_ln_values.append(item['ln'])
+        except Exception as e:
+            print(f"Error extracting ln values on page {page + 1}: {e}")
+            continue
+
+        if len(all_ln_values) != 0:
+            download_photos_from_lot_vehicle_type(file_name, page, all_ln_values, search_query)
+        else:
+            print(f"No lot numbers found on page {page+1}")
+
+        with open(tech_json_path / 'restart_point.json', 'w', encoding='utf-8') as f:
+            json.dump({"search_query": search_query, "brand": None, "page": page + 1, "lot_number": 0}, f)
+
+
 def get_search_results_without_sloc_query(restart_page, brand, headers, cookies, type_param, brand_upper):
     """
     makes one request for specific brand and page but without specifying the SLOC To get all the possible SLOCs for that brand
@@ -638,26 +942,26 @@ def get_search_results_without_sloc_query(restart_page, brand, headers, cookies,
     - False if no content found (indicating no more pages for this brand)
     - dict with 'queries' and 'display_names' lists if successful
     """
-    
+
     brand_description_configs = [brand_upper]
     brand_description_configs = get_brand_description_variants(brand_upper)
     for brand_description_config in brand_description_configs: #to try for all configuration of brand name variants
         for page in range (restart_page, 21):
-            # time.sleep(0.1) 
+            # time.sleep(0.1)
             print(f"Brand: {brand}, page: {page + 1}")
             start = page * 100
 
             payload = clean_payload({"query":["*"],"filter":{"VEHT":[f"vehicle_type_code:VEHTYPE_{type_param}"],"MAKE":[f"lot_make_desc:\"{brand_description_config}\""]},"sort":["salelight_priority asc","member_damage_group_priority asc","auction_date_type desc","auction_date_utc asc"],"page":page,"size":100,"start":start,"watchListOnly":False,"freeFormSearch":False,"hideImages":False,"defaultSort":False,"specificRowProvided":False,"displayName":"","searchName":"","backUrl":"","includeTagByField":{"VEHT":"{!tag=VEHT}","MAKE":"{!tag=MAKE}"},"rawParams":{}})
-            
+
             url = "https://www.copart.com/public/lots/vehicle-finder-search-results"
 
             # --- FIX: Очищаємо змінні перед запитом ---
-            response_json = None 
+            response_json = None
             # ------------------------------------------
 
             response = safe_post(
                 url,
-                headers=headers, 
+                headers=headers,
                 cookies=cookies,
                 json=payload,
                 timeout=30
@@ -665,7 +969,7 @@ def get_search_results_without_sloc_query(restart_page, brand, headers, cookies,
 
             if response.status_code != 200:
                 print(f"Failed to load page {page + 1} for {brand}. Status: {response.status_code}")
-                break 
+                break
 
             try:
                 response_json = response.json()
@@ -683,7 +987,7 @@ def get_search_results_without_sloc_query(restart_page, brand, headers, cookies,
             if response_json.get('data', {}).get('results', {}).get('content', []) == []:
                 print(f"No content for {brand} on page {page+1}. Finishing brand.")
                 return False
-            
+
             try:
                 # Тут вже безпечно, бо ми перевірили response_json вище
                 content = response_json.get('data', {}).get('results', {}).get('facetFields', [])
@@ -709,15 +1013,15 @@ def get_search_results_without_sloc_query(restart_page, brand, headers, cookies,
                     'page': page,
                     'error_type': f"Error extracting query_and_display_names: {e}"
                 })
-                break 
-   
+                break
+
 
 def download_data_from_pages_of_single_brand(brand, type_param, restart_object):
     print(f"download_data_from_pages_of_single_brand: {brand}")
 
     brand_upper = brand.upper()
     brand_with_underscores = brand.replace(" ", "_").replace("/","_")
-    
+
     headers = {
         'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Mobile Safari/537.36',
     }
@@ -740,7 +1044,7 @@ def download_data_from_pages_of_single_brand(brand, type_param, restart_object):
 
 
     brand_has_at_least_one_page = get_search_results_without_sloc_query(restart_page, brand, headers, cookies, type_param, brand_upper)
-    
+
     brand_upper = brand_has_at_least_one_page.get('brand_upper', brand_upper) #becaues if this
     # brand have received response for some configuration of brand name variant,
     # you should use this configuration because it's confirmed to work
@@ -767,23 +1071,23 @@ def download_data_from_pages_of_single_brand(brand, type_param, restart_object):
             'error_type': "No SLOC queries found."
         })
         return
-    
+
     for sloc_query_index in range(len(sloc_queries)):
         for page in range (restart_page, 21):
-            # time.sleep(0.1) 
+            # time.sleep(0.1)
             print(f"Brand: {brand}, page: {page + 1}")
             start = page * 100
-            
+
             payload = clean_payload({"query":["*"],"filter":{"VEHT":[f"vehicle_type_code:VEHTYPE_{type_param}"],"MAKE":[f"lot_make_desc:\"{brand_upper}\""],"SLOC":[f"{sloc_queries[sloc_query_index]}"]},"sort":["salelight_priority asc","member_damage_group_priority asc","auction_date_type desc","auction_date_utc asc"],"page":page,"size":100,"start":start,"watchListOnly":False,"freeFormSearch":False,"hideImages":False,"defaultSort":False,"specificRowProvided":False,"displayName":"","searchName":"","backUrl":"","includeTagByField":{"VEHT":"{!tag=VEHT}","MAKE":"{!tag=MAKE}"},"rawParams":{}})
-            
+
             url = "https://www.copart.com/public/lots/vehicle-finder-search-results"
 
             # Очищаємо змінні перед запитом для багатопоточності
-            response_json = None 
+            response_json = None
 
             response = safe_post(
                 url,
-                headers=headers, 
+                headers=headers,
                 cookies=cookies,
                 json=payload,
                 timeout=30
@@ -798,7 +1102,7 @@ def download_data_from_pages_of_single_brand(brand, type_param, restart_object):
             except Exception as e:
                 print(f"JSON Decode Error on page {page + 1}: {e}")
                 # Можливо, safe_post повернув HTML. Ми не можемо продовжувати з цією сторінкою.
-                continue 
+                continue
 
             # --- FIX: Перевірка на NoneType перед доступом ---
             if response_json is None:
@@ -809,7 +1113,7 @@ def download_data_from_pages_of_single_brand(brand, type_param, restart_object):
             if response_json.get('data', {}).get('results', {}).get('content', []) == []:
                 print(f"No content for {brand} on page {page+1}. Finishing brand.")
                 break
-            
+
             try:
                 with open(res_json_path / f'{brand_with_underscores}_{type_param}_{sloc_display_names[sloc_query_index]}_page{page + 1}.json', 'w', encoding='utf-8') as f:
                     json.dump(response_json, f, ensure_ascii=False, indent=2)
@@ -825,12 +1129,12 @@ def download_data_from_pages_of_single_brand(brand, type_param, restart_object):
                         all_ln_values.append(item['ln'])
             except Exception as e:
                 print(f"Error extracting ln values on page {page + 1}: {e}")
-                continue 
+                continue
 
             per_page_restart = None
             if restart_object and isinstance(restart_object, dict) and restart_object.get('page') == page:
                 per_page_restart = restart_object
-            
+
             if len(all_ln_values) != 0:
                 download_photos_from_lot(brand, page, type_param, all_ln_values, per_page_restart, sloc_query_index, sloc_display_names[sloc_query_index])
             else:
@@ -838,18 +1142,35 @@ def download_data_from_pages_of_single_brand(brand, type_param, restart_object):
 
             with open(tech_json_path / 'restart_point.json', 'w', encoding='utf-8') as f:
                 json.dump({"brand": brand, "page": page + 1, 'sloc_query_index': sloc_query_index, "lot_number": 0}, f)
-    
+
 
 def download_data_from_pages_of_each_brand():
-    #goes through brands from tech_json/list_of_automobile_brands.json and for each brand call the 
+    #goes through brands from tech_json/list_of_automobile_brands.json and for each brand call the
     #download_data_from_pages_of_single_page() func which downloads all 50 pages for single brand that is transmited to it
+
+    veht_array = []
     try:
-        with open(tech_json_path / 'list_of_automobile_brands.json', 'r', encoding='utf-8') as f:
-            content = json.load(f)
+        with open(tech_json_path / 'HOME.json', 'r', encoding='utf-8') as f:
+            home_full = json.load(f)
+            if home_full:
+                veht_array = home_full.get('data', {}).get('quickPicks', {}).get('VEHT', [])
+                if not veht_array or veht_array == []:
+                    print("VEHT array is empty in HOME.json")
+                    save_error({
+                        'error_type': "VEHT array is empty in HOME.json"
+                    })
+                    return
     except Exception as e:
         print(e)
         return
-    
+
+    # try:
+    #     with open(tech_json_path / 'list_of_automobile_brands.json', 'r', encoding='utf-8') as f:
+    #         content = json.load(f)
+    # except Exception as e:
+    #     print(e)
+    #     return
+
     # Завантажуємо доступні типи Copart
     try:
         with open(tech_json_path / 'vehicle_types.json', 'r', encoding='utf-8') as f:
@@ -858,7 +1179,7 @@ def download_data_from_pages_of_each_brand():
         print(f"Error loading vehicle_types.json: {e}")
         return
 
-    restart_brand = None
+    restart_search_query = None
     restart_obj = None
 
     try:
@@ -866,117 +1187,66 @@ def download_data_from_pages_of_each_brand():
         if file_path.exists() and file_path.stat().st_size > 0:
             with open(file_path, 'r', encoding='utf-8') as f:
                 restart_obj = json.load(f)
-                
-                # 2. Check if it's a dictionary and use .get() to avoid KeyError
+
                 if isinstance(restart_obj, dict):
-                    restart_brand = restart_obj.get('brand')
+                    restart_search_query = restart_obj.get('search_query')
     except Exception as e:
         print(f"download_data_from_pages_of_each_brand restart file opening error {e}")
         pass
 
-    skip = restart_brand is not None
-    go_to_next_brand = False
-    for brand in content:
-        brand_description = brand['description']
-        type_param = brand['type']
-        
-        # try:
-        #     with open(tech_json_path /'vehicle_types.json', 'r', encoding='utf-8') as f:
-        #         vehicle_types = json.load(f)
-        #         for vt in vehicle_types:
-        #             print(f"Comparing {vt['vehicle_type_description']} with {type_param}")
-        #             if vt['vehicle_type_description'] == type_param:
-        #                 type_param = vt['vehicle_type_code']
-        #                 break
-        # except Exception as e:
-        #     print(f"download_data_from_pages_of_each_brand vehicle types file opening error {e}")
-        #     save_error({
-        #         'brand': brand_description,
-        #         'error_type': f"vehicle types file opening error {e}"
-        #     })
-        #     type_param = None
+# Якщо є збережений restart_search_query, вмикаємо режим пропуску (True)
+    should_skip = restart_search_query is not None
 
-        raw_type_from_file = brand.get('type') 
+    for veht_item in veht_array:
+        search_query = veht_item.get('searchQuery')
+        include_tag_by_field = veht_item.get('includeTagByField')
+        number_of_lots = veht_item.get('count')
 
-        # 2. Знаходимо код (V, C, M тощо) у vehicle_types.json
-        type_param = None
-        
-        for vt in vehicle_types_data:
-            # Порівнюємо без урахування регістру для надійності
-            if vt['code'].strip().lower() == raw_type_from_file.strip().lower():
-                type_param = vt['groupCode']
-                break
-        
-        # Якщо код не знайдено, за замовчуванням ставимо 'V' (Automobiles) або пропускаємо
-        if type_param is None:
-            #tmp
-            # print(f"Warning: Could not map type '{raw_type_from_file}' for brand '{brand_description}'. Defaulting to 'V' (Automobiles).")
-            try:
-                # vehicle_types_path = Path(tech_json_path/'vehicle_type_problems.json')
-                # vehicle_types_path.mkdir(exist_ok=True)
-                type_params_have_no_group_code = ["SUV", "VAN", "PICKUP"] #these types 
-                # usually have objects with VEHICLE code so I can skip these cases
-                # but for sure I will check if they are already saved with AUTOMOBILE type
-                brand_description_configs = [brand_description]
-                if " " in brand_description:
-                    brand_description_configs = get_brand_description_variants(brand_description)
-                for brand_description_config in brand_description_configs:
-                    if raw_type_from_file in type_params_have_no_group_code:
-                        search_pattern = f"{brand_description_config}_V_*.json"
-                        # Шукаємо хоча б один файл, що відповідає шаблону
-                        existing_files = list(res_json_path.glob(search_pattern))
-                        folders = [f for f in res_json_path.glob(f"{brand_description_config}_V_*") if f.is_dir()]
-                        if existing_files and len(existing_files) > 0 and folders and len(folders) > 0:
-                            print(f"Skipping {raw_type_from_file} for {brand_description} - 'V' file already exists.")
-                            go_to_next_brand = True
-                            break # Вихід з поточної ітерації зовнішнього циклу
-                if go_to_next_brand:
-                    go_to_next_brand = False
-                    continue
-                # якщо brand description не з того списку, то даункастим до 'V' (Automobile) і зберігаємо помилку
-                with open (tech_json_path / 'vehicle_type_problems.json', 'a', encoding='utf-8') as f:
-                    json.dump({
-                        'raw_type_from_file': raw_type_from_file,
-                        'brand_description': brand_description
-                    }, f, indent=2, ensure_ascii=False)
-                    f.write(',\n')
-            except Exception as e:
-                print(f"type param error: {e} for brand: {brand}")
-                save_error({
-                    'error_type': f"type param error: {e} for brand: {brand}"
-                })
-            type_param = "V"
+        if should_skip:
+            if search_query == restart_search_query:
+                # Ми знайшли елемент, на якому зупинилися!
+                should_skip = False
+            else:
+                # Це ще не той елемент, пропускаємо і йдемо до наступного
+                continue
 
-        if skip:
-            if brand_description == restart_brand:
-                skip = False
-                download_data_from_pages_of_single_brand(brand_description, type_param, restart_obj)
-            continue
-        else:
-            download_data_from_pages_of_single_brand(brand_description, type_param, None)
+        current_restart_obj = restart_obj if search_query == restart_search_query else None
+        if number_of_lots <= 1000:
+            print(f"Processing vehicle type: {search_query} with {number_of_lots} lots.")
+            request_with_vehicle_type(search_query, include_tag_by_field, current_restart_obj)
+            restart_search_query = None
+
+            # for brand in content:
+            #     if skip_brand:
+            #         if brand_description == restart_brand:
+            #             skip_brand = False
+            #             download_data_from_pages_of_single_brand(brand_description, type_param, restart_obj)
+            #         continue
+            #     else:
+            #         download_data_from_pages_of_single_brand(brand_description, type_param, None)
 
 def clean_working_files():
     """Clean all working files and directories AND DROPS DATABASE"""
-    
-    drop_database(DB_NAME) 
+
+    drop_database(DB_NAME)
 
     # 1. Clean JSON files (create empty ones)
     tech_json_path.mkdir(exist_ok=True)
     db_tech_json_path.mkdir(exist_ok=True)
     HTML_downloader.html_results.mkdir(exist_ok=True)
-    
+
     # Clear JSON files
     files_to_clear = {
         tech_json_path: ['errors.json', 'list_of_automobile_brands.json', 'restart_point.json'],
         db_tech_json_path: ['error_list.json', 'last_written_to_db_review.json', 'all_json_names.txt'],
         HTML_downloader.tech_html: ['lots_and_links.json', 'last_state.json']
     }
-    
+
     for directory, filenames in files_to_clear.items():
         for filename in filenames:
             file_path = directory / filename
             file_path.write_text('', encoding='utf-8')
-    
+
     # 2. Clean res_json_path directory
     if res_json_path.exists():
         shutil.rmtree(res_json_path)
@@ -989,10 +1259,10 @@ def clean_working_files():
                 shutil.rmtree(directory)
             except Exception as e:
                 print(f"Error deleting {directory}: {e}")
-        
+
         # Recreate empty directory
         directory.mkdir(parents=True, exist_ok=True)
-    
+
     # Recreate empty directory
     res_json_path.mkdir(parents=True, exist_ok=True)
     print(f"Cleaned and recreated directory: {res_json_path}")
@@ -1011,7 +1281,7 @@ def main():
                                             # if False then all vehicles types will be extracted
     res_json_path.mkdir(parents=True, exist_ok=True)
 
-    if not refresh_copart_session(headless=True): 
+    if not refresh_copart_session(headless=True):
         print("Error. Could not initialize the very first session. Exiting.")
         save_error({
             'error_type': "Error. Could not initialize the very first session."
@@ -1034,7 +1304,7 @@ def main():
     db_main(DB_NAME, table_name, res_json_path, table_index)
     save_start_or_finish_time(False)
 
-    # if you wont to download html pages with photos uncomment the line below 
+    # if you wont to download html pages with photos uncomment the line below
     # and fix tudu at the start of this file
     HTML_downloader.download_all()
 
