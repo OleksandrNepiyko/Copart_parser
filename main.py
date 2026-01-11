@@ -1261,20 +1261,15 @@ def download_data_from_pages_of_single_brand_with_vehicle_type_and_brand_and_slo
     # brand have received response for some configuration of brand name variant,
     # you should use this configuration because it's confirmed to work
 
-    sloc_queries = get_search_results_without_sloc_query(restart_page, brand, headers, cookies, type_param, brand_upper)
-    sloc_display_names = None
-    if brand_has_at_least_one_page == False:
+    sloc_data = get_search_results_without_sloc_query(restart_page, brand, headers, cookies, type_param, brand_upper)
+
+    if not sloc_data:
+        print(f"No SLOC data found for {brand}")
         return
-    elif brand_has_at_least_one_page != None:
-        sloc_queries = brand_has_at_least_one_page['queries']
-        sloc_display_names = brand_has_at_least_one_page['display_names']
-    else:
-        print(f"Error getting SLOC queries for brand {brand}. Skipping and moving to next brand.")
-        save_error({
-            'brand': brand,
-            'error_type': "Error getting SLOC queries."
-        })
-        return
+
+    sloc_queries = sloc_data['queries']
+    sloc_display_names = sloc_data['display_names']
+    brand_upper = sloc_data.get('brand_upper', brand.upper())
 
     if sloc_queries == None or len(sloc_queries) == 0:
         print(f"No SLOC queries found for brand {brand}. Skipping and moving to next brand.")
