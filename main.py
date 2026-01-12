@@ -30,6 +30,7 @@ from itertools import count
 tech_json_path = Path('tech_json')
 res_json_path = Path('res_json')
 db_tech_json_path = Path('db_tech_json')
+vehtypes_more_than_1k = Path('res_json/vehicle_types_more_than_1k')
 SESSION = requests.Session()
 DB_NAME = 'copart_lots_test'
 POST_COUNT = 0
@@ -984,7 +985,7 @@ def request_with_vehicle_type(search_query, include_tag_by_field, restart_object
             json.dump({"search_query": search_query, "brand": None, "page": page + 1, "lot_number": 0}, f)
 
 
-def get_search_results_without_sloc_query(restart_page, brand, headers, cookies, type_param, brand_upper):
+def get_search_results_without_sloc_query(restart_page, brand, headers, cookies, type_param, brand_upper, brand_count):
     """
     SHOULD BE USED FOR BRANDS THAT HAVE MORE THAT 1000 LOTS ONLY
     makes one request for specific brand and page but without specifying the SLOC To get all the possible SLOCs for that brand
@@ -997,81 +998,90 @@ def get_search_results_without_sloc_query(restart_page, brand, headers, cookies,
     brand_description_configs = [brand_upper]
     # now get_brand_description_variants is useless because I already have all the right brands
     # brand_description_configs = get_brand_description_variants(brand_upper)
-    for brand_description_config in brand_description_configs: #to try for all configuration of brand name variants
+    # for brand_description_config in brand_description_configs: #to try for all configuration of brand name variants
         #tmp
         # for page in range (restart_page, 1):
-        for page in range (restart_page, 21):
-            # time.sleep(0.1)
-            print(f"Brand: {brand}, page: {page + 1}")
-            start = page * 100
+        # time.sleep(0.1)
+    # print(f"Brand: {brand}, page: {page + 1}")
+    start = 0
 
-            print(f"type param: {type_param}, brand_description_config: {brand_description_config}")
-            payload = clean_payload({"query":["*"],"filter":{"VEHT":[f"vehicle_type_code:{type_param}"],"MAKE":[f"lot_make_desc:\"{brand_description_config}\""]},"sort":["salelight_priority asc","member_damage_group_priority asc","auction_date_type desc","auction_date_utc asc"],"page":page,"size":100,"start":start,"watchListOnly":False,"freeFormSearch":False,"hideImages":False,"defaultSort":False,"specificRowProvided":False,"displayName":"","searchName":"","backUrl":"","includeTagByField":{"VEHT":"{!tag=VEHT}","MAKE":"{!tag=MAKE}"},"rawParams":{}})
+    # print(f"type param: {type_param}, brand_description_config: {brand_description_config}")
+    payload = clean_payload({"query":["*"],"filter":{"VEHT":[f"vehicle_type_code:{type_param}"],"MAKE":[f"lot_make_desc:\"{brand_upper}\""]},"sort":["salelight_priority asc","member_damage_group_priority asc","auction_date_type desc","auction_date_utc asc"],"page":0,"size":100,"start":start,"watchListOnly":False,"freeFormSearch":False,"hideImages":False,"defaultSort":False,"specificRowProvided":False,"displayName":"","searchName":"","backUrl":"","includeTagByField":{"VEHT":"{!tag=VEHT}","MAKE":"{!tag=MAKE}"},"rawParams":{}})
 
-            url = "https://www.copart.com/public/lots/vehicle-finder-search-results"
+    url = "https://www.copart.com/public/lots/vehicle-finder-search-results"
 
-            # --- FIX: Очищаємо змінні перед запитом ---
-            response_json = None
-            # ------------------------------------------
+    # --- FIX: Очищаємо змінні перед запитом ---
+    response_json = None
+    # ------------------------------------------
 
-            response = safe_post(
-                url,
-                headers=headers,
-                cookies=cookies,
-                json=payload,
-                timeout=30
-            )
+    response = safe_post(
+        url,
+        headers=headers,
+        cookies=cookies,
+        json=payload,
+        timeout=30
+    )
 
-            if response.status_code != 200:
-                print(f"Failed to load page {page + 1} for {brand}. Status: {response.status_code}")
-                break
+    if response.status_code != 200:
+        print(f"Error get_search_results_without_sloc_query. Failed to load for {brand}. Status: {response.status_code}")
+        return False
 
-            try:
-                response_json = response.json()
-            except Exception as e:
-                print(f"JSON Decode Error on page {page + 1}: {e}")
-                # Можливо, safe_post повернув HTML. Ми не можемо продовжувати з цією сторінкою.
-                break
+    try:
+        response_json = response.json()
+    except Exception as e:
+        print(f"Error get_search_results_without_sloc_query JSON Decode: {e}")
+        # Можливо, safe_post повернув HTML. Ми не можемо продовжувати з цією сторінкою.
+        return False
 
-            # --- FIX: Перевірка на NoneType перед доступом ---
-            if response_json is None:
-                print(f"response_json is None for page {page + 1}. Skipping.")
-                break
-            # -------------------------------------------------
+    # --- FIX: Перевірка на NoneType перед доступом ---
+    if response_json is None:
+        print(f"Error get_search_results_without_sloc_query. response_json is None. Skipping.")
+        return False
+    # -------------------------------------------------
 
-            if response_json.get('data', {}).get('results', {}).get('content', []) == []:
-                print(f"No content for {brand} on page {page+1}. Finishing brand.")
-                return False
+    if response_json.get('data', {}).get('results', {}).get('content', []) == []:
+        print(f"Error get_search_results_without_sloc_query. No content for {brand}. Finishing brand.")
+        return False
 
-            with open(res_json_path / f'{brand}_{type_param}_page{page + 1}_without_sloc_query.json', 'w', encoding='utf-8') as f:
-                json.dump(response_json, f, ensure_ascii=False, indent=2)
+    vehicle_types_that_have_more_that_one_k_lots_and_needs_to_be_reviewed = "vehicle_types_more_than_1k"
+    output_dir = res_json_path / vehicle_types_that_have_more_that_one_k_lots_and_needs_to_be_reviewed
+    output_dir.mkdir(parents=True, exist_ok=True)
+    with open(output_dir / f'{brand}_{type_param}_without_sloc_query.json', 'w', encoding='utf-8') as f:
+        json.dump(response_json, f, ensure_ascii=False, indent=2)
+    with open(res_json_path / vehicle_types_that_have_more_that_one_k_lots_and_needs_to_be_reviewed / f'brands_list.json', 'a', encoding='utf-8') as f:
+        obj = {
+            "brand": brand,
+            "type_param": type_param,
+            "brand_count": brand_count
+        }
+        json.dump(obj, f, ensure_ascii=False, indent=2)
+        f.write(",\n")
 
-            try:
-                # Тут вже безпечно, бо ми перевірили response_json вище
-                content = response_json.get('data', {}).get('results', {}).get('facetFields', [])
-                query_and_display_names = []
-                for item in content:
-                    if 'quickPickCode' in item == "SLOC":
-                        query_in_facet_counts = None
-                        display_names_in_facet_counts = []
-                        facet_counts = item.get('facetCounts')
-                        for facet_count in facet_counts:
-                            query_in_facet_counts.append(facet_count.get('query'))
-                            display_names_in_facet_counts.append(facet_count.get('displayName'))
-                        query_and_display_names = {
-                            'brand_upper': brand_description_config,
-                            'queries': query_in_facet_counts,
-                            'display_names': display_names_in_facet_counts
-                        }
-                        return query_and_display_names
-            except Exception as e:
-                print(f"Error extracting query_and_display_names: {e}")
-                save_error({
-                    'brand': brand,
-                    'page': page,
-                    'error_type': f"Error extracting query_and_display_names: {e}"
-                })
-                break
+    try:
+        # Тут вже безпечно, бо ми перевірили response_json вище
+        content = response_json.get('data', {}).get('results', {}).get('facetFields', [])
+        query_and_display_names = None
+        for item in content:
+            if item.get('quickPickCode') == "SLOC":
+                query_in_facet_counts = []
+                display_names_in_facet_counts = []
+                facet_counts = item.get('facetCounts')
+                for facet_count in facet_counts:
+                    query_in_facet_counts.append(facet_count.get('query'))
+                    display_names_in_facet_counts.append(facet_count.get('displayName'))
+                query_and_display_names = {
+                    'brand_upper': brand_upper,
+                    'queries': query_in_facet_counts,
+                    'display_names': display_names_in_facet_counts
+                }
+                return query_and_display_names
+    except Exception as e:
+        print(f"Error get_search_results_without_sloc_query. Error extracting query_and_display_names: {e}")
+        save_error({
+            'brand': brand,
+            'error_type': f"Error get_search_results_without_sloc_query. Error extracting query_and_display_names: {e}"
+        })
+        return False
 
 def check_if_brand_has_at_least_one_page(restart_page, brand, headers, cookies, type_param, brand_upper):
     """
@@ -1135,7 +1145,7 @@ def download_data_from_pages_of_single_brand_with_vehicle_type_and_brand(search_
     """
     makes requests for specific brand and vehicle type
     """
-    print(f"download_data_from_pages_of_single_brand: {brand}")
+    print(f"download_data_from_pages_of_single_brand_with_vehicle_type_and_brand: {brand}")
 
     brand_upper = brand.upper()
     brand_with_underscores = brand.replace(" ", "_").replace("/","_")
@@ -1232,11 +1242,11 @@ def download_data_from_pages_of_single_brand_with_vehicle_type_and_brand(search_
         with open(tech_json_path / 'restart_point.json', 'w', encoding='utf-8') as f:
             json.dump({"search_query": search_query, "brand": brand, "page": page + 1, 'sloc_query_index': -1, "lot_number": 0}, f)
 
-def download_data_from_pages_of_single_brand_with_vehicle_type_and_brand_and_sloc(brand, type_param, restart_object):
+def download_data_from_pages_of_single_brand_with_vehicle_type_and_brand_and_sloc(search_query, brand, type_param, restart_object, brand_count):
     """
     makes requests for specific brand, vehicle type and SLOCs
     """
-    print(f"download_data_from_pages_of_single_brand: {brand}")
+    print(f"download_data_from_pages_of_single_brand_with_vehicle_type_and_brand_and_sloc: {brand}")
 
     brand_upper = brand.upper()
     brand_with_underscores = brand.replace(" ", "_").replace("/","_")
@@ -1253,7 +1263,7 @@ def download_data_from_pages_of_single_brand_with_vehicle_type_and_brand_and_slo
 
     brand_has_at_least_one_page = check_if_brand_has_at_least_one_page(restart_page, brand, headers, cookies, type_param, brand_upper)
 
-    if not brand_has_at_least_one_page:
+    if brand_has_at_least_one_page == False:
         print(f"Skipping {brand} because initial search returned no content.")
         return
 
@@ -1261,9 +1271,9 @@ def download_data_from_pages_of_single_brand_with_vehicle_type_and_brand_and_slo
     # brand have received response for some configuration of brand name variant,
     # you should use this configuration because it's confirmed to work
 
-    sloc_data = get_search_results_without_sloc_query(restart_page, brand, headers, cookies, type_param, brand_upper)
+    sloc_data = get_search_results_without_sloc_query(restart_page, brand, headers, cookies, type_param, brand_upper, brand_count)
 
-    if not sloc_data:
+    if sloc_data == False:
         print(f"No SLOC data found for {brand}")
         return
 
@@ -1290,6 +1300,8 @@ def download_data_from_pages_of_single_brand_with_vehicle_type_and_brand_and_slo
             #on the website there is no tags at all. But here I can add tag for SLOC if its needed
             payload = clean_payload({"query":["*"],"filter":{"VEHT":[f"vehicle_type_code:{type_param}"],"MAKE":[f"lot_make_desc:\"{brand_upper}\""],"SLOC":[f"{sloc_queries[sloc_query_index]}"]},"sort":["salelight_priority asc","member_damage_group_priority asc","auction_date_type desc","auction_date_utc asc"],"page":page,"size":100,"start":start,"watchListOnly":False,"freeFormSearch":False,"hideImages":False,"defaultSort":False,"specificRowProvided":False,"displayName":"","searchName":"","backUrl":"","includeTagByField":{"VEHT":"{!tag=VEHT}","MAKE":"{!tag=MAKE}","SLOC":"{!tag=SLOC}"},"rawParams":{}})
 
+            print(payload)
+            print()
             url = "https://www.copart.com/public/lots/vehicle-finder-search-results"
 
             # Очищаємо змінні перед запитом для багатопоточності
@@ -1324,6 +1336,8 @@ def download_data_from_pages_of_single_brand_with_vehicle_type_and_brand_and_slo
                 print(f"No content for {brand} on page {page+1}. Finishing brand.")
                 break
 
+            print(response_json.get('data', {}).get('results', {}).get('content', []))
+
             try:
                 with open(res_json_path / f'{brand_with_underscores}_{type_param}_{sloc_display_names[sloc_query_index]}_page{page + 1}.json', 'w', encoding='utf-8') as f:
                     json.dump(response_json, f, ensure_ascii=False, indent=2)
@@ -1351,7 +1365,7 @@ def download_data_from_pages_of_single_brand_with_vehicle_type_and_brand_and_slo
                 print(f"No lot numbers found on page {page+1}")
 
             with open(tech_json_path / 'restart_point.json', 'w', encoding='utf-8') as f:
-                json.dump({"brand": brand, "page": page + 1, 'sloc_query_index': sloc_query_index, "lot_number": 0}, f)
+                json.dump({"search_query": search_query, "brand": brand, "page": page + 1, 'sloc_query_index': sloc_query_index, "lot_number": 0}, f)
 
 
 def download_data_from_pages_of_each_brand(veht_array):
@@ -1466,7 +1480,6 @@ def download_data_from_pages_of_each_brand(veht_array):
                 passed_restart_obj = None
                 if skip_brands:
                     if brand_description.upper() == restart_brand_name.upper():
-                        print("\n\nskipping\n\n")
                         # Знайшли бренд, на якому зупинилися
                         skip_brands = False
                         passed_restart_obj = current_restart_obj # Передаємо рестарт (сторінки, лоти)
@@ -1481,7 +1494,7 @@ def download_data_from_pages_of_each_brand(veht_array):
                     restart_obj = None
                 elif brand_count > 1000:
                     # print(f"passed restart 2: {passed_restart_obj}")
-                    download_data_from_pages_of_single_brand_with_vehicle_type_and_brand_and_sloc(brand_description, vehtype, passed_restart_obj)
+                    download_data_from_pages_of_single_brand_with_vehicle_type_and_brand_and_sloc(search_query, brand_description, vehtype, passed_restart_obj, brand_count)
                     restart_obj = None
 
                 current_restart_obj = None
@@ -1529,7 +1542,7 @@ def clean_working_files():
     if res_json_path.exists():
         shutil.rmtree(res_json_path)
 
-    directories_to_wipe = [res_json_path, HTML_downloader.html_results]
+    directories_to_wipe = [res_json_path, HTML_downloader.html_results, vehtypes_more_than_1k]
 
     for directory in directories_to_wipe:
         if directory.exists():
@@ -1613,7 +1626,7 @@ def main():
 
     # if you wont to download html pages with photos uncomment the line below
     # and fix tudu at the start of this file
-    HTML_downloader.download_all()
+    # HTML_downloader.download_all()
 
 if __name__ == '__main__':
     main()
