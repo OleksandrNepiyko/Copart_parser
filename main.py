@@ -588,7 +588,13 @@ def process_single_lot(brand, page, type_param, number, sloc_display_name, engn_
     try:
         data = r.json()
 
-        target_dir = res_json_path / f"{brand_with_underscores}_{type_param}_{sloc_display_name.replace(" ", "_")}_{engn_display_name.replace(" ", "_")}_page{page + 1}_photos"
+        file_name = f"{brand_with_underscores}_{type_param}_"
+        if sloc_display_name is not None:
+            file_name += f"{sloc_display_name.replace(" ", "_")}"
+        if engn_display_name is not None:
+            file_name += f"_{engn_display_name.replace(" ", "_")}"
+        file_name += f"_page{page + 1}_photos"
+        target_dir = res_json_path / file_name
         target_dir.mkdir(parents=True, exist_ok=True)
 
         with open(target_dir / f"{number}.json", "w", encoding="utf-8") as f:
@@ -597,7 +603,7 @@ def process_single_lot(brand, page, type_param, number, sloc_display_name, engn_
     except Exception as e:
         # Якщо ми тут, значить safe_post повернув 200 OK, але це НЕ JSON.
         # Це 100% блок від Cloudflare. Треба оновлюватись.
-        print(f"JSON Error for lot {number} (Likely soft-block). Triggering refresh...")
+        print(f"JSON Error for lot {number} : {e} (Likely soft-block). Triggering refresh...")
         with SESSION_LOCK:
              # Перевіряємо, може хтось вже оновив поки ми спали
              refresh_copart_session()
