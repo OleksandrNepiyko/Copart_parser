@@ -158,11 +158,56 @@ def refresh_copart_session(headless=False):
     """
     print("taking cookies and headers")
     session_data = get_copart_session_data(headless=headless)
+    session_retry_counter = 0
+    while not session_data or session_data == None:
+        time.sleep(120 if session_retry_counter <= 3 else 300)
+        session_retry_counter += 1
+        print(f"retry to take cookies and headers #{session_retry_counter}")
+        kill_chrome_processes()
+        session_data = get_copart_session_data(headless=headless)
     if session_data:
+        print("session if refreshed successfuly")
         SESSION.headers.update(session_data['headers'])
         SESSION.cookies.update(session_data['cookies'])
         return True
     return False
+
+def check_dynamic_details(lot_number):
+    url = f"https://www.copart.com/public/data/lot/dynamic-lot-details/{lot_number}"
+
+    # --- ВАЖЛИВО: Додаємо Referer ---
+    # Copart думає, що ми на сторінці лота і запитуємо дані звідти
+    headers = {
+        "Referer": f"https://www.copart.com/lot/{lot_number}",
+        "X-Requested-With": "XMLHttpRequest",
+        # X-XSRF-TOKEN вже має бути в SESSION.headers, якщо ні - додай вручну з кукі
+    }
+
+    # Використовуємо global SESSION
+    try:
+        r = SESSION.get(url, headers=headers)
+
+        if r.status_code == 200:
+            try:
+                data = r.json()
+                print(f"[Dynamic Details] Success for {lot_number}")
+                # Тут можна повернути data, якщо треба
+                return data
+            except json.JSONDecodeError:
+                print(f"[Dynamic Details] Error: Not JSON response for {lot_number}")
+
+        elif r.status_code == 404:
+            # Це нормальна ситуація для старих/проданих лотів
+            print(f"[Dynamic Details] Info: Lot {lot_number} has no dynamic data (404 - Likely Sold/Inactive).")
+            return None
+
+        else:
+            print(f"[Dynamic Details] Error {r.status_code} for {lot_number}")
+            return None
+
+    except Exception as e:
+        print(f"[Dynamic Details] Exception: {e}")
+        return None
 
 def safe_post(url, **kwargs):
     global POST_COUNT
@@ -530,6 +575,19 @@ def process_single_lot_vehicle_type(file_name, page, number):
     # Випадкова затримка
     time.sleep(random.uniform(0.5, 2.0))
 
+    # dynamic_data = check_dynamic_details(number)
+
+    # if dynamic_data:
+    #     # Можеш зберегти це разом з фото або окремим файлом
+    #     # Наприклад, додати у файл з фото або записати в окрему папку
+    #     try:
+    #         dyn_dir = res_json_path / "dynamic_data"
+    #         dyn_dir.mkdir(parents=True, exist_ok=True)
+    #         with open(dyn_dir / f"{number}_dynamic.json", "w", encoding="utf-8") as f:
+    #             json.dump(dynamic_data, f, indent=2)
+    #     except Exception as e:
+    #         print(f"Error saving dynamic data: {e}")
+
     url = "https://www.copart.com/public/data/lotdetails/solr/lot-images/"
     payload = {"lotNumber": number}
 
@@ -567,6 +625,19 @@ def process_single_lot(brand, page, type_param, number, sloc_display_name, engn_
     # Випадкова затримка
     time.sleep(random.uniform(0.5, 2.0))
     brand_with_underscores = brand.replace(" ", "_").replace("/","_")
+
+    # dynamic_data = check_dynamic_details(number)
+
+    # if dynamic_data:
+    #     # Можеш зберегти це разом з фото або окремим файлом
+    #     # Наприклад, додати у файл з фото або записати в окрему папку
+    #     try:
+    #         dyn_dir = res_json_path / "dynamic_data"
+    #         dyn_dir.mkdir(parents=True, exist_ok=True)
+    #         with open(dyn_dir / f"{number}_dynamic.json", "w", encoding="utf-8") as f:
+    #             json.dump(dynamic_data, f, indent=2)
+    #     except Exception as e:
+    #         print(f"Error saving dynamic data: {e}")
 
     headers = {
         'Accept': 'application/json, text/plain, */*',
@@ -1586,6 +1657,8 @@ def download_data_from_pages_of_single_brand_with_vehicle_type_and_brand_and_slo
                     )
                 else:
                     print(f"No lot numbers found on page {page+1}")
+
+                #TODO here I'll call the additional paramethers extractor
 
                 with open(tech_json_path / 'restart_point.json', 'w', encoding='utf-8') as f:
                     json.dump({
