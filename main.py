@@ -34,10 +34,10 @@ vehtypes_more_than_1k = Path('res_json/vehicle_types_more_than_1k')
 SESSION = requests.Session()
 DB_NAME = 'copart_lots_test'
 POST_COUNT = 0
-POST_LIMITER = 105  # Number of POST requests before refreshing
+POST_LIMITER = 1000  # Number of POST requests before refreshing
 #session (it includes pages and photos requests, so one full page = 1 page reques + 20 photos requests = 21 POST requests per full page)
 
-SESSION_LOCK = threading.Lock()
+SESSION_LOCK = threading.RLock()
 
 # Global Session Object
 # This acts as the "bridge" between the token extractor and safe_post.
@@ -153,23 +153,61 @@ def get_copart_session_data(headless=False):
 
 def refresh_copart_session(headless=False):
     """
-    Helper function to update the global SESSION object.
-    Call this ONCE at the start of your program.
+    Helper function to update the global SESSION object with a strict timeout.
     """
     print("taking cookies and headers")
-    session_data = get_copart_session_data(headless=headless)
+    global SESSION
+
+    # Внутрішня функція для запуску в окремому потоці
+    def _get_session_task():
+        return get_copart_session_data(headless=headless)
+
     session_retry_counter = 0
-    while not session_data or session_data == None:
-        time.sleep(120 if session_retry_counter <= 3 else 300)
+    session_data = None
+
+    while not session_data:
+        # Логіка сну (як у вашому коді), але пропускаємо сон для першої спроби (counter=0)
+        if session_retry_counter > 0:
+            sleep_time = 120 if session_retry_counter <= 3 else 300
+            print(f"Waiting {sleep_time}s before retry...")
+            time.sleep(sleep_time)
+
         session_retry_counter += 1
-        print(f"retry to take cookies and headers #{session_retry_counter}")
+        print(f"Attempt to take cookies and headers #{session_retry_counter}")
+
+        # Гарантовано вбиваємо процеси перед стартом, щоб мати чистий стан
         kill_chrome_processes()
-        session_data = get_copart_session_data(headless=headless)
+
+        # Використовуємо ThreadPoolExecutor для встановлення тайм-ауту
+        with ThreadPoolExecutor(max_workers=1) as executor:
+            future = executor.submit(_get_session_task)
+
+            try:
+                # Очікуємо результат максимум 60 секунд
+                session_data = future.result(timeout=60)
+            except TimeoutError:
+                print(f"TIMEOUT: get_copart_session_data took longer than 60s. Killing Chrome...")
+                # Критично важливо: вбиваємо Chrome, щоб "завислий" потік впав з помилкою
+                kill_chrome_processes()
+                session_data = None # Гарантуємо, що цикл продовжиться
+            except Exception as e:
+                print(f"Error executing session update: {e}")
+                session_data = None
+
+    # Якщо ми вийшли з циклу, значить session_data отримано
     if session_data:
-        print("session if refreshed successfuly")
-        SESSION.headers.update(session_data['headers'])
-        SESSION.cookies.update(session_data['cookies'])
+        print("session refreshed successfully")
+        # Оновлюємо глобальну сесію під замком, якщо потрібно (хоча ви викликаєте це в одному потоці)
+        with SESSION_LOCK:
+            # === ГОЛОВНА ЗМІНА ТУТ ===
+            # Ми викидаємо старий об'єкт SESSION на смітник і створюємо чистий.
+            # Це вбиває всі старі завислі TCP-пули.
+            SESSION = requests.Session()
+
+            SESSION.headers.update(session_data['headers'])
+            SESSION.cookies.update(session_data['cookies'])
         return True
+
     return False
 
 def check_dynamic_details(lot_number):
@@ -213,6 +251,9 @@ def safe_post(url, **kwargs):
     global POST_COUNT
     global POST_LIMITER
 
+    if 'timeout' not in kwargs:
+        kwargs['timeout'] = 30
+
     # 1. Перевірка лічильника (стандартна процедура)
     with SESSION_LOCK:
         if POST_COUNT >= POST_LIMITER:
@@ -225,21 +266,22 @@ def safe_post(url, **kwargs):
     # 2. Виконуємо запит з логікою "Refresh on Error"
     for attempt in range(5):
         try:
+            # print(f"[SafePost] Sending request (Attempt {attempt+1})...")
             response = SESSION.post(url, **kwargs)
+            # print(f"[SafePost] Received response: {response.status_code}")
 
             # Якщо успіх (200) - перевіряємо, чи це дійсно JSON, а не сторінка блокування Cloudflare
-            if response.status_code == 200:
-                # Copart іноді віддає 200 OK, але всередині HTML з капчею.
-                # Спробуємо перевірити content-type або просто повернемо, а process_single_lot розбереться
-                if "application/json" in response.headers.get("Content-Type", ""):
-                    return response
+            content_type = response.headers.get("Content-Type", "")
+            is_soft_block = (response.status_code == 200 and "application/json" not in content_type)
 
-                # Якщо це не JSON, можливо нас блокують, але поки повернемо як є.
-                # (Але якщо це Cloudflare, наступний код впаде, тому див. нижче)
+            if response.status_code == 200 and not is_soft_block:
                 return response
+                 # Якщо це не JSON, можливо нас блокують, але поки повернемо як є.
+                # (Але якщо це Cloudflare, наступний код впаде, тому див. нижче)
+                # return response
 
             # Якщо помилка 403 (Forbidden) або 429 (Too Many Requests) або 503
-            if response.status_code in [403, 429, 503]:
+            if response.status_code in [403, 429, 503] or is_soft_block:
                 print(f"[SafePost] Got status {response.status_code}. Attempt {attempt+1}/5. Forcing Refresh...")
 
                 # Блокуємо, щоб інші потоки почекали
@@ -592,7 +634,7 @@ def process_single_lot_vehicle_type(file_name, page, number):
     payload = {"lotNumber": number}
 
     # safe_post тепер сам спробує оновитись, якщо отримає 403
-    r = safe_post(url, json=payload)
+    r = safe_post(url, json=payload, timeout = 30)
 
     if r.status_code != 200:
         print(f"Error {r.status_code} for lot {number} in {file_name} page {page}")
@@ -620,6 +662,27 @@ def process_single_lot_vehicle_type(file_name, page, number):
         with SESSION_LOCK:
              # Перевіряємо, може хтось вже оновив поки ми спали
              refresh_copart_session()
+
+# def get_lot_details(lot_number):
+#     url = f"https://www.copart.com/public/data/lotdetails/solr/{lot_number}"
+#     r = SESSION.get(url, headers=SESSION.headers, cookies=SESSION.cookies)
+
+#     if r.status_code == 200:
+#         data = r.json()
+#         print("Success! Found lot details without HTML parsing.")
+#         # Збережи це в файл, щоб подивитись структуру
+#         with open("fast_api_result.json", "w", encoding="utf-8") as f:
+#             json.dump(data, f, indent=2)
+
+#         # Спробуй знайти тут lotHash для build-sheet
+#         if data and 'data' in data and 'lotDetails' in data['data']:
+#             details = data['data']['lotDetails']
+#             print(f"Lot Hash (lh): {details.get('lh')}")
+#     else:
+#         print(f"Failed: {r.status_code}")
+
+# Виклич це для будь-якого живого лота
+# test_fast_api(98026285)
 
 def process_single_lot(brand, page, type_param, number, sloc_display_name, engn_display_name):
     # Випадкова затримка
@@ -650,7 +713,7 @@ def process_single_lot(brand, page, type_param, number, sloc_display_name, engn_
     payload = {"lotNumber": number}
 
     # safe_post тепер сам спробує оновитись, якщо отримає 403
-    r = safe_post(url, json=payload)
+    r = safe_post(url, json=payload, timeout = 30)
 
     if r.status_code != 200:
         # print(f"Error {r.status_code} for lot {number}")
