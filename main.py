@@ -800,31 +800,72 @@ def download_photos_from_lot(brand, page, type_param, arr_of_lot_numbers, restar
 
 def refresh_home_and_get_actual_vehicle_types_list():
     #here I will download HOME.json and then save it pretty formatted
+    home_filename = "HOME.json"
+    response_home = None
 
-    home_content = {} #to make it pretty json format, not one line
-    with open (Path("tech_json/HOME.json"), "r", encoding="utf-8") as f:
-        home_content = json.load(f)
+    url = "https://www.copart.com/public/data/quickPickCounts/HOME"
 
-    with open (Path("tech_json/HOME.json"), "w", encoding="utf-8") as f:
-        json.dump(home_content, f, ensure_ascii=False, indent=2)
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Mobile Safari/537.36',
+        'Referer': 'https://www.copart.com/'
+    }
+    cookies = {}
 
-    veht_array = []
     try:
-        with open(tech_json_path / 'HOME.json', 'r', encoding='utf-8') as f:
-            home_full = json.load(f)
-            if home_full:
-                veht_array = home_full.get('data', {}).get('quickPicks', {}).get('VEHT', [])
-                if not veht_array or veht_array == []:
-                    print("VEHT array is empty in HOME.json")
-                    save_error({
-                        'error_type': "VEHT array is empty in HOME.json"
-                    })
-                    return None
-                else:
-                    return veht_array
+        response_home = SESSION.get(
+            url=url,
+            headers=headers
+        )
     except Exception as e:
-        print(e)
+        print(f"Connection error in refresh_home: {e}")
         return None
+
+    content_type = response_home.headers.get("Content-Type", "")
+    is_soft_block = (response_home.status_code == 200 and "application/json" not in content_type)
+
+    if is_soft_block or response_home.status_code != 200:
+        print(f"Error. HOME.json failed. Status: {response_home.status_code}, SoftBlock: {is_soft_block}")
+        save_error({
+            "error_type": f"Error. HOME.json refresh failed. Status: {response_home.status_code}"
+        })
+        # Якщо тут блок, можна спробувати оновити сесію, але в цій функції це небезпечно робити рекурсивно.
+        # Просто повертаємо None, а main() спробує ще раз.
+        return None
+
+    try:
+        data = response_home.json()
+    except json.JSONDecodeError:
+        print("Error decoding HOME.json")
+        return None
+
+    if not data or data.get('data') == []:
+        print("Error. HOME.json data is empty.")
+        return None
+
+    try:
+        with open(tech_json_path / home_filename, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        print(f"Warning: Could not save HOME.json: {e}")
+
+    # home_content = {} #to make it pretty json format, not one line
+    # with open (tech_json_path / home_filename, "r", encoding="utf-8") as f:
+    #     home_content = json.load(f)
+
+    # with open (tech_json_path / home_filename, "w", encoding="utf-8") as f:
+    #     json.dump(home_content, f, ensure_ascii=False, indent=2)
+
+    veht_array = data.get('data', {}).get('quickPicks', {}).get('VEHT', [])
+
+    if not veht_array:
+        print("VEHT array is empty in HOME.json")
+        save_error({
+            'error_type': "VEHT array is empty in HOME.json"
+        })
+        return None
+
+    print("HOME.json refreshed successfully")
+    return veht_array
 
 
 def clean_payload(payload: dict) -> dict:
