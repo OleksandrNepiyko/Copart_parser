@@ -1412,7 +1412,7 @@ def request_with_vehicle_type(search_query, include_tag_by_field, restart_object
 
 def get_possible_values_of_filters(brand, headers, cookies, type_param, brand_upper, brand_count, arr_of_additional_fields_to_include):
     """
-    makes one request for specific brand and page but without specifying the SLOC
+    makes one request for specific brand and page but without specifying the MODG
     To get posible values of the filters that are transmited by arr_of_additional_fields_to_include
     These values can be used in payloads if you need to add a new sorting paramether
 
@@ -1456,14 +1456,14 @@ def get_possible_values_of_filters(brand, headers, cookies, type_param, brand_up
 
     # if arr_of_additional_fields_to_include:
     #     for item in arr_of_additional_fields_to_include:
-    #         code = item.get('quickPickCode')  # Наприклад: "ENGN"
+    #         code = item.get('quickPickCode')  # Наприклад: "YEAR"
     #         query = item.get('query')         # Наприклад: 'engine:"1.4L 4"'
     #         if code and query:
     #             # Додаємо у секцію "filter"
-    #             # Copart очікує список: "ENGN": ["engine..."]
+    #             # Copart очікує список: "YEAR": ["engine..."]
     #             payload["filter"][code] = [query]
     #             # Додаємо у секцію "includeTagByField"
-    #             # Формат: "ENGN": "{!tag=ENGN}"
+    #             # Формат: "YEAR": "{!tag=YEAR}"
     #             payload["includeTagByField"][code] = f"{{!tag={code}}}"
 
     payload = clean_payload(payload)
@@ -1555,7 +1555,7 @@ def get_possible_values_of_filters(brand, headers, cookies, type_param, brand_up
 def get_search_results_without_sloc_query(restart_page, brand, headers, cookies, type_param, brand_upper, brand_count):
     """
     SHOULD BE USED FOR BRANDS THAT HAVE MORE THAT 1000 LOTS ONLY
-    makes one request for specific brand and page but without specifying the SLOC To get all the possible SLOCs for that brand
+    makes one request for specific brand and page but without specifying the MODG To get all the possible MODGs for that brand
 
     returns:
     - False if no content found (indicating no more pages for this brand)
@@ -1629,7 +1629,7 @@ def get_search_results_without_sloc_query(restart_page, brand, headers, cookies,
         content = response_json.get('data', {}).get('results', {}).get('facetFields', [])
         query_and_display_names = None
         for item in content:
-            if item.get('quickPickCode') == "SLOC":
+            if item.get('quickPickCode') == "MODG":
                 query_in_facet_counts = []
                 display_names_in_facet_counts = []
                 facet_counts = item.get('facetCounts')
@@ -1652,7 +1652,7 @@ def get_search_results_without_sloc_query(restart_page, brand, headers, cookies,
 
 def check_if_brand_has_at_least_one_page(restart_page, brand, headers, cookies, type_param, brand_upper):
     """
-    makes one request for specific brand To get all the possible SLOCs for that brand
+    makes one request for specific brand To get all the possible MODGs for that brand
 
     returns:
     - False if no content found (indicating no more pages for this brand)
@@ -1812,7 +1812,7 @@ def download_data_from_pages_of_single_brand_with_vehicle_type_and_brand(search_
 
 def download_data_from_pages_of_single_brand_with_vehicle_type_and_brand_and_sloc(search_query, brand, type_param, restart_object, brand_count):
     """
-    makes requests for specific brand, vehicle type and SLOCs
+    makes requests for specific brand, vehicle type and MODGs
     """
     print(f"download_data_from_pages_of_single_brand_with_vehicle_type_and_brand_and_sloc: {brand}")
 
@@ -1845,14 +1845,14 @@ def download_data_from_pages_of_single_brand_with_vehicle_type_and_brand_and_slo
     # the nested loop will use the next filter, if not the nested loop will run
     # only once (you should change the 'until' condition in the nested loop
     # to make it run only once)
-    arr_of_additional_fields_to_include = ["SLOC", "ENGN"]
+    arr_of_additional_fields_to_include = ["MODG", "YEAR"]
     # or you can use all filters in each request simultaniously.
     # But it can lead to overdetailed requests
 
     values_and_filters = get_possible_values_of_filters(brand, headers, cookies, type_param, brand_upper, brand_count, arr_of_additional_fields_to_include)
 
     if values_and_filters == False:
-        print(f"No SLOC data found for {brand}")
+        print(f"No MODG data found for {brand}")
         return
 
     sloc_data = None
@@ -1860,13 +1860,13 @@ def download_data_from_pages_of_single_brand_with_vehicle_type_and_brand_and_slo
 
     if isinstance(values_and_filters, list):
         for value_and_filter in values_and_filters:
-            if value_and_filter.get('quickPickCode') == "SLOC":
+            if value_and_filter.get('quickPickCode') == "MODG":
                 sloc_data = value_and_filter
-            if value_and_filter.get('quickPickCode') == "ENGN":
+            if value_and_filter.get('quickPickCode') == "YEAR":
                 engn_data = value_and_filter
     elif isinstance(values_and_filters, dict):
-         sloc_data = values_and_filters.get('SLOC')
-         engn_data = values_and_filters.get('ENGN')
+         sloc_data = values_and_filters.get('MODG')
+         engn_data = values_and_filters.get('YEAR')
 
     if sloc_data is None:
         print(f"Error. sloc_data is None for {brand}")
@@ -1881,7 +1881,7 @@ def download_data_from_pages_of_single_brand_with_vehicle_type_and_brand_and_slo
     brand_upper = sloc_data.get('brand_upper', brand.upper())
 
     if not sloc_queries:
-        print(f"No SLOC queries found for brand {brand}.")
+        print(f"No MODG queries found for brand {brand}.")
         return
 
     for sloc_query_index in range(len(sloc_queries)):
@@ -1913,16 +1913,16 @@ def download_data_from_pages_of_single_brand_with_vehicle_type_and_brand_and_slo
 
             for page in range(current_start_page, 21):
 
-                print(f"\nBrand: {brand}, SLOC idx: {sloc_query_index}, Engn idx: {engine_volume_index}, Page: {page + 1}")
+                print(f"\nBrand: {brand}, MODG idx: {sloc_query_index}, Engn idx: {engine_volume_index}, Page: {page + 1}")
                 start = page * 100
 
-                #on the website there is no tags at all. But here I can add tag for SLOC if its needed
+                #on the website there is no tags at all. But here I can add tag for MODG if its needed
                 payload = {
                     "query": ["*"],
                     "filter": {
                         "VEHT": [f"vehicle_type_code:{type_param}"],
                         "MAKE": [f"lot_make_desc:\"{brand_upper}\""],
-                        "SLOC": [f"{sloc_queries[sloc_query_index]}"]
+                        "MODG": [f"{sloc_queries[sloc_query_index]}"]
                     },
                     "sort": ["salelight_priority asc", "member_damage_group_priority asc", "auction_date_type desc", "auction_date_utc asc"],
                     "page": page,
@@ -1939,13 +1939,13 @@ def download_data_from_pages_of_single_brand_with_vehicle_type_and_brand_and_slo
                     "includeTagByField": {
                         "VEHT": "{!tag=VEHT}",
                         "MAKE": "{!tag=MAKE}",
-                        "SLOC": "{!tag=SLOC}"
+                        "MODG": "{!tag=MODG}"
                     },
                     "rawParams": {}
                 }
 
                 if len(engine_volumes_loop) > 1 and engine_volumes_loop[0] != '':
-                    code = "ENGN"
+                    code = "YEAR"
                     query = engn_queries[engine_volume_index] # Тут виправлено .get, бо queries це зазвичай список рядків у твоїй структурі вище? Перевір це.
                     # Якщо engn_queries це список словників, то залиш як було: engn_queries[engine_volume_index].get('query')
 
@@ -2221,9 +2221,9 @@ def main():
     if clean_working_files_bool:
         clean_working_files()
     extract_only_automobile = False
-    extract_json_from_list_of_all_brands()
-    extract_vehicle_types()
-    extract_automobile_brands_list(extract_only_automobile) #if True then only vehicles with 'automobile' type will be extracted
+    # extract_json_from_list_of_all_brands()
+    # extract_vehicle_types()
+    # extract_automobile_brands_list(extract_only_automobile) #if True then only vehicles with 'automobile' type will be extracted
                                             # if False then all vehicles types will be extracted
     res_json_path.mkdir(parents=True, exist_ok=True)
 
