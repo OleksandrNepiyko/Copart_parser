@@ -2116,7 +2116,7 @@ def download_data_from_pages_of_each_brand(veht_array):
             brand_array = make_array.get('facetCounts', [])
 
             #tmp to limit only first brand
-            brand_array = brand_array[:3]
+            brand_array = brand_array[:1]
 
             skip_brands = False
             restart_brand_name = None
@@ -2245,7 +2245,7 @@ def main():
 
                 #tmp to limit only first vehtype
                 if actual_vehicle_types_list:
-                    actual_vehicle_types_list = actual_vehicle_types_list[:1]
+                    actual_vehicle_types_list = actual_vehicle_types_list[:3]
 
                 if actual_vehicle_types_list is None:
                     print("Error. Could not get actual vehicle types list from HOME.json. Retrying in 60 sec...")
