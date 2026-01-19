@@ -310,6 +310,65 @@ def safe_post(url, **kwargs):
     dummy._content = b"{}"
     return dummy
 
+def safe_get(url, **kwargs):
+    global POST_COUNT
+    global POST_LIMITER
+
+    if 'timeout' not in kwargs:
+        kwargs['timeout'] = 30
+
+    # Використовуємо той самий лічильник, що і для POST, щоб освіжати сесію
+    with SESSION_LOCK:
+        if POST_COUNT >= POST_LIMITER:
+            print(f"[SafeGet] Limit {POST_LIMITER} reached. Refreshing session...")
+            if not refresh_copart_session():
+                raise RuntimeError("Failed to refresh session.")
+            POST_COUNT = 0
+        POST_COUNT += 1
+
+    for attempt in range(5):
+        try:
+            response = SESSION.get(url, **kwargs)
+
+            # --- Аналіз відповіді ---
+            content_type = response.headers.get("Content-Type", "")
+            # Успіх: 200 ОК і це JSON
+            if response.status_code == 200 and "application/json" in content_type:
+                return response
+
+            # Якщо 404 - це означає лот не знайдено (видалений). Це НЕ помилка сесії.
+            if response.status_code == 404:
+                print(f"[SafeGet] 404 Not Found for {url} (Lot might be removed)")
+                return response # Повертаємо як є, обробимо зовні
+
+            # М'який блок (200 OK, але HTML)
+            is_soft_block = (response.status_code == 200 and "application/json" not in content_type)
+
+            # Помилки, що вимагають оновлення сесії
+            if response.status_code in [403, 429, 503] or is_soft_block:
+                reason = "Soft Block (HTML)" if is_soft_block else f"Status {response.status_code}"
+                print(f"[SafeGet] Issue: {reason}. Attempt {attempt+1}/5. Refreshing...")
+
+                with SESSION_LOCK:
+                    time.sleep(random.uniform(2, 4))
+                    refresh_copart_session()
+                    POST_COUNT = 0
+                continue
+
+        except requests.exceptions.ConnectionError:
+            print(f"[SafeGet] Connection error, retry {attempt+1}/5")
+            time.sleep(5)
+        except Exception as e:
+             print(f"[SafeGet] Request error: {e}")
+             with SESSION_LOCK:
+                 refresh_copart_session()
+
+    print("[SafeGet] Failed after 5 retries.")
+    dummy = requests.Response()
+    dummy.status_code = 500
+    dummy._content = b"{}"
+    return dummy
+
 def refresh_table_index():
     try:
         with open (db_tech_json_path / 'table_index.json', 'r', encoding='utf-8') as f:
@@ -663,23 +722,207 @@ def process_single_lot_vehicle_type(file_name, page, number):
              # Перевіряємо, може хтось вже оновив поки ми спали
              refresh_copart_session()
 
-# def get_lot_details(lot_number):
-#     url = f"https://www.copart.com/public/data/lotdetails/solr/{lot_number}"
-#     r = SESSION.get(url, headers=SESSION.headers, cookies=SESSION.cookies)
+def get_lot_details_vehicle_type(file_name, page, number):
+    # Випадкова затримка
+    time.sleep(random.uniform(0.5, 2.0))
 
-#     if r.status_code == 200:
-#         data = r.json()
-#         print("Success! Found lot details without HTML parsing.")
-#         # Збережи це в файл, щоб подивитись структуру
-#         with open("fast_api_result.json", "w", encoding="utf-8") as f:
-#             json.dump(data, f, indent=2)
+    # dynamic_data = check_dynamic_details(number)
 
-#         # Спробуй знайти тут lotHash для build-sheet
-#         if data and 'data' in data and 'lotDetails' in data['data']:
-#             details = data['data']['lotDetails']
-#             print(f"Lot Hash (lh): {details.get('lh')}")
-#     else:
-#         print(f"Failed: {r.status_code}")
+    # if dynamic_data:
+    #     # Можеш зберегти це разом з фото або окремим файлом
+    #     # Наприклад, додати у файл з фото або записати в окрему папку
+    #     try:
+    #         dyn_dir = res_json_path / "dynamic_data"
+    #         dyn_dir.mkdir(parents=True, exist_ok=True)
+    #         with open(dyn_dir / f"{number}_dynamic.json", "w", encoding="utf-8") as f:
+    #             json.dump(dynamic_data, f, indent=2)
+    #     except Exception as e:
+    #         print(f"Error saving dynamic data: {e}")
+
+    url = f"https://www.copart.com/public/data/lotdetails/solr/{number}"
+    payload = {"lotNumber": number}
+
+    # safe_post тепер сам спробує оновитись, якщо отримає 403
+    r = safe_get(url, timeout = 30)
+
+    if r.status_code != 200:
+        print(f"Error {r.status_code} for lot {number} in {file_name} page {page}")
+        save_error({
+            'file_name': file_name,
+            'page': page,
+            'lot_number': number,
+            'error_type': f"HTTP Error {r.status_code} for lot {number} in {file_name} page {page}"
+        })
+        return
+
+    try:
+        data = r.json()
+
+        target_dir = res_json_path / f"{file_name}_page{page + 1}_lots"
+        target_dir.mkdir(parents=True, exist_ok=True)
+
+        with open(target_dir / f"{number}.json", "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+
+    except Exception as e:
+        # Якщо ми тут, значить safe_post повернув 200 OK, але це НЕ JSON.
+        # Це 100% блок від Cloudflare. Треба оновлюватись.
+        print(f"JSON Error for lot {number} in {file_name} page {page} (Likely soft-block). Triggering refresh...")
+        with SESSION_LOCK:
+             # Перевіряємо, може хтось вже оновив поки ми спали
+             refresh_copart_session()
+
+def get_lot_details_for_page_vehicle_type(file_name, page, all_ln_values, search_query):
+    print(f"get_lot_details_for_page_vehicle_type {file_name}: {all_ln_values} (Total: {len(all_ln_values)})")
+
+    # --- БАГАТОПОТОЧНІСТЬ ---
+    # max_workers=3 означає, що одночасно буде качатися 3 фотографій.
+
+    #tmp
+    # all_ln_values = all_ln_values[:3]
+    with ThreadPoolExecutor(max_workers=3) as executor:
+        futures = []
+        for number in all_ln_values:
+            # Ми не викликаємо функцію, а плануємо її виконання (submit)
+            futures.append(executor.submit(get_lot_details_vehicle_type, file_name, page, number))
+
+        # Чекаємо завершення всіх завдань на цій сторінці
+        for future in as_completed(futures):
+            try:
+                future.result() # Тут вилетить помилка, якщо вона сталася всередині потоку
+            except Exception as e:
+                print(f"Thread execution failed: {e}")
+                save_error({
+                    'search_query': search_query,
+                    'brand': None,
+                    'page': page,
+                    'error_type': f"Thread execution failed: {e}"
+                })
+
+    # --- ЗБЕРЕЖЕННЯ ТОЧКИ ---
+    # Зберігаємо, що ми закінчили цю сторінку (обнуляємо lot_number)
+    with open(tech_json_path /'restart_point.json', 'w', encoding='utf-8') as f:
+        restart_point = {
+            'search_query': search_query,
+            'brand': None,
+            'page': page + 1,
+            'lot_number': 0
+        }
+        json.dump(restart_point, f, indent=2, ensure_ascii=False)
+
+def get_lot_details(brand, page, type_param, number, sloc_display_name, engn_display_name):
+    # Випадкова затримка
+    time.sleep(random.uniform(0.5, 2.0))
+    brand_with_underscores = brand.replace(" ", "_").replace("/","_")
+
+    # dynamic_data = check_dynamic_details(number)
+
+    # if dynamic_data:
+    #     # Можеш зберегти це разом з фото або окремим файлом
+    #     # Наприклад, додати у файл з фото або записати в окрему папку
+    #     try:
+    #         dyn_dir = res_json_path / "dynamic_data"
+    #         dyn_dir.mkdir(parents=True, exist_ok=True)
+    #         with open(dyn_dir / f"{number}_dynamic.json", "w", encoding="utf-8") as f:
+    #             json.dump(dynamic_data, f, indent=2)
+    #     except Exception as e:
+    #         print(f"Error saving dynamic data: {e}")
+
+    headers = {
+        'Accept': 'application/json, text/plain, */*',
+        'Content-Type': 'application/json',
+        'Origin': 'https://www.copart.com',
+        'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Mobile Safari/537.36',
+    }
+
+    url = f"https://www.copart.com/public/data/lotdetails/solr/{number}"
+    payload = {"lotNumber": number}
+
+    # safe_post тепер сам спробує оновитись, якщо отримає 403
+    r = safe_get(url, timeout = 30)
+
+    if r.status_code != 200:
+        # print(f"Error {r.status_code} for lot {number}")
+        return
+
+    try:
+        data = r.json()
+
+        file_name = f"{brand_with_underscores}_{type_param}_"
+        if sloc_display_name is not None:
+            file_name += f"{sloc_display_name.replace(" ", "_")}"
+        if engn_display_name is not None:
+            file_name += f"_{engn_display_name.replace(" ", "_")}"
+        file_name += f"_page{page + 1}_lots"
+        target_dir = res_json_path / file_name
+        target_dir.mkdir(parents=True, exist_ok=True)
+
+        with open(target_dir / f"{number}.json", "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+
+    except Exception as e:
+        # Якщо ми тут, значить safe_post повернув 200 OK, але це НЕ JSON.
+        # Це 100% блок від Cloudflare. Треба оновлюватись.
+        print(f"JSON Error for lot {number} : {e} (Likely soft-block). Triggering refresh...")
+        with SESSION_LOCK:
+             # Перевіряємо, може хтось вже оновив поки ми спали
+             refresh_copart_session()
+
+def get_lot_details_for_page(brand, page, type_param, arr_of_lot_numbers, restart_object, sloc_query_index = -1, sloc_display_name = None, engine_volume_index = -1, engn_display_name = None):
+    print(f"get_lot_details_for_page: {arr_of_lot_numbers} (Total: {len(arr_of_lot_numbers)})")
+
+    # tmp
+    # arr_of_lot_numbers = arr_of_lot_numbers[:3]
+    # --- Логіка RESTART ---
+    # Фільтруємо список номерів ДО запуску потоків
+    restart_lot_number = 0
+    if restart_object and isinstance(restart_object, dict):
+        restart_lot_number = restart_object.get('lot_number', 0)
+
+    lots_to_process = []
+    if restart_lot_number != 0:
+        if restart_lot_number in arr_of_lot_numbers:
+            idx = arr_of_lot_numbers.index(restart_lot_number)
+            lots_to_process = arr_of_lot_numbers[idx:] # Починаємо з місця зупинки
+        else:
+            # Якщо номер не знайдено (дивна ситуація), беремо всі
+            lots_to_process = arr_of_lot_numbers
+    else:
+        lots_to_process = arr_of_lot_numbers
+
+    # --- БАГАТОПОТОЧНІСТЬ ---
+    # max_workers=5 означає, що одночасно буде качатися 5 фотографій.
+    # Не ставте занадто багато (наприклад 20), бо Copart може забанити IP.
+
+    with ThreadPoolExecutor(max_workers=3) as executor:
+        futures = []
+        for number in lots_to_process:
+            # Ми не викликаємо функцію, а плануємо її виконання (submit)
+            futures.append(executor.submit(get_lot_details, brand, page, type_param, number, sloc_display_name, engn_display_name))
+
+        # Чекаємо завершення всіх завдань на цій сторінці
+        for future in as_completed(futures):
+            try:
+                future.result() # Тут вилетить помилка, якщо вона сталася всередині потоку
+            except Exception as e:
+                print(f"get_lot_details_for_page Thread execution failed: {e}")
+                save_error({
+                    'brand': brand,
+                    'page': page,
+                    'error_type': f"get_lot_details_for_page Thread execution failed: {e}"
+                })
+
+    # --- ЗБЕРЕЖЕННЯ ТОЧКИ ---
+    # Зберігаємо, що ми закінчили цю сторінку (обнуляємо lot_number)
+    with open(tech_json_path /'restart_point.json', 'w', encoding='utf-8') as f:
+        restart_point = {
+            'brand': brand,
+            'page': page + 1,
+            'sloc_query_index': sloc_query_index,
+            'engine_volume_index': engine_volume_index,
+            'lot_number': 0
+        }
+        json.dump(restart_point, f, indent=2, ensure_ascii=False)
 
 # Виклич це для будь-якого живого лота
 # test_fast_api(98026285)
@@ -1160,6 +1403,7 @@ def request_with_vehicle_type(search_query, include_tag_by_field, restart_object
 
         if len(all_ln_values) != 0:
             download_photos_from_lot_vehicle_type(file_name, page, all_ln_values, search_query)
+            get_lot_details_for_page_vehicle_type(file_name, page, all_ln_values, search_query)
         else:
             print(f"No lot numbers found on page {page+1}")
 
@@ -1559,13 +1803,14 @@ def download_data_from_pages_of_single_brand_with_vehicle_type_and_brand(search_
 
         if len(all_ln_values) != 0:
             download_photos_from_lot(brand, page, type_param, all_ln_values, per_page_restart)
+            get_lot_details_for_page(brand, page, type_param, all_ln_values, per_page_restart)
         else:
             print(f"No lot numbers found on page {page+1}")
 
         with open(tech_json_path / 'restart_point.json', 'w', encoding='utf-8') as f:
             json.dump({"search_query": search_query, "brand": brand, "page": page + 1, "sloc_query_index": -1, "engine_volume_index": -1, "lot_number": 0}, f)
 
-def download_data_from_pages_of_single_brand_with_vehicle_type_and_brand_and_sloc_new(search_query, brand, type_param, restart_object, brand_count):
+def download_data_from_pages_of_single_brand_with_vehicle_type_and_brand_and_sloc(search_query, brand, type_param, restart_object, brand_count):
     """
     makes requests for specific brand, vehicle type and SLOCs
     """
@@ -1759,10 +2004,13 @@ def download_data_from_pages_of_single_brand_with_vehicle_type_and_brand_and_slo
                         sloc_query_index, sloc_display_names[sloc_query_index],
                         engine_volume_index, engn_display_names[engine_volume_index]
                     )
+                    get_lot_details_for_page(
+                        brand, page, type_param, all_ln_values, per_page_restart,
+                        sloc_query_index, sloc_display_names[sloc_query_index],
+                        engine_volume_index, engn_display_names[engine_volume_index]
+                    )
                 else:
                     print(f"No lot numbers found on page {page+1}")
-
-                #TODO here I'll call the additional paramethers extractor
 
                 with open(tech_json_path / 'restart_point.json', 'w', encoding='utf-8') as f:
                     json.dump({
@@ -1773,352 +2021,6 @@ def download_data_from_pages_of_single_brand_with_vehicle_type_and_brand_and_slo
                         "engine_volume_index": engine_volume_index,
                         "lot_number": 0
                     }, f, ensure_ascii=False, indent=2)
-
-
-def download_data_from_pages_of_single_brand_with_vehicle_type_and_brand_and_sloc_new_my(search_query, brand, type_param, restart_object, brand_count):
-    """
-    makes requests for specific brand, vehicle type and SLOCs
-    """
-    print(f"download_data_from_pages_of_single_brand_with_vehicle_type_and_brand_and_sloc: {brand}")
-
-    brand_upper = brand.upper()
-    brand_with_underscores = brand.replace(" ", "_").replace("/","_")
-
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Mobile Safari/537.36',
-    }
-    cookies = {}
-
-    sloc_query_index = 0
-    if restart_object == None or restart_object == '':
-        restart_page = 0
-        engine_volume_index = 0
-    else:
-        restart_page = max(0, restart_object['page'] - 1)
-        engine_volume_index = max(0, restart_object['engine_volume_index'])
-        sloc_query_index = max(0, restart_object['sloc_query_index'])
-
-    brand_has_at_least_one_page = check_if_brand_has_at_least_one_page(restart_page, brand, headers, cookies, type_param, brand_upper)
-
-    if brand_has_at_least_one_page == False:
-        print(f"Skipping {brand} because initial search returned no content.")
-        return
-
-    # brand_upper = brand_has_at_least_one_page.get('brand_upper', brand_upper) #becaues if this
-    # brand have received response for some configuration of brand name variant,
-    # you should use this configuration because it's confirmed to work
-
-    #number of fields in arr_of_additional_fields_to_include should corespond to the number
-    # of nested loops below in this function
-    # so in that way you will adjust that if there are more than 1000 lots with one filter
-    # the nested loop will use the next filter, if not the nested loop will run
-    # only once (you should change the 'until' condition in the nested loop
-    # to make it run only once)
-    arr_of_additional_fields_to_include = ["SLOC", "ENGN"]
-    # or you can use all filters in each request simultaniously.
-    # But it can lead to overdetailed requests
-
-    values_and_filters = get_possible_values_of_filters(brand, headers, cookies, type_param, brand_upper, brand_count, arr_of_additional_fields_to_include)
-
-    if values_and_filters == False:
-        print(f"No SLOC data found for {brand}")
-        return
-
-    sloc_data = None
-    engn_data = None
-
-    for value_and_filter in values_and_filters:
-        if value_and_filter.get('quickPickCode') == arr_of_additional_fields_to_include[0]:
-            sloc_data = value_and_filter
-        if value_and_filter.get('quickPickCode') == arr_of_additional_fields_to_include[1]:
-            engn_data = value_and_filter
-
-    if sloc_data is None:
-        print(f"Error. download_data_from_pages_of_single_brand_with_vehicle_type_and_brand_and_sloc_new. sloc_data is None for {search_query} , {type_param} , {brand}")
-        save_error({
-            'brand': brand,
-            'search_query': search_query,
-            'error_type': f"Error. download_data_from_pages_of_single_brand_with_vehicle_type_and_brand_and_sloc_new. sloc_data is None for {search_query} , {type_param} , {brand}"
-        })
-        return
-
-    # print(engn_data)
-    if engn_data is None:
-        print(f"Error. download_data_from_pages_of_single_brand_with_vehicle_type_and_brand_and_sloc_new. engn_data is None for {search_query} , {type_param} , {brand}")
-        save_error({
-            'brand': brand,
-            'search_query': search_query,
-            'error_type': f"Error. download_data_from_pages_of_single_brand_with_vehicle_type_and_brand_and_sloc_new. engn_data is None for {search_query} , {type_param} , {brand}"
-        })
-        return
-
-    sloc_queries = sloc_data['queries']
-    sloc_display_names = sloc_data['display_names']
-    sloc_counts = sloc_data['counts']
-    brand_upper = sloc_data.get('brand_upper', brand.upper())
-
-    if sloc_queries == None or len(sloc_queries) == 0:
-        print(f"No SLOC queries found for brand {brand}. Skipping and moving to next brand.")
-        save_error({
-            'brand': brand,
-            'error_type': "No SLOC queries found."
-        })
-        return
-
-    for sloc_query_index in range(len(sloc_queries)):
-        if sloc_counts[sloc_query_index] > 1000:
-            engn_queries = engn_data['queries']
-            engn_display_names = engn_data['display_names']
-            # engn_counts = engn_data['counts']
-            engine_volumes_loop = engn_queries
-        else:
-            engine_volumes_loop = ['']
-            engn_display_names = ['all_engines']
-        for engine_volume_index in range(len(engine_volumes_loop)): #_loop because it can
-            # have only one element if there is no need to make requests with
-            # specifying the engine volume (<1000 lots per sloc)
-
-            # tmp
-            # for page in range (restart_page, 1):
-            for page in range (restart_page, 21):
-                # time.sleep(0.1)
-                print(f"Brand: {brand}, sloc_query_index: {sloc_query_index}, engine_volume_index: {engine_volume_index}, page: {page + 1}\n")
-                start = page * 100
-
-                #on the website there is no tags at all. But here I can add tag for SLOC if its needed
-                payload = {
-                    "query": ["*"],
-                    "filter": {
-                        "VEHT": [f"vehicle_type_code:{type_param}"],
-                        "MAKE": [f"lot_make_desc:\"{brand_upper}\""],
-                        "SLOC": [f"{sloc_queries[sloc_query_index]}"]
-                    },
-                    "sort": [
-                        "salelight_priority asc",
-                        "member_damage_group_priority asc",
-                        "auction_date_type desc",
-                        "auction_date_utc asc"
-                    ],
-                    "page": page,
-                    "size": 100,
-                    "start": start,
-                    "watchListOnly": False,
-                    "freeFormSearch": False,
-                    "hideImages": False,
-                    "defaultSort": False,
-                    "specificRowProvided": False,
-                    "displayName": "",
-                    "searchName": "",
-                    "backUrl": "",
-                    "includeTagByField": {
-                        "VEHT": "{!tag=VEHT}",
-                        "MAKE": "{!tag=MAKE}",
-                        "SLOC": "{!tag=SLOC}"
-                    },
-                    "rawParams": {}
-                }
-
-                if len(engine_volumes_loop) > 1 and engine_volumes_loop[0] != '':
-                    code = "ENGN"  # Наприклад: "ENGN"
-                    query = engn_queries[engine_volume_index].get('query')# Наприклад: 'engine:"1.4L 4"'
-                    if code and query:
-                        # Додаємо у секцію "filter"
-                        # Copart очікує список: "ENGN": ["engine..."]
-                        payload["filter"][code] = [query]
-                        # Додаємо у секцію "includeTagByField"
-                        # Формат: "ENGN": "{!tag=ENGN}"
-                        payload["includeTagByField"][code] = f"{{!tag={code}}}"
-
-                # Не забудь прогнати через функцію очищення
-                payload = clean_payload(payload)
-                # print(payload)
-                # print()
-                url = "https://www.copart.com/public/lots/vehicle-finder-search-results"
-
-                # Очищаємо змінні перед запитом для багатопоточності
-                response_json = None
-
-                response = safe_post(
-                    url,
-                    headers=headers,
-                    cookies=cookies,
-                    json=payload,
-                    timeout=30
-                )
-
-                if response.status_code != 200:
-                    print(f"Failed to load page {page + 1} for {brand}. Status: {response.status_code}")
-                    continue # Пропускаємо ітерацію, не йдемо вниз
-
-                try:
-                    response_json = response.json()
-                except Exception as e:
-                    print(f"JSON Decode Error on page {page + 1}: {e}")
-                    # Можливо, safe_post повернув HTML. Ми не можемо продовжувати з цією сторінкою.
-                    continue
-
-                # --- FIX: Перевірка на NoneType перед доступом ---
-                if response_json is None:
-                    print(f"response_json is None for page {page + 1}. Skipping.")
-                    continue
-                # -------------------------------------------------
-
-                if response_json.get('data', {}).get('results', {}).get('content', []) == []:
-                    print(f"No content for {brand} on page {page+1}. Finishing brand.")
-                    break
-
-                try:
-                    with open(res_json_path / f'{brand_with_underscores}_{type_param}_{sloc_display_names[sloc_query_index].replace(" ", "_")}_{engn_display_names[engine_volume_index].replace(" ", "_")}_page{page + 1}.json', 'w', encoding='utf-8') as f:
-                        json.dump(response_json, f, ensure_ascii=False, indent=2)
-                except Exception as e:
-                    print(f"File save error: {e}")
-
-                all_ln_values = []
-                try:
-                    # Тут вже безпечно, бо ми перевірили response_json вище
-                    content = response_json.get('data', {}).get('results', {}).get('content', [])
-                    for item in content:
-                        if 'ln' in item:
-                            all_ln_values.append(item['ln'])
-                except Exception as e:
-                    print(f"Error extracting ln values on page {page + 1}: {e}")
-                    continue
-
-                per_page_restart = None
-                if restart_object and isinstance(restart_object, dict) and restart_object.get('page') == page:
-                    per_page_restart = restart_object
-
-                if len(all_ln_values) != 0:
-                    download_photos_from_lot(brand, page, type_param, all_ln_values, per_page_restart, sloc_query_index, sloc_display_names[sloc_query_index], engine_volume_index, engn_display_names[engine_volume_index])
-                else:
-                    print(f"No lot numbers found on page {page+1}")
-
-                with open(tech_json_path / 'restart_point.json', 'w', encoding='utf-8') as f:
-                    json.dump({"search_query": search_query, "brand": brand, "page": page + 1, "sloc_query_index": sloc_query_index, "engine_volume_index": engine_volume_index, "lot_number": 0}, f)
-
-
-def download_data_from_pages_of_single_brand_with_vehicle_type_and_brand_and_sloc(search_query, brand, type_param, restart_object, brand_count):
-    """
-    makes requests for specific brand, vehicle type and SLOCs
-    """
-    print(f"download_data_from_pages_of_single_brand_with_vehicle_type_and_brand_and_sloc: {brand}")
-
-    brand_upper = brand.upper()
-    brand_with_underscores = brand.replace(" ", "_").replace("/","_")
-
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Mobile Safari/537.36',
-    }
-    cookies = {}
-
-    if restart_object == None or restart_object == '':
-        restart_page = 0
-    else:
-        restart_page = max(0, restart_object['page'] - 1)
-
-    brand_has_at_least_one_page = check_if_brand_has_at_least_one_page(restart_page, brand, headers, cookies, type_param, brand_upper)
-
-    if brand_has_at_least_one_page == False:
-        print(f"Skipping {brand} because initial search returned no content.")
-        return
-
-    # brand_upper = brand_has_at_least_one_page.get('brand_upper', brand_upper) #becaues if this
-    # brand have received response for some configuration of brand name variant,
-    # you should use this configuration because it's confirmed to work
-
-    sloc_data = get_search_results_without_sloc_query(restart_page, brand, headers, cookies, type_param, brand_upper, brand_count)
-
-    if sloc_data == False:
-        print(f"No SLOC data found for {brand}")
-        return
-
-    sloc_queries = sloc_data['queries']
-    sloc_display_names = sloc_data['display_names']
-    brand_upper = sloc_data.get('brand_upper', brand.upper())
-
-    if sloc_queries == None or len(sloc_queries) == 0:
-        print(f"No SLOC queries found for brand {brand}. Skipping and moving to next brand.")
-        save_error({
-            'brand': brand,
-            'error_type': "No SLOC queries found."
-        })
-        return
-
-    for sloc_query_index in range(len(sloc_queries)):
-        # tmp
-        # for page in range (restart_page, 1):
-        for page in range (restart_page, 21):
-            # time.sleep(0.1)
-            print(f"Brand: {brand}, page: {page + 1}")
-            start = page * 100
-
-            #on the website there is no tags at all. But here I can add tag for SLOC if its needed
-            payload = clean_payload({"query":["*"],"filter":{"VEHT":[f"vehicle_type_code:{type_param}"],"MAKE":[f"lot_make_desc:\"{brand_upper}\""],"SLOC":[f"{sloc_queries[sloc_query_index]}"]},"sort":["salelight_priority asc","member_damage_group_priority asc","auction_date_type desc","auction_date_utc asc"],"page":page,"size":100,"start":start,"watchListOnly":False,"freeFormSearch":False,"hideImages":False,"defaultSort":False,"specificRowProvided":False,"displayName":"","searchName":"","backUrl":"","includeTagByField":{"VEHT":"{!tag=VEHT}","MAKE":"{!tag=MAKE}","SLOC":"{!tag=SLOC}"},"rawParams":{}})
-
-            # print(payload)
-            print()
-            url = "https://www.copart.com/public/lots/vehicle-finder-search-results"
-
-            # Очищаємо змінні перед запитом для багатопоточності
-            response_json = None
-
-            response = safe_post(
-                url,
-                headers=headers,
-                cookies=cookies,
-                json=payload,
-                timeout=30
-            )
-
-            if response.status_code != 200:
-                print(f"Failed to load page {page + 1} for {brand}. Status: {response.status_code}")
-                continue # Пропускаємо ітерацію, не йдемо вниз
-
-            try:
-                response_json = response.json()
-            except Exception as e:
-                print(f"JSON Decode Error on page {page + 1}: {e}")
-                # Можливо, safe_post повернув HTML. Ми не можемо продовжувати з цією сторінкою.
-                continue
-
-            # --- FIX: Перевірка на NoneType перед доступом ---
-            if response_json is None:
-                print(f"response_json is None for page {page + 1}. Skipping.")
-                continue
-            # -------------------------------------------------
-
-            if response_json.get('data', {}).get('results', {}).get('content', []) == []:
-                print(f"No content for {brand} on page {page+1}. Finishing brand.")
-                break
-
-            try:
-                with open(res_json_path / f'{brand_with_underscores}_{type_param}_{sloc_display_names[sloc_query_index]}_page{page + 1}.json', 'w', encoding='utf-8') as f:
-                    json.dump(response_json, f, ensure_ascii=False, indent=2)
-            except Exception as e:
-                print(f"File save error: {e}")
-
-            all_ln_values = []
-            try:
-                # Тут вже безпечно, бо ми перевірили response_json вище
-                content = response_json.get('data', {}).get('results', {}).get('content', [])
-                for item in content:
-                    if 'ln' in item:
-                        all_ln_values.append(item['ln'])
-            except Exception as e:
-                print(f"Error extracting ln values on page {page + 1}: {e}")
-                continue
-
-            per_page_restart = None
-            if restart_object and isinstance(restart_object, dict) and restart_object.get('page') == page:
-                per_page_restart = restart_object
-
-            if len(all_ln_values) != 0:
-                download_photos_from_lot(brand, page, type_param, all_ln_values, per_page_restart, sloc_query_index, sloc_display_names[sloc_query_index])
-            else:
-                print(f"No lot numbers found on page {page+1}")
-
-            with open(tech_json_path / 'restart_point.json', 'w', encoding='utf-8') as f:
-                json.dump({"search_query": search_query, "brand": brand, "page": page + 1, 'sloc_query_index': sloc_query_index, "lot_number": 0}, f)
 
 
 def download_data_from_pages_of_each_brand(veht_array):
@@ -2247,7 +2149,7 @@ def download_data_from_pages_of_each_brand(veht_array):
                     restart_obj = None
                 elif brand_count > 1000:
                     # print(f"passed restart 2: {passed_restart_obj}")
-                    download_data_from_pages_of_single_brand_with_vehicle_type_and_brand_and_sloc_new(search_query, brand_description, vehtype, passed_restart_obj, brand_count)
+                    download_data_from_pages_of_single_brand_with_vehicle_type_and_brand_and_sloc(search_query, brand_description, vehtype, passed_restart_obj, brand_count)
                     restart_obj = None
 
                 current_restart_obj = None
