@@ -2116,7 +2116,7 @@ def download_data_from_pages_of_each_brand(veht_array):
             brand_array = make_array.get('facetCounts', [])
 
             #tmp to limit only first brand
-            brand_array = brand_array[:1]
+            brand_array = brand_array[:3]
 
             skip_brands = False
             restart_brand_name = None
