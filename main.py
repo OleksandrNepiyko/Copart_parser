@@ -2116,7 +2116,7 @@ def download_data_from_pages_of_each_brand(veht_array):
             brand_array = make_array.get('facetCounts', [])
 
             #tmp to limit only first brand
-            brand_array = brand_array[:1]
+            # brand_array = brand_array[:1]
 
             skip_brands = False
             restart_brand_name = None
@@ -2129,6 +2129,11 @@ def download_data_from_pages_of_each_brand(veht_array):
             # brand_array = brand_array[0:3]
             for brand in brand_array:
                 brand_description = brand.get('displayName')
+
+                if brand_description.upper() != "BMW":
+                    # Можна розкоментувати прінт, щоб бачити що пропускається
+                    # print(f"Skipping {brand_description}, looking for BMW...")
+                    continue
                 brand_count = brand.get('count')
                 vehtype = search_query.split(":")[1]
 
