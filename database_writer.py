@@ -1,6 +1,6 @@
-#opens folder with json files (res_json), search for files with names provided in 
-#db_tech_json/all_json_names. If error occurs only the name of last completely 
-#save file will be stored in db_tech_json/last_written_to_db_review. So it's 
+#opens folder with json files (res_json), search for files with names provided in
+#db_tech_json/all_json_names. If error occurs only the name of last completely
+#save file will be stored in db_tech_json/last_written_to_db_review. So it's
 #impossible to track how much reviews from the next file were saved to db
 #the resulting db backup will be saved in writing_json_to_db (current dir)
 #with namef {backup_name}.sql
@@ -16,12 +16,14 @@ import subprocess
 import json
 from pathlib import Path
 from datetime import datetime
-import time 
+import time
 from natsort import natsorted
-
+import requests
+import yfinance as yf
 
 reviews_json_path = Path("res_json")
 db_tech_json_path = Path("db_tech_json")
+main_tech_json_path = Path("tech_json")
 backup_name = 'copart_backup'
 # last_saved_review_in_file_id = 0
 
@@ -52,7 +54,7 @@ db = None
 def create_db(db_name):
     db = mysql.connector.connect(
         host="10.30.0.100",
-		port=3310, 
+		port=3310,
         user="root",
         password="root",
         auth_plugin='mysql_native_password'
@@ -64,7 +66,7 @@ def drop_database(db_name):
     try:
         db = mysql.connector.connect(
             host="10.30.0.100",
-            port=3310, 
+            port=3310,
             user="root",
             password="root",
             auth_plugin='mysql_native_password'
@@ -81,7 +83,7 @@ def drop_database(db_name):
 def create_table(db_name, table_name):
     db = mysql.connector.connect(
         host="10.30.0.100",
-		port=3310, 
+		port=3310,
         user="root",
         password="root",
         database=f"{db_name}",
@@ -103,12 +105,12 @@ def create_table(db_name, table_name):
     cursor.execute(f"""
     CREATE TABLE IF NOT EXISTS {table_name} (
     `id` int NOT NULL AUTO_INCREMENT,
-    
+
     /* Блок "Інформація про транспортний засіб" */
     `brand` varchar(100) DEFAULT NULL,
     `model` varchar(100) DEFAULT NULL,
-    `memberVehicleType` varchar(100) DEFAULT NULL, 
-    `vehicleTypeCode` varchar(100) DEFAULT NULL, 
+    `memberVehicleType` varchar(100) DEFAULT NULL,
+    `vehicleTypeCode` varchar(100) DEFAULT NULL,
     `manufacture_year` int DEFAULT NULL,
     `complectation` varchar(100) DEFAULT NULL,
     `full_url` text,
@@ -134,22 +136,22 @@ def create_table(db_name, table_name):
     `notes` text,
     `estimated_retail_price` decimal(10,2) DEFAULT NULL,
     `json` longtext,
-    
+
     /* Блок "Інформація про ставку" */
     `current_bid` decimal(10,2) DEFAULT NULL,
     `price_without_auction` decimal(10,2) DEFAULT NULL,
     `starting_bid` decimal(10,2) DEFAULT NULL,
-    
+
     /* Блок "Інформація про продаж" */
     `sale_name` varchar(255) DEFAULT NULL,
     `sale_location` varchar(255) DEFAULT NULL,
     `sale_date` date DEFAULT NULL,
     `last_updated` datetime DEFAULT NULL,
-    
+
     /* Технічні поля */
     `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
+
     PRIMARY KEY (`id`),
     KEY `lot_number_idx` (`lot_number`),
     KEY `brand_model_idx` (`brand`, `model`)
@@ -157,36 +159,36 @@ def create_table(db_name, table_name):
     """)
     db.commit()
     return cursor, db
-        
+
 
 def extract_brand_model_from_url(url):
     """
     Extracts car brand and model from Drom.ru review URLs
-    
+
     Args:
         url (str): Drom.ru review URL
-        
+
     Returns:
         dict: Dictionary with 'car_brand' and 'car_model' car_keys
     """
     try:
         # Remove protocol and domain, split by '/'
         parts = url.replace('https://www.drom.ru/reviews/', '').split('/')
-        
+
         if len(parts) < 2:
             return {'car_brand': None, 'car_model': None}
-        
+
         brand = parts[0]  # First part is brand
         model = parts[1]  # Second part is model
-        
+
         # Clean up the model name
         model = model.replace('_', ' ').title()
-        
+
         return {
             'car_brand': brand.title(),
             'car_model': model
         }
-        
+
     except Exception as e:
         print(f"Error processing URL {url}: {e}")
         return {'car_brand': None, 'car_model': None}
@@ -203,7 +205,7 @@ def extract_brand_model_from_url(url):
 #         brand = "Unknown"
 #         if len(breadcrumbs) >= 3:
 #             brand = breadcrumbs[2].get('name', 'Unknown')
-        
+
 #         # Check if shortReviews exists
 #         if 'shortReviews' not in data:
 #             with open(db_tech_json_path / "error_list.json", 'a', encoding='utf-8') as f:
@@ -215,10 +217,10 @@ def extract_brand_model_from_url(url):
 #                 f.write('\n')
 #             print(f"File {file_path} doesn't have shortReviews")
 #             return 0
-        
+
 #         inserted_count = 0
 #         skip_reviews = skip_until_id > 0
-        
+
 #         # Process all reviews in the file
 #         for review in data['shortReviews']:
 #             current_review_id = review.get('id', 'N/A')
@@ -235,7 +237,7 @@ def extract_brand_model_from_url(url):
 #                 photo_urls = ""
 #                 if review.get('photos'):
 #                     photo_urls = ",".join([photo['original'] for photo in review['photos']])
-                
+
 #                 # Convert technical parameters - keep original values
 #                 title_params = review.get('titleParams', {})
 
@@ -250,13 +252,13 @@ def extract_brand_model_from_url(url):
 #                 # Convert fuel type code to text
 #                 fuel_map = {'0': 'бензин', '1': 'бензин', '2': 'дизель', '3': 'гибрид', '4': 'электричество'}
 #                 fuel_type = fuel_map.get(str(title_params.get('fuelType', '')), '')
-                
+
 #                 # Insert data into database
 #                 cursor.execute("""
 #                 INSERT INTO car_reviews (
 #                     author_name, publication_date, parsing_datetime, photo_urls,
 #                     car_brand, car_model, manufacture_year, body_type,
-#                     engine_volume, transmission, drive_type, fuel_type, advantages, disadvantages, 
+#                     engine_volume, transmission, drive_type, fuel_type, advantages, disadvantages,
 #                     breakages, about_car, json
 #                 ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
 #                 """, (
@@ -278,10 +280,10 @@ def extract_brand_model_from_url(url):
 #                     json.dumps(review, ensure_ascii=False)
 #                     # json.dumps(review)
 #                 ))
-                
+
 #                 inserted_count += 1
 #                 print(f"Added review ID: {current_review_id}")
-                
+
 #             except Exception as e:
 #                 with open(db_tech_json_path / "error_list.json", 'a', encoding='utf-8') as f:
 #                     obj = {
@@ -301,7 +303,7 @@ def extract_brand_model_from_url(url):
 #                 json.dump(obj, f, ensure_ascii=False, indent=2)
 #         db.commit()
 #         return inserted_count
-        
+
 #     except Exception as e:
 #         with open(db_tech_json_path / "error_list.json", 'a', encoding='utf-8') as f:
 #             obj = {
@@ -353,7 +355,7 @@ def fetch_photos(file_path, lot_number):
     try:
         images_list = data.get('data', {}).get('imagesList', {})
         # print(images_list)
-        
+
         # Обробка фото (IMAGE) - обов'язкове поле
         photos_data = []
         try:
@@ -367,7 +369,7 @@ def fetch_photos(file_path, lot_number):
                 'error_type': f"Error getting IMAGE data: {e}"
             })
             return None
-        
+
         if not photos_data:
             save_error({
                 'file_path': file_path,
@@ -375,7 +377,7 @@ def fetch_photos(file_path, lot_number):
                 'error_type': "No photos found in IMAGE array"
             })
             return None
-        
+
         # Формуємо масив об'єктів з фотками з трьома розширеннями
         for photo in photos_data:
             try:
@@ -396,7 +398,7 @@ def fetch_photos(file_path, lot_number):
         except Exception as e:
             None
             # Не записуємо помилку, бо VIDEO може не бути
-            
+
         if video_data and len(video_data) > 0:
             try:
                 video = video_data[0]  # Беремо перше відео
@@ -419,7 +421,7 @@ def fetch_photos(file_path, lot_number):
         except Exception as e:
             None
             # Не записуємо помилку, бо DTLE може не бути
-            
+
         if png_data and len(png_data) > 0:
             try:
                 png_image = png_data[0]  # Беремо перше PNG
@@ -446,12 +448,65 @@ def fetch_photos(file_path, lot_number):
             'error_type': f"Error processing photos data: {e}"
         })
         return None
-        
+
+# def convert_currency_to_usd(currency_from, currency_to, amount): #not so presize as convert_currency_yahoo
+#     currency_from = currency_from.upper()
+#     currency_to = currency_to.upper()
+#     try:
+#         url = f"https://open.er-api.com/v6/latest/{currency_from}"
+#         response = requests.get(url)
+#         if response.status_code != 200:
+#             print(f"API Error: {response.status_code}")
+#             return False
+#         res_json = response.json()
+#         print(res_json)
+#         if 'rates' in res_json and currency_to in res_json['rates']:
+#             rate = res_json['rates'][currency_to]
+#             total_value = amount * rate
+#             return total_value
+#         else:
+#             print(f"Currency {currency_to} not found in exchange rates.")
+#             save_error({
+#                 'error_type': f"Currency {currency_to} not found in exchange rates."
+#             })
+#             return False
+#     except Exception as e:
+#         print(f"Error. Couldn't convert {currency_from} to {currency_to} with amount {amount}")
+#         save_error({
+#             'error_type': f"Error. Couldn't convert {currency_from} to {currency_to} with amount {amount}"
+#         })
+#         return False
+
+def convert_currency_yahoo(currency_from, currency_to, amount):
+    # Symbol format for Yahoo Finance is usually "CADUSD=X"
+    symbol = f"{currency_from.upper()}{currency_to.upper()}=X"
+    ticker = yf.Ticker(symbol)
+
+    # Get the latest price (usually the 'regularMarketPrice' or 'previousClose')
+    # Note: Fetching data might take a second or two
+    try:
+        data = ticker.history(period="1d")
+        if not data.empty:
+            rate = data['Close'].iloc[-1] # Get the most recent closing price
+            total = amount * rate
+            return total
+        else:
+            print(f"Error. Couldn't convert ")
+            save_error({
+                'error_type': f"Error. Couldn't convert {currency_from} to {currency_to} with amount {amount}"
+            })
+            return False
+    except Exception as e:
+        print(f"Error. Couldn't convert {currency_from} to {currency_to} with amount {amount}: {e}")
+        save_error({
+            'error_type': f"Error. Couldn't convert {currency_from} to {currency_to} with amount {amount}: {e}"
+        })
+        return False
 
 def parse_copart_lot(lot_obj, file_path, cursor, db, db_name, table_name): #extracts data from single lot and adds it into db
     """
     Парсить один об'єкт Copart лоту і вставляє дані у таблицю first_copart_lots.
-    
+
     lot_obj – dict (об'єкт Copart)
     cursor  – курсор MySQL
     db      – з'єднання MySQL
@@ -507,6 +562,20 @@ def parse_copart_lot(lot_obj, file_path, cursor, db, db_name, table_name): #extr
     # 2. Bid information
     # -----------------------------
     current_bid = lot_obj.get("hb")                          # current bid
+    currency_name = lot_obj.get("cuc")
+    try:
+        if currency_name == "CAD":
+            current_bid = round(convert_currency_yahoo(currency_name, "usd", current_bid), 3)
+        elif currency_name != "USD":
+            current_bid = round(convert_currency_yahoo(currency_name, "usd", current_bid), 3)
+            with open(main_tech_json_path / "other_currency_names.json", 'a', encoding='utf-8') as f:
+                json.dump({
+                    'name_of_currency': currency_name,
+                    'lot_number': lot_number
+                })
+    except:
+        pass
+
     price_without_auction = lot_obj.get("lotPlugAcv")        # ACV
     starting_bid = lot_obj.get("bnp")                        # buy now price / starting bid
 
@@ -629,7 +698,7 @@ def parse_copart_lot(lot_obj, file_path, cursor, db, db_name, table_name): #extr
     except Exception as e:
         print(f"ERROR inserting lot {lot_number}: {e}")
         raise
-    
+
 
 def process_json_file(file_path, db, cursor, resume_lot, db_name, table_name, lot_number=0):
     file_path = str(file_path)
@@ -638,7 +707,7 @@ def process_json_file(file_path, db, cursor, resume_lot, db_name, table_name, lo
     try:
         with open(str(file_path), 'r', encoding='utf-8') as f:
             file_content = f.read().strip()
-        
+
         print(f"Processing file: {file_path}")
 
         # Skip if file is empty
@@ -661,7 +730,7 @@ def process_json_file(file_path, db, cursor, resume_lot, db_name, table_name, lo
                 'error': f"Error parsing JSON in file {file_path}: {e}"
             })
             return 0
-        
+
         # print(lots_data)
 
         # # Check if it's a list
@@ -674,7 +743,7 @@ def process_json_file(file_path, db, cursor, resume_lot, db_name, table_name, lo
         #     return 0
 
         inserted_count = 0
-        
+
         try:
             content = lots_data.get('data').get('results').get('content')
 
@@ -704,9 +773,9 @@ def process_json_file(file_path, db, cursor, resume_lot, db_name, table_name, lo
                             ]
                         })
 
-                        #in this case start from the beginning of the file 
-                        #BUG here can be a duplication (if the provided last lot number is not found 
-                        # in the provided file) (But it's not neccessary that this will happen, 
+                        #in this case start from the beginning of the file
+                        #BUG here can be a duplication (if the provided last lot number is not found
+                        # in the provided file) (But it's not neccessary that this will happen,
                         # it's not a bug, just to highlight this place)
                         # start_index = -1
 
@@ -725,7 +794,7 @@ def process_json_file(file_path, db, cursor, resume_lot, db_name, table_name, lo
                         inserted_count += 1
 
             db.commit()
-            
+
         except Exception as e:
             with open(db_tech_json_path / "error_list.json", 'a', encoding='utf-8') as f:
                 obj = {
@@ -736,10 +805,10 @@ def process_json_file(file_path, db, cursor, resume_lot, db_name, table_name, lo
                 json.dump(obj, f, ensure_ascii=False, indent=2)
                 f.write('\n')
             print(f"Error processing review in {str(obj)}")
-        
+
         time.sleep(3)
         return inserted_count
-        
+
     except Exception as e:
         with open(db_tech_json_path / "error_list.json", 'a', encoding='utf-8') as f:
             obj = {
@@ -750,7 +819,7 @@ def process_json_file(file_path, db, cursor, resume_lot, db_name, table_name, lo
             f.write('\n')
         print(f"Error reading file of errors {file_path}: {e}")
         return 0
-    
+
 def save_filenames(directory_path, output_file, starts_with=""):
     #saves names of files and returns it. Saving is to make it easier to restore program after crash
     # Get all files in the directory
@@ -779,29 +848,29 @@ def main(db_name, table_name, results_json_path, table_index):
     if not reviews_json_path.exists():
         print(f"Directory {reviews_json_path} not found!")
         return
-    
+
     # Create tech directory if it doesn't exist
     db_tech_json_path.mkdir(exist_ok=True)
 
     save_filenames(reviews_json_path, db_tech_json_path / "all_json_names.txt")
-    
+
     # Check if all_json_names file exists and is not empty
     all_json_names_file = db_tech_json_path / "all_json_names.txt"
     last_review_file = db_tech_json_path / "last_written_to_db_review.json"
-    
+
     json_files = []
     start_from_beginning = True
     resume_file = ""
     resume_lot = 0
-    
-    #this block detects if we have list of all json files, if not else block will create it by taking all 
-    #names of all files inside of dir in reviews_json_path variable and write them into file by 
-    # path in all_json_names_file variable 
+
+    #this block detects if we have list of all json files, if not else block will create it by taking all
+    #names of all files inside of dir in reviews_json_path variable and write them into file by
+    # path in all_json_names_file variable
     if all_json_names_file.exists() and all_json_names_file.stat().st_size > 0:
         # Read existing file list
         with open(all_json_names_file, 'r', encoding='utf-8') as f:
             json_files = [Path(line.strip()) for line in f if line.strip()]
-        
+
         # Check if we have last processed file
         if last_review_file.exists():
             try:
@@ -835,16 +904,16 @@ def main(db_name, table_name, results_json_path, table_index):
             for file_path in json_files:
                 f.write(f"{reviews_json_path}/{file_path}" + '\n')
         print(f"Created new file list with {len(json_files)} files")
-    
+
     if not json_files:
         print("No JSON files found!")
         return
-    
+
     print(f"Processing {len(json_files)} JSON files")
-    
+
     total_inserted = 0
     current_file_index = 0
-    
+
     # Process each file
     for file_path in json_files:
         current_file_index += 1
@@ -855,18 +924,18 @@ def main(db_name, table_name, results_json_path, table_index):
         else:
             # print(f"2 file_path: {file_path}")
             inserted = process_json_file(f"{results_json_path}/{file_path}", db, cursor, 0, db_name, table_name)
-        
+
         total_inserted += inserted
-        
+
         # Update last processed file (after each file)
         with open(last_review_file, 'w', encoding='utf-8') as f:
             json.dump({
                 "file_name": str(file_path),
                 "lot": 0
             }, f, ensure_ascii=False, indent=2)
-        
+
         print(f"File {file_path}: added {inserted} reviews\n")
-    
+
     # Save changes
     if db is None:
         print("main(): Database connection is not initialized.")
@@ -875,9 +944,9 @@ def main(db_name, table_name, results_json_path, table_index):
         })
         return
     db.commit()
-    
+
     print(f"Completed! Total added {total_inserted} reviews")
-    
+
     try:
         with open(f'{table_index}_{backup_name}.sql', 'w', encoding='utf-8') as f:
             subprocess.run(['mysqldump', '-h10.30.0.100', '-P3310', '-u', 'root', '-proot', f"{db_name}"], stdout=f, check=True)
