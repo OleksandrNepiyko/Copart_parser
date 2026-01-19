@@ -2115,6 +2115,9 @@ def download_data_from_pages_of_each_brand(veht_array):
                 continue
             brand_array = make_array.get('facetCounts', [])
 
+            #tmp to limit only first brand
+            brand_array = brand_array[:1]
+
             skip_brands = False
             restart_brand_name = None
             print(f"current_restart_obj: {current_restart_obj}")
@@ -2239,6 +2242,11 @@ def main():
             number_of_vehicle_types_to_skip = get_number_of_vehicle_types_to_skip()
             while True: # to refresh HOME.json with each next vehicle type
                 actual_vehicle_types_list = refresh_home_and_get_actual_vehicle_types_list()
+
+                #tmp to limit only first vehtype
+                if actual_vehicle_types_list:
+                    actual_vehicle_types_list = actual_vehicle_types_list[:1]
+
                 if actual_vehicle_types_list is None:
                     print("Error. Could not get actual vehicle types list from HOME.json. Retrying in 60 sec...")
                     save_error({
