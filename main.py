@@ -722,6 +722,34 @@ def process_single_lot_vehicle_type(file_name, page, number):
              # Перевіряємо, може хтось вже оновив поки ми спали
              refresh_copart_session()
 
+def fetch_build_sheet(lot_number, lot_hash):
+    """
+    Helper function to fetch build sheet data using lotHash.
+    """
+    url = "https://www.copart.com/public/data/lot/build-sheet"
+    payload = {
+        "lotId": int(lot_number),
+        "lotHash": lot_hash
+    }
+
+    # Використовуємо safe_post, який вже має логіку повторів і оновлення сесії
+    try:
+        r = safe_post(url, json=payload, timeout=20)
+        if r.status_code == 200:
+            try:
+                return r.json()
+            except json.JSONDecodeError:
+                return None
+        elif r.status_code == 404:
+             # Build sheet not found - it's normal for some lots
+            return None
+        else:
+            print(f"[BuildSheet] Error {r.status_code} for lot {lot_number}")
+            return None
+    except Exception as e:
+        print(f"[BuildSheet] Exception for lot {lot_number}: {e}")
+        return None
+
 def get_lot_details_vehicle_type(file_name, page, number):
     # Випадкова затримка
     time.sleep(random.uniform(0.5, 2.0))
@@ -757,6 +785,29 @@ def get_lot_details_vehicle_type(file_name, page, number):
 
     try:
         data = r.json()
+
+
+        # for build-sheet:
+        lot_data_obj = data.get('data', {}).get('lotDetails', {})
+        if not lot_data_obj:
+            lot_data_obj = data.get('data', {}) # fallback
+
+        lot_hash = lot_data_obj.get('lh')
+        if not lot_hash:
+            lot_hash = data.get('lh') #it'll be impossible if fallback
+
+        if lot_hash:
+            build_sheet_data = fetch_build_sheet(number, lot_hash)
+            if build_sheet_data:
+                data['build_sheet'] = build_sheet_data
+            else:
+                print(f"Error. get_lot_details_vehicle_type build-sheet returned None")
+                save_error({
+                    'file_name': file_name,
+                    'number': number,
+                    'page': page,
+                    'error_type': f"Error. get_lot_details_vehicle_type build-sheet returned None"
+                })
 
         target_dir = res_json_path / f"{file_name}_page{page + 1}_lots"
         target_dir.mkdir(parents=True, exist_ok=True)
@@ -847,6 +898,31 @@ def get_lot_details(brand, page, type_param, number, sloc_display_name, engn_dis
 
     try:
         data = r.json()
+
+
+        #for build-sheet
+        lot_data_obj = data.get('data', {}).get('lotDetails', {})
+        if not lot_data_obj:
+             lot_data_obj = data.get('data', {}) # fallback
+
+        lot_hash = lot_data_obj.get('lh')
+        if not lot_hash:
+            lot_hash = data.get('lh')
+
+        if lot_hash:
+            build_sheet_data = fetch_build_sheet(number, lot_hash)
+            if build_sheet_data:
+                data['build_sheet'] = build_sheet_data
+            else:
+                print(f"Error. get_lot_details build-sheet returned None")
+                save_error({
+                    'type_param': type_param,
+                    'brand': brand,
+                    'page': page,
+                    'sloc_display_name': sloc_display_name,
+                    'engn_display_name': engn_display_name,
+                    'error_type': f"Error. get_lot_details build-sheet returned None"
+                })
 
         file_name = f"{brand_with_underscores}_{type_param}_"
         if sloc_display_name is not None:
@@ -2130,10 +2206,12 @@ def download_data_from_pages_of_each_brand(veht_array):
             for brand in brand_array:
                 brand_description = brand.get('displayName')
 
-                if brand_description.upper() != "BMW":
-                    # Можна розкоментувати прінт, щоб бачити що пропускається
-                    # print(f"Skipping {brand_description}, looking for BMW...")
-                    continue
+                #tmp for test launch only for bmw. I will work in match with if actual_vehicle_types_list: # actual_vehicle_types_list = actual_vehicle_types_list[:3] in main func
+                # if brand_description.upper() != "BMW":
+                #     # Можна розкоментувати прінт, щоб бачити що пропускається
+                #     # print(f"Skipping {brand_description}, looking for BMW...")
+                #     continue
+
                 brand_count = brand.get('count')
                 vehtype = search_query.split(":")[1]
 
@@ -2248,9 +2326,9 @@ def main():
             while True: # to refresh HOME.json with each next vehicle type
                 actual_vehicle_types_list = refresh_home_and_get_actual_vehicle_types_list()
 
-                #tmp to limit only first vehtype
-                if actual_vehicle_types_list:
-                    actual_vehicle_types_list = actual_vehicle_types_list[:3]
+                #tmp to limit only one vehtype (but if you want to limit only vehtype_V it should be 3 and in number..to_skip.json must be 2)
+                # if actual_vehicle_types_list:
+                #     actual_vehicle_types_list = actual_vehicle_types_list[:3]
 
                 if actual_vehicle_types_list is None:
                     print("Error. Could not get actual vehicle types list from HOME.json. Retrying in 60 sec...")
