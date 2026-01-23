@@ -6,7 +6,7 @@
       "VEHT": [
         {
           "itemName": "ATVs",
-          "count": 1302,
+          "count": 1254,
           "uri": "atvs",
           "searchQuery": "vehicle_type_code:VEHTYPE_A",
           "quickPickCategoryUri": "vehicle-search-type",
@@ -14,7 +14,7 @@
         },
         {
           "itemName": "Agriculture and Farm equipment",
-          "count": 369,
+          "count": 293,
           "uri": "agricultureandfarmequipment",
           "searchQuery": "vehicle_type_code:VEHTYPE_F",
           "quickPickCategoryUri": "vehicle-search-type",
@@ -22,7 +22,7 @@
         },
         {
           "itemName": "Automobiles",
-          "count": 467299,
+          "count": 463814,
           "uri": "automobiles",
           "searchQuery": "vehicle_type_code:VEHTYPE_V",
           "quickPickCategoryUri": "vehicle-search-type",
@@ -30,7 +30,7 @@
         },
         {
           "itemName": "Boats",
-          "count": 831,
+          "count": 834,
           "uri": "boats",
           "searchQuery": "vehicle_type_code:VEHTYPE_M",
           "quickPickCategoryUri": "vehicle-search-type",
@@ -38,7 +38,7 @@
         },
         {
           "itemName": "Bus",
-          "count": 646,
+          "count": 658,
           "uri": "bus",
           "searchQuery": "vehicle_type_code:VEHTYPE_B",
           "quickPickCategoryUri": "vehicle-search-type",
@@ -46,7 +46,7 @@
         },
         {
           "itemName": "Construction equipment",
-          "count": 577,
+          "count": 605,
           "uri": "constructionequipment",
           "searchQuery": "vehicle_type_code:VEHTYPE_N",
           "quickPickCategoryUri": "vehicle-search-type",
@@ -54,7 +54,7 @@
         },
         {
           "itemName": "Dirt Bikes",
-          "count": 69,
+          "count": 64,
           "uri": "dirtbikes",
           "searchQuery": "vehicle_type_code:VEHTYPE_D",
           "quickPickCategoryUri": "vehicle-search-type",
@@ -62,7 +62,7 @@
         },
         {
           "itemName": "Heavy Duty Trucks",
-          "count": 4302,
+          "count": 4092,
           "uri": "heavydutytrucks",
           "searchQuery": "vehicle_type_code:VEHTYPE_U",
           "quickPickCategoryUri": "vehicle-search-type",
@@ -70,7 +70,7 @@
         },
         {
           "itemName": "Industrial Equipment",
-          "count": 753,
+          "count": 786,
           "uri": "industrialequipment",
           "searchQuery": "vehicle_type_code:VEHTYPE_E",
           "quickPickCategoryUri": "vehicle-search-type",
@@ -86,7 +86,7 @@
         },
         {
           "itemName": "Medium Duty/Box Trucks",
-          "count": 9524,
+          "count": 9809,
           "uri": "mediumdutyboxtrucks",
           "searchQuery": "vehicle_type_code:VEHTYPE_K",
           "quickPickCategoryUri": "vehicle-search-type",
@@ -94,7 +94,7 @@
         },
         {
           "itemName": "Motorcycles",
-          "count": 4270,
+          "count": 3967,
           "uri": "motorcycles",
           "searchQuery": "vehicle_type_code:VEHTYPE_C",
           "quickPickCategoryUri": "vehicle-search-type",
@@ -102,7 +102,7 @@
         },
         {
           "itemName": "Pickup Trucks",
-          "count": 49647,
+          "count": 49544,
           "uri": "pickuptrucks",
           "searchQuery": "veh_cat_code:VEHCAT_P",
           "quickPickCategoryUri": "vehicle-search-type",
@@ -110,7 +110,7 @@
         },
         {
           "itemName": "RVs",
-          "count": 3041,
+          "count": 2928,
           "uri": "recreationalvehicles",
           "searchQuery": "vehicle_type_code:VEHTYPE_R",
           "quickPickCategoryUri": "vehicle-search-type",
@@ -118,7 +118,7 @@
         },
         {
           "itemName": "Snowmobile",
-          "count": 139,
+          "count": 147,
           "uri": "snowmobile",
           "searchQuery": "vehicle_type_code:VEHTYPE_S",
           "quickPickCategoryUri": "vehicle-search-type",
@@ -126,7 +126,7 @@
         },
         {
           "itemName": "Trailers",
-          "count": 4452,
+          "count": 4387,
           "uri": "trailers",
           "searchQuery": "vehicle_type_code:VEHTYPE_L",
           "quickPickCategoryUri": "vehicle-search-type",
@@ -136,7 +136,7 @@
       "FETI": [
         {
           "itemName": "Buy It Now Vehicles",
-          "count": 21595,
+          "count": 23689,
           "uri": "buyitnow",
           "searchQuery": "buy_it_now_code:B1",
           "quickPickCategoryUri": "vehicle-search-featured",
@@ -144,7 +144,7 @@
         },
         {
           "itemName": "Clean Title Cars",
-          "count": 42195,
+          "count": 42539,
           "uri": "cleantitle",
           "searchQuery": "title_group_code:TITLEGROUP_C",
           "quickPickCategoryUri": "vehicle-search-featured",
@@ -152,7 +152,7 @@
         },
         {
           "itemName": "Donated Cars",
-          "count": 10795,
+          "count": 10583,
           "uri": "donations",
           "searchQuery": "loss_type_code:LOSSCODE_D",
           "quickPickCategoryUri": "vehicle-search-featured",
@@ -160,7 +160,7 @@
         },
         {
           "itemName": "Featured Vehicles",
-          "count": 225,
+          "count": 230,
           "uri": "featuredvehicles",
           "searchQuery": "lot_features_code:LOTFEATURE_V",
           "quickPickCategoryUri": "vehicle-search-featured",
@@ -168,7 +168,7 @@
         },
         {
           "itemName": "Fleet Cars",
-          "count": 2650,
+          "count": 2623,
           "uri": "fleetlease",
           "searchQuery": "loss_type_code:LOSSCODE_E",
           "quickPickCategoryUri": "vehicle-search-featured",
@@ -176,7 +176,7 @@
         },
         {
           "itemName": "Classic Cars",
-          "count": 11448,
+          "count": 11300,
           "uri": "classics",
           "searchQuery": "lot_year_date:[* TO NOW/YEAR-25YEARS]",
           "quickPickCategoryUri": "vehicle-search-featured",
@@ -184,7 +184,7 @@
         },
         {
           "itemName": "Front End Damaged Vehicles",
-          "count": 281704,
+          "count": 279182,
           "uri": "frontend",
           "searchQuery": "damage_type_code:DAMAGECODE_FR",
           "quickPickCategoryUri": "vehicle-search-featured",
@@ -192,7 +192,7 @@
         },
         {
           "itemName": "Hail Damaged Cars",
-          "count": 4676,
+          "count": 4474,
           "uri": "haildamage",
           "searchQuery": "damage_type_code:DAMAGECODE_HL",
           "quickPickCategoryUri": "vehicle-search-featured",
@@ -200,7 +200,7 @@
         },
         {
           "itemName": "Exotic Cars",
-          "count": 1760,
+          "count": 1730,
           "uri": "exotics",
           "searchQuery": "lot_features_code:EXOTIC",
           "quickPickCategoryUri": "vehicle-search-featured",
@@ -208,7 +208,7 @@
         },
         {
           "itemName": "Impound Cars",
-          "count": 750,
+          "count": 410,
           "uri": "impoundvehicles",
           "searchQuery": "loss_type_code:LOSSCODE_O",
           "quickPickCategoryUri": "vehicle-search-featured",
@@ -216,7 +216,7 @@
         },
         {
           "itemName": "Auctions With Bids",
-          "count": 58196,
+          "count": 51715,
           "uri": "lotswithbids",
           "searchQuery": "bid_flag:true",
           "quickPickCategoryUri": "vehicle-search-featured",
@@ -224,7 +224,7 @@
         },
         {
           "itemName": "Minor Dents/Scratches Vehicles",
-          "count": 16773,
+          "count": 17080,
           "uri": "minordentsscratches",
           "searchQuery": "damage_type_code:DAMAGECODE_MN",
           "quickPickCategoryUri": "vehicle-search-featured",
@@ -232,7 +232,7 @@
         },
         {
           "itemName": "Newly Added Vehicles",
-          "count": 21958,
+          "count": 27514,
           "uri": "newitems",
           "searchQuery": "expected_sale_assigned_ts_utc:[NOW-2DAY TO NOW]",
           "quickPickCategoryUri": "vehicle-search-featured",
@@ -240,7 +240,7 @@
         },
         {
           "itemName": "Auctions With No Bids",
-          "count": 439580,
+          "count": 442131,
           "uri": "nobidsyet",
           "searchQuery": "bid_flag:false",
           "quickPickCategoryUri": "vehicle-search-featured",
@@ -248,7 +248,7 @@
         },
         {
           "itemName": "No License Required Vehicles",
-          "count": 63760,
+          "count": 61359,
           "uri": "nolicenserequired",
           "searchQuery": "lot_features_code:LOTFEATURE_0",
           "quickPickCategoryUri": "vehicle-search-featured",
@@ -256,7 +256,7 @@
         },
         {
           "itemName": "Nonrepairable Vehicles",
-          "count": 6303,
+          "count": 6333,
           "uri": "nonrepairable",
           "searchQuery": "title_group_code:TITLEGROUP_J",
           "quickPickCategoryUri": "vehicle-search-featured",
@@ -264,7 +264,7 @@
         },
         {
           "itemName": "Used Vehicles",
-          "count": 10543,
+          "count": 10743,
           "uri": "used",
           "searchQuery": "member_lot_condition:USED",
           "quickPickCategoryUri": "vehicle-search-featured",
@@ -272,7 +272,7 @@
         },
         {
           "itemName": "Offsite Sale Vehicles",
-          "count": 3584,
+          "count": 3657,
           "uri": "offsitesales",
           "searchQuery": "lot_features_code:LOTFEATURE_I",
           "quickPickCategoryUri": "vehicle-search-featured",
@@ -280,7 +280,7 @@
         },
         {
           "itemName": "Pure Sale Vehicles",
-          "count": 399816,
+          "count": 396558,
           "uri": "puresaleitems",
           "searchQuery": "-on_approval:Y AND minimum_bid_amount:0",
           "quickPickCategoryUri": "vehicle-search-featured",
@@ -288,7 +288,7 @@
         },
         {
           "itemName": "Theft Recovery Cars",
-          "count": 9800,
+          "count": 9742,
           "uri": "recoveredthefts",
           "searchQuery": "loss_type_code:LOSSCODE_T",
           "quickPickCategoryUri": "vehicle-search-featured",
@@ -296,7 +296,7 @@
         },
         {
           "itemName": "Used Rental Cars",
-          "count": 241,
+          "count": 443,
           "uri": "rentals",
           "searchQuery": "lot_features_code:rental",
           "quickPickCategoryUri": "vehicle-search-featured",
@@ -304,7 +304,7 @@
         },
         {
           "itemName": "Repossessed Cars",
-          "count": 1329,
+          "count": 1047,
           "uri": "repossessions",
           "searchQuery": "loss_type_code:LOSSCODE_R",
           "quickPickCategoryUri": "vehicle-search-featured",
@@ -312,7 +312,7 @@
         },
         {
           "itemName": "Run and Drive Vehicles",
-          "count": 306207,
+          "count": 303765,
           "uri": "runsanddrives",
           "searchQuery": "lot_condition_code:CERT-D",
           "quickPickCategoryUri": "vehicle-search-featured",
@@ -320,7 +320,7 @@
         },
         {
           "itemName": "Salvage Cars",
-          "count": 138708,
+          "count": 135921,
           "uri": "salvagetitle",
           "searchQuery": "title_group_code:TITLEGROUP_S",
           "quickPickCategoryUri": "vehicle-search-featured",
@@ -328,7 +328,7 @@
         },
         {
           "itemName": "Flood Damaged Cars",
-          "count": 3045,
+          "count": 3015,
           "uri": "waterflood",
           "searchQuery": "loss_type_code:LOSSCODE_W",
           "quickPickCategoryUri": "vehicle-search-featured",
@@ -336,7 +336,7 @@
         },
         {
           "itemName": "Public and General Business",
-          "count": 2074,
+          "count": 2110,
           "uri": "copartgo",
           "searchQuery": "(seller_number:(*CT1 OR *CT2)) OR (go_app_user:*)",
           "quickPickCategoryUri": "vehicle-search-featured",
@@ -346,7 +346,7 @@
       "MAKE": [
         {
           "itemName": "Acura",
-          "count": 5058,
+          "count": 4887,
           "uri": "acura",
           "searchQuery": "lot_make_desc:ACURA",
           "quickPickCategoryUri": "vehicle-search-make",
@@ -354,7 +354,7 @@
         },
         {
           "itemName": "Audi",
-          "count": 6887,
+          "count": 6854,
           "uri": "audi",
           "searchQuery": "lot_make_desc:AUDI",
           "quickPickCategoryUri": "vehicle-search-make",
@@ -362,7 +362,7 @@
         },
         {
           "itemName": "BMW",
-          "count": 11142,
+          "count": 11103,
           "uri": "bmw",
           "searchQuery": "lot_make_desc:BMW",
           "quickPickCategoryUri": "vehicle-search-make",
@@ -370,7 +370,7 @@
         },
         {
           "itemName": "Buick",
-          "count": 6608,
+          "count": 6503,
           "uri": "buick",
           "searchQuery": "lot_make_desc:BUICK",
           "quickPickCategoryUri": "vehicle-search-make",
@@ -378,7 +378,7 @@
         },
         {
           "itemName": "Cadillac",
-          "count": 4997,
+          "count": 4971,
           "uri": "cadillac",
           "searchQuery": "lot_make_desc:CADILLAC",
           "quickPickCategoryUri": "vehicle-search-make",
@@ -386,7 +386,7 @@
         },
         {
           "itemName": "Chevrolet",
-          "count": 51513,
+          "count": 51318,
           "uri": "chevrolet",
           "searchQuery": "lot_make_desc:CHEVROLET",
           "quickPickCategoryUri": "vehicle-search-make",
@@ -394,7 +394,7 @@
         },
         {
           "itemName": "Chrysler",
-          "count": 6265,
+          "count": 6216,
           "uri": "chrysler",
           "searchQuery": "lot_make_desc:CHRYSLER",
           "quickPickCategoryUri": "vehicle-search-make",
@@ -402,7 +402,7 @@
         },
         {
           "itemName": "Dodge",
-          "count": 15663,
+          "count": 15565,
           "uri": "dodge",
           "searchQuery": "lot_make_desc:DODGE",
           "quickPickCategoryUri": "vehicle-search-make",
@@ -410,7 +410,7 @@
         },
         {
           "itemName": "Ford",
-          "count": 56485,
+          "count": 56169,
           "uri": "ford",
           "searchQuery": "lot_make_desc:FORD",
           "quickPickCategoryUri": "vehicle-search-make",
@@ -418,7 +418,7 @@
         },
         {
           "itemName": "Freightliner",
-          "count": 1686,
+          "count": 1652,
           "uri": "freightliner",
           "searchQuery": "lot_make_desc:FREIGHTLINER",
           "quickPickCategoryUri": "vehicle-search-make",
@@ -426,7 +426,7 @@
         },
         {
           "itemName": "GMC",
-          "count": 12608,
+          "count": 12516,
           "uri": "gmc",
           "searchQuery": "lot_make_desc:GMC",
           "quickPickCategoryUri": "vehicle-search-make",
@@ -434,7 +434,7 @@
         },
         {
           "itemName": "Harley",
-          "count": 1351,
+          "count": 1244,
           "uri": "harley",
           "searchQuery": "lot_make_desc:HARLEY-DAVIDSON",
           "quickPickCategoryUri": "vehicle-search-make",
@@ -442,7 +442,7 @@
         },
         {
           "itemName": "Honda",
-          "count": 44077,
+          "count": 43402,
           "uri": "honda",
           "searchQuery": "lot_make_desc:HONDA",
           "quickPickCategoryUri": "vehicle-search-make",
@@ -458,7 +458,7 @@
         },
         {
           "itemName": "Hyundai",
-          "count": 27533,
+          "count": 27426,
           "uri": "hyundai",
           "searchQuery": "lot_make_desc:HYUNDAI",
           "quickPickCategoryUri": "vehicle-search-make",
@@ -466,7 +466,7 @@
         },
         {
           "itemName": "Infiniti",
-          "count": 4867,
+          "count": 4897,
           "uri": "infiniti",
           "searchQuery": "lot_make_desc:INFINITI",
           "quickPickCategoryUri": "vehicle-search-make",
@@ -474,7 +474,7 @@
         },
         {
           "itemName": "International",
-          "count": 769,
+          "count": 739,
           "uri": "international",
           "searchQuery": "lot_make_desc:INTERNATIONAL",
           "quickPickCategoryUri": "vehicle-search-make",
@@ -482,7 +482,7 @@
         },
         {
           "itemName": "Isuzu",
-          "count": 324,
+          "count": 329,
           "uri": "isuzu",
           "searchQuery": "lot_make_desc:ISUZU",
           "quickPickCategoryUri": "vehicle-search-make",
@@ -490,7 +490,7 @@
         },
         {
           "itemName": "Jaguar",
-          "count": 860,
+          "count": 857,
           "uri": "jaguar",
           "searchQuery": "lot_make_desc:JAGUAR",
           "quickPickCategoryUri": "vehicle-search-make",
@@ -498,7 +498,7 @@
         },
         {
           "itemName": "Jeep",
-          "count": 18570,
+          "count": 18515,
           "uri": "jeep",
           "searchQuery": "lot_make_desc:JEEP",
           "quickPickCategoryUri": "vehicle-search-make",
@@ -506,7 +506,7 @@
         },
         {
           "itemName": "Kia",
-          "count": 22730,
+          "count": 22670,
           "uri": "kia",
           "searchQuery": "lot_make_desc:KIA",
           "quickPickCategoryUri": "vehicle-search-make",
@@ -514,7 +514,7 @@
         },
         {
           "itemName": "Lamborghini",
-          "count": 39,
+          "count": 34,
           "uri": "lamborghini",
           "searchQuery": "lot_make_desc:LAMBORGHINI",
           "quickPickCategoryUri": "vehicle-search-make",
@@ -530,7 +530,7 @@
         },
         {
           "itemName": "Lexus",
-          "count": 8154,
+          "count": 8039,
           "uri": "lexus",
           "searchQuery": "lot_make_desc:LEXUS",
           "quickPickCategoryUri": "vehicle-search-make",
@@ -538,7 +538,7 @@
         },
         {
           "itemName": "Lincoln",
-          "count": 3208,
+          "count": 3176,
           "uri": "lincoln",
           "searchQuery": "lot_make_desc:LINCOLN",
           "quickPickCategoryUri": "vehicle-search-make",
@@ -546,7 +546,7 @@
         },
         {
           "itemName": "Lotus",
-          "count": 9,
+          "count": 8,
           "uri": "lotus",
           "searchQuery": "lot_make_desc:LOTUS",
           "quickPickCategoryUri": "vehicle-search-make",
@@ -554,7 +554,7 @@
         },
         {
           "itemName": "Maserati",
-          "count": 294,
+          "count": 283,
           "uri": "maserati",
           "searchQuery": "lot_make_desc:MASERATI",
           "quickPickCategoryUri": "vehicle-search-make",
@@ -562,7 +562,7 @@
         },
         {
           "itemName": "Mazda",
-          "count": 8553,
+          "count": 8457,
           "uri": "mazda",
           "searchQuery": "lot_make_desc:MAZDA",
           "quickPickCategoryUri": "vehicle-search-make",
@@ -570,7 +570,7 @@
         },
         {
           "itemName": "McLaren",
-          "count": 21,
+          "count": 19,
           "uri": "mclarenautomotive",
           "searchQuery": "lot_make_desc:\"MCLAREN AUTOMOTIVE\"",
           "quickPickCategoryUri": "vehicle-search-make",
@@ -578,7 +578,7 @@
         },
         {
           "itemName": "Mercedes-Benz",
-          "count": 10649,
+          "count": 10660,
           "uri": "mercedesbenz",
           "searchQuery": "lot_make_desc:MERCEDES-BENZ",
           "quickPickCategoryUri": "vehicle-search-make",
@@ -586,7 +586,7 @@
         },
         {
           "itemName": "Mini",
-          "count": 1163,
+          "count": 1148,
           "uri": "mini",
           "searchQuery": "lot_make_desc:MINI",
           "quickPickCategoryUri": "vehicle-search-make",
@@ -594,7 +594,7 @@
         },
         {
           "itemName": "Mitsubishi",
-          "count": 3938,
+          "count": 3950,
           "uri": "mitsubishi",
           "searchQuery": "lot_make_desc:MITSUBISHI",
           "quickPickCategoryUri": "vehicle-search-make",
@@ -602,7 +602,7 @@
         },
         {
           "itemName": "Nissan",
-          "count": 39588,
+          "count": 39165,
           "uri": "nissan",
           "searchQuery": "lot_make_desc:NISSAN",
           "quickPickCategoryUri": "vehicle-search-make",
@@ -610,7 +610,7 @@
         },
         {
           "itemName": "Polaris",
-          "count": 46,
+          "count": 58,
           "uri": "polaris",
           "searchQuery": "lot_make_desc:POLARIS",
           "quickPickCategoryUri": "vehicle-search-make",
@@ -618,7 +618,7 @@
         },
         {
           "itemName": "Pontiac",
-          "count": 865,
+          "count": 845,
           "uri": "pontiac",
           "searchQuery": "lot_make_desc:PONTIAC",
           "quickPickCategoryUri": "vehicle-search-make",
@@ -626,7 +626,7 @@
         },
         {
           "itemName": "Porsche",
-          "count": 1179,
+          "count": 1170,
           "uri": "porsche",
           "searchQuery": "lot_make_desc:PORSCHE",
           "quickPickCategoryUri": "vehicle-search-make",
@@ -634,7 +634,7 @@
         },
         {
           "itemName": "Ram",
-          "count": 7857,
+          "count": 7874,
           "uri": "ram",
           "searchQuery": "lot_make_desc:RAM",
           "quickPickCategoryUri": "vehicle-search-make",
@@ -642,7 +642,7 @@
         },
         {
           "itemName": "Rolls-Royce",
-          "count": 35,
+          "count": 34,
           "uri": "rollsroyce",
           "searchQuery": "lot_make_desc:ROLLS-ROYCE",
           "quickPickCategoryUri": "vehicle-search-make",
@@ -650,7 +650,7 @@
         },
         {
           "itemName": "Saab",
-          "count": 78,
+          "count": 87,
           "uri": "saab",
           "searchQuery": "lot_make_desc:SAAB",
           "quickPickCategoryUri": "vehicle-search-make",
@@ -658,7 +658,7 @@
         },
         {
           "itemName": "Scion",
-          "count": 57,
+          "count": 55,
           "uri": "scion",
           "searchQuery": "lot_make_desc:SCION",
           "quickPickCategoryUri": "vehicle-search-make",
@@ -666,7 +666,7 @@
         },
         {
           "itemName": "Subaru",
-          "count": 12287,
+          "count": 12174,
           "uri": "subaru",
           "searchQuery": "lot_make_desc:SUBARU",
           "quickPickCategoryUri": "vehicle-search-make",
@@ -674,7 +674,7 @@
         },
         {
           "itemName": "Suzuki",
-          "count": 523,
+          "count": 494,
           "uri": "suzuki",
           "searchQuery": "lot_make_desc:SUZUKI",
           "quickPickCategoryUri": "vehicle-search-make",
@@ -682,7 +682,7 @@
         },
         {
           "itemName": "Tesla",
-          "count": 6411,
+          "count": 6460,
           "uri": "tesla",
           "searchQuery": "lot_make_desc:TESLA",
           "quickPickCategoryUri": "vehicle-search-make",
@@ -690,7 +690,7 @@
         },
         {
           "itemName": "Toyota",
-          "count": 57606,
+          "count": 57066,
           "uri": "toyota",
           "searchQuery": "lot_make_desc:TOYOTA",
           "quickPickCategoryUri": "vehicle-search-make",
@@ -698,7 +698,7 @@
         },
         {
           "itemName": "Volkswagen",
-          "count": 10585,
+          "count": 10530,
           "uri": "volkswagen",
           "searchQuery": "lot_make_desc:VOLKSWAGEN",
           "quickPickCategoryUri": "vehicle-search-make",
@@ -706,7 +706,7 @@
         },
         {
           "itemName": "Volvo",
-          "count": 2984,
+          "count": 2938,
           "uri": "volvo",
           "searchQuery": "lot_make_desc:VOLVO",
           "quickPickCategoryUri": "vehicle-search-make",
@@ -714,7 +714,7 @@
         },
         {
           "itemName": "Yamaha",
-          "count": 623,
+          "count": 586,
           "uri": "yamaha",
           "searchQuery": "lot_make_desc:YAMAHA",
           "quickPickCategoryUri": "vehicle-search-make",
@@ -722,6 +722,6 @@
         }
       ]
     },
-    "totalItemsOnSale": 497776
+    "totalItemsOnSale": 493846
   }
 }

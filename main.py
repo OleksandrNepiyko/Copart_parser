@@ -1941,8 +1941,8 @@ def download_data_from_pages_of_single_brand_with_vehicle_type_and_brand_and_slo
             if value_and_filter.get('quickPickCode') == "YEAR":
                 engn_data = value_and_filter
     elif isinstance(values_and_filters, dict):
-         sloc_data = values_and_filters.get('MODG')
-         engn_data = values_and_filters.get('YEAR')
+        sloc_data = values_and_filters.get('MODG')
+        engn_data = values_and_filters.get('YEAR')
 
     if sloc_data is None:
         print(f"Error. sloc_data is None for {brand}")
