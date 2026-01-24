@@ -26,6 +26,8 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import threading
 import random
 from itertools import count
+from minio import Minio
+from minio.error import S3Error
 
 tech_json_path = Path('tech_json')
 res_json_path = Path('res_json')
@@ -42,6 +44,65 @@ SESSION_LOCK = threading.RLock()
 # Global Session Object
 # This acts as the "bridge" between the token extractor and safe_post.
 SESSION = requests.Session()
+
+MINIO_CONFIG = {
+    "access_key": "students",
+    "secret_key": "8r5AMTx9x2acYRCndgVykJrr8rj6GewQ",
+    "endpoint": "m1.automoto.ua",
+    "region": "us-east-1",
+    "secure": True #to use https
+}
+BUCKET_NAME = "usa-auctions"
+AUCTION_PREFIX = "copart"
+MINIO_BASE_DIR = Path("Minio")
+
+def upload_to_minio(local_file_path: Path):
+    """
+    Завантажує один конкретний файл у Minio.
+    Викликається відразу після створення файлу.
+    """
+    if not local_file_path.exists():
+        print(f"[Minio Upload] Error: File not found {local_file_path}")
+        return
+
+    client = Minio(
+        MINIO_CONFIG["endpoint"],
+        access_key = MINIO_CONFIG["access_key"],
+        secret_key = MINIO_CONFIG["secret_key"],
+        region = MINIO_CONFIG["region"],
+        secure = MINIO_CONFIG["secure"]
+    )
+
+    # found = client.bucket_exists(BUCKET_NAME)
+    # if not found:
+    #     print('Couldn\'t find the bucket provided in BUCKET_NAME')
+    #     save_error({
+    #         'error_type': 'Couldn\'t find the bucket provided in BUCKET_NAME'
+    #     })
+    #     return
+    # else:
+    #     print("Bucket", BUCKET_NAME, "already exists")
+
+    try:
+        # Формуємо шлях для хмари:
+        # local: Minio/lots/2026-01-24/V_Alfa.json -> remote: copart/lots/2026-01-24/V_Alfa.json
+        relative_path = local_file_path.relative_to(MINIO_BASE_DIR)
+        linux_path = str(relative_path).replace(os.sep, "/")
+        object_name = f"{AUCTION_PREFIX}/{linux_path}"
+
+        print(f"\n\n OBJECT_NAME: {object_name}\n\n")
+
+        client.fput_object(
+            BUCKET_NAME,
+            object_name,
+            str(local_file_path),
+            content_type="application/json"
+        )
+        print(f"[Minio Upload] SUCCESS: Uploaded -> {object_name}")
+
+    except Exception as e:
+        print(f"[Minio Upload] FAILED: {e}")
+        save_error({'error_type': f"Minio upload fail for {local_file_path.name}: {e}"})
 
 def save_error(error_obj):
     #if an error occurs it should be saved here (only problems in automatic part of the program will be saved)
@@ -1784,6 +1845,111 @@ def check_if_brand_has_at_least_one_page(restart_page, brand, headers, cookies, 
             else:
                 return True
 
+def transfer_brand_data_to_minio(brand_name, type_param):
+    """
+    Агрегує всі завантажені дані по конкретній марці з res_json
+    і зберігає в структуру Minio/category/date/Type_Brand.json
+    """
+    print(f"\n[Minio Transfer] Starting transfer for {brand_name} (Type: {type_param})...")
+
+    # Нормалізація імен для пошуку файлів
+    brand_fs_name = brand_name.replace(" ", "_")
+    type_letter = type_param.split('_')[-1]
+
+    current_date = datetime.now().strftime("%Y-%m-%d")
+    minio_base = Path("Minio")
+
+    # Категорії, які шукаємо в кінці назв папок/файлів
+    categories = ["lots", "photos"]
+
+    for category in categories:
+        # 1. Створюємо цільову папку Minio/lots/2026-01-23/
+        dest_dir = minio_base / category / current_date
+        dest_dir.mkdir(parents=True, exist_ok=True)
+
+        # 2. Формуємо ім'я фінального файлу: V_Alfa_Romeo.json
+        final_filename = f"{type_letter}_{brand_fs_name}.json"
+        dest_file_path = dest_dir / final_filename
+
+        aggregated_data = []
+        found_sources = 0
+
+        # 3. Шукаємо всі папки в res_json, які містять Brand, Type і закінчуються на category
+        # Патерн: Alfa_Romeo_V_*_photos (зірочка покриває page1, page2, sloc, engine і т.д.)
+        search_pattern = f"{brand_fs_name}_{type_param}_*_{category}"
+
+        # Проходимось по res_json
+        for item in res_json_path.glob(search_pattern):
+            if item.is_dir():
+                # Якщо це папка (наприклад, page1_photos), читаємо всі .json всередині
+                # Це окремі файли лотів (12345.json)
+                json_files = list(item.glob("*.json"))
+                if not json_files:
+                    continue
+
+                print(f"  Processing folder: {item.name} ({len(json_files)} files)")
+
+                for json_file in json_files:
+                    try:
+                        with open(json_file, 'r', encoding='utf-8') as f:
+                            data = json.load(f)
+                            # Якщо всередині один об'єкт, додаємо його в список
+                            if isinstance(data, dict):
+                                aggregated_data.append(data)
+                            elif isinstance(data, list):
+                                aggregated_data.extend(data)
+                    except Exception as e:
+                        print(f"  Error reading {json_file.name}: {e}")
+
+                found_sources += 1
+
+            # elif item.is_file() and item.suffix == '.json':
+            #     # Якщо це файл сторінки (хоча ми перейшли на збереження окремих лотів,
+            #     # але на випадок якщо збереглись файли списків)
+            #     try:
+            #         with open(item, 'r', encoding='utf-8') as f:
+            #             data = json.load(f)
+            #             if isinstance(data, list):
+            #                 aggregated_data.extend(data)
+            #             elif isinstance(data, dict):
+            #                  # Якщо це структура Copart search results, треба діставати content
+            #                  # Але зазвичай сюди потрапляють вже збережені деталі
+            #                  aggregated_data.append(data)
+            #         found_sources += 1
+            #     except Exception as e:
+            #         print(f"  Error reading file {item.name}: {e}")
+
+        # 4. Записуємо результат в Minio, якщо є дані
+        if aggregated_data:
+            # Якщо файл вже існує (наприклад, з попереднього запуску), дочитаємо його і допишемо?
+            # Або перезапишемо? Логічніше для "перезбереження" - перезаписати або об'єднати.
+            # Тут робимо повний перезапис зібраного за цей сеанс.
+
+            try:
+                # [Опціонально] Якщо треба дописувати до існуючого файлу в Minio:
+                if dest_file_path.exists():
+                     with open(dest_file_path, 'r', encoding='utf-8') as f:
+                         existing_data = json.load(f)
+                         # Щоб уникнути дублікатів, можна перевіряти по ID, але це повільно.
+                         # Просто додаємо нові (припускаємо, що res_json має свіжі дані)
+                         existing_data.extend(aggregated_data)
+                     aggregated_data = existing_data
+
+                with open(dest_file_path, 'w', encoding='utf-8') as f:
+                    json.dump(aggregated_data, f, indent=2, ensure_ascii=False)
+
+                print(f"[Minio Transfer] SUCCESS: Saved {len(aggregated_data)} items to {dest_file_path}")
+
+                upload_to_minio(dest_file_path)
+                # [Опціонально] Видалення з res_json після успішного переносу?
+                # shutil.rmtree(item) # Небезпечно, краще поки залишити.
+
+            except Exception as e:
+                print(f"[Minio Transfer] Error writing to Minio: {e}")
+                save_error({'error_type': f"Minio write error for {brand_name}: {e}"})
+        else:
+            print(f"[Minio Transfer] No data found for category '{category}'")
+
 def download_data_from_pages_of_single_brand_with_vehicle_type_and_brand(search_query, brand, type_param, restart_object):
     """
     makes requests for specific brand and vehicle type
@@ -1883,6 +2049,7 @@ def download_data_from_pages_of_single_brand_with_vehicle_type_and_brand(search_
         else:
             print(f"No lot numbers found on page {page+1}")
 
+        transfer_brand_data_to_minio(brand, type_param)
         with open(tech_json_path / 'restart_point.json', 'w', encoding='utf-8') as f:
             json.dump({"search_query": search_query, "brand": brand, "page": page + 1, "sloc_query_index": -1, "engine_volume_index": -1, "lot_number": 0}, f)
 
@@ -2088,6 +2255,7 @@ def download_data_from_pages_of_single_brand_with_vehicle_type_and_brand_and_slo
                 else:
                     print(f"No lot numbers found on page {page+1}")
 
+                transfer_brand_data_to_minio(brand, type_param)
                 with open(tech_json_path / 'restart_point.json', 'w', encoding='utf-8') as f:
                     json.dump({
                         "search_query": search_query,
