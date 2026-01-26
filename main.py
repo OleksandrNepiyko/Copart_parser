@@ -2049,9 +2049,9 @@ def download_data_from_pages_of_single_brand_with_vehicle_type_and_brand(search_
         else:
             print(f"No lot numbers found on page {page+1}")
 
-        transfer_brand_data_to_minio(brand, type_param)
         with open(tech_json_path / 'restart_point.json', 'w', encoding='utf-8') as f:
             json.dump({"search_query": search_query, "brand": brand, "page": page + 1, "sloc_query_index": -1, "engine_volume_index": -1, "lot_number": 0}, f)
+    transfer_brand_data_to_minio(brand, type_param)
 
 def download_data_from_pages_of_single_brand_with_vehicle_type_and_brand_and_sloc(search_query, brand, type_param, restart_object, brand_count):
     """
@@ -2255,7 +2255,6 @@ def download_data_from_pages_of_single_brand_with_vehicle_type_and_brand_and_slo
                 else:
                     print(f"No lot numbers found on page {page+1}")
 
-                transfer_brand_data_to_minio(brand, type_param)
                 with open(tech_json_path / 'restart_point.json', 'w', encoding='utf-8') as f:
                     json.dump({
                         "search_query": search_query,
@@ -2265,6 +2264,7 @@ def download_data_from_pages_of_single_brand_with_vehicle_type_and_brand_and_slo
                         "engine_volume_index": engine_volume_index,
                         "lot_number": 0
                     }, f, ensure_ascii=False, indent=2)
+    transfer_brand_data_to_minio(brand, type_param)
 
 
 def download_data_from_pages_of_each_brand(veht_array):
