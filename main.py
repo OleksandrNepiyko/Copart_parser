@@ -735,7 +735,7 @@ def extract_automobile_brands_list(extract_only_automobile):
 
 def process_single_lot_vehicle_type(file_name, page, number):
     # Випадкова затримка
-    time.sleep(random.uniform(0.5, 2.0))
+    time.sleep(random.uniform(0.1, 0.5))
 
     # dynamic_data = check_dynamic_details(number)
 
@@ -813,7 +813,7 @@ def fetch_build_sheet(lot_number, lot_hash):
 
 def get_lot_details_vehicle_type(file_name, page, number):
     # Випадкова затримка
-    time.sleep(random.uniform(0.5, 2.0))
+    time.sleep(random.uniform(0.1, 0.5))
 
     # dynamic_data = check_dynamic_details(number)
 
@@ -924,7 +924,7 @@ def get_lot_details_for_page_vehicle_type(file_name, page, all_ln_values, search
 
 def get_lot_details(brand, page, type_param, number, sloc_display_name, engn_display_name):
     # Випадкова затримка
-    time.sleep(random.uniform(0.5, 2.0))
+    time.sleep(random.uniform(0.1, 0.5))
     brand_with_underscores = brand.replace(" ", "_").replace("/","_")
 
     # dynamic_data = check_dynamic_details(number)
@@ -1066,7 +1066,7 @@ def get_lot_details_for_page(brand, page, type_param, arr_of_lot_numbers, restar
 
 def process_single_lot(brand, page, type_param, number, sloc_display_name, engn_display_name):
     # Випадкова затримка
-    time.sleep(random.uniform(0.5, 2.0))
+    time.sleep(random.uniform(0.1, 0.5))
     brand_with_underscores = brand.replace(" ", "_").replace("/","_")
 
     # dynamic_data = check_dynamic_details(number)
@@ -1846,109 +1846,86 @@ def check_if_brand_has_at_least_one_page(restart_page, brand, headers, cookies, 
                 return True
 
 def transfer_brand_data_to_minio(brand_name, type_param):
-    """
-    Агрегує всі завантажені дані по конкретній марці з res_json
-    і зберігає в структуру Minio/category/date/Type_Brand.json
-    """
     print(f"\n[Minio Transfer] Starting transfer for {brand_name} (Type: {type_param})...")
 
-    # Нормалізація імен для пошуку файлів
     brand_fs_name = brand_name.replace(" ", "_")
     type_letter = type_param.split('_')[-1]
-
     current_date = datetime.now().strftime("%Y-%m-%d")
     minio_base = Path("Minio")
 
-    # Категорії, які шукаємо в кінці назв папок/файлів
     categories = ["lots", "photos"]
 
     for category in categories:
-        # 1. Створюємо цільову папку Minio/lots/2026-01-23/
         dest_dir = minio_base / category / current_date
         dest_dir.mkdir(parents=True, exist_ok=True)
 
-        # 2. Формуємо ім'я фінального файлу: V_Alfa_Romeo.json
         final_filename = f"{type_letter}_{brand_fs_name}.json"
         dest_file_path = dest_dir / final_filename
 
-        aggregated_data = []
-        found_sources = 0
-
-        # 3. Шукаємо всі папки в res_json, які містять Brand, Type і закінчуються на category
-        # Патерн: Alfa_Romeo_V_*_photos (зірочка покриває page1, page2, sloc, engine і т.д.)
         search_pattern = f"{brand_fs_name}_{type_param}_*_{category}"
 
-        # Проходимось по res_json
-        for item in res_json_path.glob(search_pattern):
-            if item.is_dir():
-                # Якщо це папка (наприклад, page1_photos), читаємо всі .json всередині
-                # Це окремі файли лотів (12345.json)
-                json_files = list(item.glob("*.json"))
-                if not json_files:
-                    continue
+        found_files_count = 0
 
-                print(f"  Processing folder: {item.name} ({len(json_files)} files)")
+        # Відкриваємо файл на запис ОДИН раз
+        with open(dest_file_path, 'w', encoding='utf-8') as outfile:
+            outfile.write('[') # Починаємо JSON масив
 
-                for json_file in json_files:
-                    try:
-                        with open(json_file, 'r', encoding='utf-8') as f:
-                            data = json.load(f)
-                            # Якщо всередині один об'єкт, додаємо його в список
-                            if isinstance(data, dict):
-                                aggregated_data.append(data)
-                            elif isinstance(data, list):
-                                aggregated_data.extend(data)
-                    except Exception as e:
-                        print(f"  Error reading {json_file.name}: {e}")
+            first_entry = True
 
-                found_sources += 1
+            # Проходимось по res_json
+            # Використовуємо sorted, щоб порядок був передбачуваним, але це не обов'язково
+            for item in sorted(res_json_path.glob(search_pattern), key=lambda x: x.name):
+                if item.is_dir():
+                    json_files = list(item.glob("*.json"))
+                    if not json_files:
+                        continue
 
-            # elif item.is_file() and item.suffix == '.json':
-            #     # Якщо це файл сторінки (хоча ми перейшли на збереження окремих лотів,
-            #     # але на випадок якщо збереглись файли списків)
-            #     try:
-            #         with open(item, 'r', encoding='utf-8') as f:
-            #             data = json.load(f)
-            #             if isinstance(data, list):
-            #                 aggregated_data.extend(data)
-            #             elif isinstance(data, dict):
-            #                  # Якщо це структура Copart search results, треба діставати content
-            #                  # Але зазвичай сюди потрапляють вже збережені деталі
-            #                  aggregated_data.append(data)
-            #         found_sources += 1
-            #     except Exception as e:
-            #         print(f"  Error reading file {item.name}: {e}")
+                    print(f"  Processing folder: {item.name} ({len(json_files)} files)")
 
-        # 4. Записуємо результат в Minio, якщо є дані
-        if aggregated_data:
-            # Якщо файл вже існує (наприклад, з попереднього запуску), дочитаємо його і допишемо?
-            # Або перезапишемо? Логічніше для "перезбереження" - перезаписати або об'єднати.
-            # Тут робимо повний перезапис зібраного за цей сеанс.
+                    for json_file in json_files:
+                        try:
+                            with open(json_file, 'r', encoding='utf-8') as infile:
+                                data = json.load(infile)
+
+                                # Логіка обробки списку або словника
+                                items_to_write = []
+                                if isinstance(data, dict):
+                                    items_to_write.append(data)
+                                elif isinstance(data, list):
+                                    items_to_write = data
+
+                                for obj in items_to_write:
+                                    if not first_entry:
+                                        outfile.write(',\n') # Додаємо кому перед наступним елементом
+                                    else:
+                                        first_entry = False
+
+                                    # Записуємо об'єкт одразу у файл
+                                    json.dump(obj, outfile, ensure_ascii=False, indent=2)
+
+                                found_files_count += 1
+
+                        except Exception as e:
+                            print(f"  Error reading {json_file.name}: {e}")
+
+            outfile.write(']') # Закриваємо JSON масив
+
+        if found_files_count > 0:
+            print(f"[Minio Transfer] SUCCESS: Streamed {found_files_count} items to {dest_file_path}")
+            # Перевіряємо розмір файлу перед завантаженням (для інформації)
+            file_size_mb = dest_file_path.stat().st_size / (1024 * 1024)
+            print(f"[Minio Transfer] File size: {file_size_mb:.2f} MB")
 
             try:
-                # [Опціонально] Якщо треба дописувати до існуючого файлу в Minio:
-                if dest_file_path.exists():
-                     with open(dest_file_path, 'r', encoding='utf-8') as f:
-                         existing_data = json.load(f)
-                         # Щоб уникнути дублікатів, можна перевіряти по ID, але це повільно.
-                         # Просто додаємо нові (припускаємо, що res_json має свіжі дані)
-                         existing_data.extend(aggregated_data)
-                     aggregated_data = existing_data
-
-                with open(dest_file_path, 'w', encoding='utf-8') as f:
-                    json.dump(aggregated_data, f, indent=2, ensure_ascii=False)
-
-                print(f"[Minio Transfer] SUCCESS: Saved {len(aggregated_data)} items to {dest_file_path}")
-
                 upload_to_minio(dest_file_path)
-                # [Опціонально] Видалення з res_json після успішного переносу?
-                # shutil.rmtree(item) # Небезпечно, краще поки залишити.
-
             except Exception as e:
-                print(f"[Minio Transfer] Error writing to Minio: {e}")
-                save_error({'error_type': f"Minio write error for {brand_name}: {e}"})
+                 print(f"[Minio Transfer] Error uploading to Minio: {e}")
+                 save_error({'error_type': f"Minio upload error for {brand_name}: {e}"})
         else:
             print(f"[Minio Transfer] No data found for category '{category}'")
+            # Видаляємо пустий файл (там тільки "[]")
+            if dest_file_path.exists():
+                os.remove(dest_file_path)
 
 def download_data_from_pages_of_single_brand_with_vehicle_type_and_brand(search_query, brand, type_param, restart_object):
     """
@@ -2516,7 +2493,7 @@ def main():
                     #     json.dump({"number_of_vehicle_types_to_skip": 0}, f)
                     break
 
-                current_vehicle_type_batch = [actual_vehicle_types_list[number_of_vehicle_types_to_skip]]
+                current_vehicle_type_batch = [actual_vehicle_types_list[number_of_vehicle_types_to_skip]] #Щоб кількості оновлювати. Тобто оновили кількість для всіх типів, але лише один послали, потім він пройшов знов оновили і наступний послали
                 download_data_from_pages_of_each_brand(current_vehicle_type_batch)
                 number_of_vehicle_types_to_skip += 1
 
