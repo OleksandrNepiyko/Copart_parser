@@ -239,21 +239,29 @@ def refresh_copart_session(headless=False):
         # Гарантовано вбиваємо процеси перед стартом, щоб мати чистий стан
         kill_chrome_processes()
 
-        # Використовуємо ThreadPoolExecutor для встановлення тайм-ауту
-        with ThreadPoolExecutor(max_workers=1) as executor:
-            future = executor.submit(_get_session_task)
+        executor = ThreadPoolExecutor(max_workers=1)
+        future = executor.submit(_get_session_task)
 
-            try:
-                # Очікуємо результат максимум 60 секунд
-                session_data = future.result(timeout=60)
-            except TimeoutError:
-                print(f"TIMEOUT: get_copart_session_data took longer than 60s. Killing Chrome...")
-                # Критично важливо: вбиваємо Chrome, щоб "завислий" потік впав з помилкою
-                kill_chrome_processes()
-                session_data = None # Гарантуємо, що цикл продовжиться
-            except Exception as e:
-                print(f"Error executing session update: {e}")
-                session_data = None
+        try:
+            session_data = future.result(timeout=60)
+            executor.shutdown(wait=True)
+
+        except TimeoutError:
+            print(f"TIMEOUT: get_copart_session_data took longer than 60s.")
+
+            # 1. Спочатку вбиваємо Chrome, щоб спробувати "розморозити" потік
+            kill_chrome_processes()
+
+            # Кажемо екзекутору закритися, але НЕ ЧЕКАТИ завершення потоку
+            # Це дозволяє головному циклу while продовжити роботу негайно
+            executor.shutdown(wait=False)
+
+            session_data = None
+
+        except Exception as e:
+            print(f"Error executing session update: {e}")
+            executor.shutdown(wait=False) # На випадок інших помилок теж не чекаємо
+            session_data = None
 
     # Якщо ми вийшли з циклу, значить session_data отримано
     if session_data:
