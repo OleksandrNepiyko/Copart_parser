@@ -1856,7 +1856,7 @@ def check_if_brand_has_at_least_one_page(restart_page, brand, headers, cookies, 
 def transfer_brand_data_to_minio(brand_name, type_param):
     print(f"\n[Minio Transfer] Starting transfer for {brand_name} (Type: {type_param})...")
 
-    brand_fs_name = brand_name.replace(" ", "_")
+    brand_fs_name = brand_name.replace(" ", "_").replace("/", "_")
     type_letter = type_param.split('_')[-1]
     current_date = datetime.now().strftime("%Y-%m-%d")
     minio_base = Path("Minio")
