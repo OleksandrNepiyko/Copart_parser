@@ -136,6 +136,7 @@ def create_table(db_name, table_name):
     `notes` text,
     `estimated_retail_price` decimal(10,2) DEFAULT NULL,
     `json` longtext,
+    `photos_json` longtext,
 
     /* Блок "Інформація про ставку" */
     `current_bid` decimal(10,2) DEFAULT NULL,
@@ -327,6 +328,8 @@ def fetch_photos(file_path, lot_number):
     photos_dir = f"{base_path}_photos"
     photos_file_path = f"{photos_dir}/{lot_number}.json"
     try:
+        if photos_file_path is None or not os.path.exists(photos_file_path):
+            photos_file_path = photos_file_path.replace("page", "_page")
         with open(photos_file_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
     except Exception as e:
@@ -556,7 +559,17 @@ def parse_copart_lot(lot_obj, file_path, cursor, db, db_name, table_name): #extr
 
     # estimated retail price
     estimated_retail_price = lot_obj.get("la")               # 16786.0
-    json_value = json.dumps(lot_obj, ensure_ascii=False)
+    lot_file_path = f"{file_path.replace(".json", "_lots")}/{lot_number}.json"
+    if lot_file_path is None or not os.path.exists(lot_file_path):
+        lot_file_path = lot_file_path.replace("page", "_page")
+    print(f"lot_file_path: {lot_file_path}")
+    with open(lot_file_path, 'r', encoding='utf-8') as f:
+        json_value = f.read()
+
+    lot_photos_file_path = lot_file_path.replace("lots", "photos")
+    with open(lot_photos_file_path, 'r', encoding='utf-8') as f:
+        photos_json_value = f.read()
+    # json_value = json.dumps(lot_obj, ensure_ascii=False)
 
     # -----------------------------
     # 2. Bid information
@@ -667,7 +680,7 @@ def parse_copart_lot(lot_obj, file_path, cursor, db, db_name, table_name): #extr
         lot_number, vin_number, ownership_certificate_code,
         odometer_km, primary_damage, secondary_damage, cylinders, color, engine_type,
         transmission, drive_type, vehicle_classification, fuel_type,
-        car_keys, highlights, notes, estimated_retail_price, json,
+        car_keys, highlights, notes, estimated_retail_price, json, photos_json,
         current_bid, price_without_auction, starting_bid,
         sale_name, sale_location, sale_date, last_updated, video, png
     ) VALUES (
@@ -675,7 +688,7 @@ def parse_copart_lot(lot_obj, file_path, cursor, db, db_name, table_name): #extr
         %s, %s, %s,
         %s, %s, %s, %s, %s, %s,
         %s, %s, %s, %s,
-        %s, %s, %s, %s, %s,
+        %s, %s, %s, %s, %s, %s,
         %s, %s, %s,
         %s, %s, %s, %s, %s, %s
     )
@@ -686,7 +699,7 @@ def parse_copart_lot(lot_obj, file_path, cursor, db, db_name, table_name): #extr
         lot_number, vin_number, ownership_certificate_code,
         odometer_km, primary_damage, secondary_damage, cylinders, color, engine_type,
         transmission, drive_type, vehicle_classification, fuel_type,
-        car_keys, highlights, notes, estimated_retail_price, json_value,
+        car_keys, highlights, notes, estimated_retail_price, json_value, photos_json_value,
         current_bid, price_without_auction, starting_bid,
         sale_name, sale_location, sale_date, last_updated, video_insert, png_insert
     )

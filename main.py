@@ -90,8 +90,6 @@ def upload_to_minio(local_file_path: Path):
         linux_path = str(relative_path).replace(os.sep, "/")
         object_name = f"{AUCTION_PREFIX}/{linux_path}"
 
-        print(f"\n\n OBJECT_NAME: {object_name}\n\n")
-
         client.fput_object(
             BUCKET_NAME,
             object_name,
@@ -879,6 +877,7 @@ def get_lot_details_vehicle_type(file_name, page, number):
                 })
 
         target_dir = res_json_path / f"{file_name}_page{page + 1}_lots"
+        print(target_dir)
         target_dir.mkdir(parents=True, exist_ok=True)
 
         with open(target_dir / f"{number}.json", "w", encoding="utf-8") as f:
@@ -998,7 +997,7 @@ def get_lot_details(brand, page, type_param, number, sloc_display_name, engn_dis
             file_name += f"{sloc_display_name.replace(" ", "_")}"
         if engn_display_name is not None:
             file_name += f"_{engn_display_name.replace(" ", "_")}"
-        file_name += f"_page{page + 1}_lots"
+        file_name += f"page{page + 1}_lots"
         target_dir = res_json_path / file_name
         target_dir.mkdir(parents=True, exist_ok=True)
 
@@ -1115,7 +1114,7 @@ def process_single_lot(brand, page, type_param, number, sloc_display_name, engn_
             file_name += f"{sloc_display_name.replace(" ", "_")}"
         if engn_display_name is not None:
             file_name += f"_{engn_display_name.replace(" ", "_")}"
-        file_name += f"_page{page + 1}_photos"
+        file_name += f"page{page + 1}_photos"
         target_dir = res_json_path / file_name
         target_dir.mkdir(parents=True, exist_ok=True)
 
