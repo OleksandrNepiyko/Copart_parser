@@ -1,0 +1,94 @@
+/*"_comment validHighlightIcons: " it's from list_of_brands.json
+that's the list of all icons meanings*/
+[
+    {
+        "iconCode": "CARB",
+        "shortText": "Carb Qualification",
+        "iconType": "H"
+    },
+    {
+        "iconCode": "CERT-D",
+        "shortText": "Run and Drive",
+        "iconType": "H"
+    },
+    {
+        "iconCode": "CERT-E",
+        "shortText": "Enhanced Vehicles",
+        "iconType": "H"
+    },
+    {
+        "iconCode": "CERT-L",
+        "shortText": "Limited Drive",
+        "iconType": "H"
+    },
+    {
+        "iconCode": "CERT-S",
+        "shortText": "Engine Start Program",
+        "iconType": "H"
+    },
+    {
+        "iconCode": "COPARTDIRE",
+        "shortText": "Copart Direct Logo",
+        "iconType": "H"
+    },
+    {
+        "iconCode": "DONA",
+        "shortText": "Donated Vehicle",
+        "iconType": "H"
+    },
+    {
+        "iconCode": "FAST",
+        "shortText": "Fast",
+        "iconType": "H"
+    },
+    {
+        "iconCode": "FEATURED",
+        "shortText": "Featured Vehicle",
+        "iconType": "H"
+    },
+    {
+        "iconCode": "HYB",
+        "shortText": "Hybrid Vehicles",
+        "iconType": "H"
+    },
+    {
+        "iconCode": "OFS",
+        "shortText": "Offsite Sales",
+        "iconType": "H"
+    },
+    {
+        "iconCode": "SBR",
+        "shortText": "Sealed Bid Repo",
+        "iconType": "H"
+    },
+    {
+        "iconCode": "SC",
+        "shortText": "Seller Certified",
+        "iconType": "H"
+    },
+    {
+        "iconCode": "SITE-CT",
+        "shortText": "CrashedToys",
+        "iconType": "H"
+    },
+    {
+        "iconCode": "VIX",
+        "shortText": "VIX",
+        "iconType": "H"
+    },
+    {
+        "iconCode": "FLOOD-CLN",
+        "shortText": "Flood Reconditioned",
+        "iconType": "H"
+    },
+    {
+        "iconCode": "GOCAR",
+        "shortText": "GO-Offsite",
+        "iconType": "H"
+    },
+    {
+        "iconCode": "GOCAR-INSPECTED",
+        "shortText": "GO-Offsite",
+        "iconType": "H"
+    }
+]
