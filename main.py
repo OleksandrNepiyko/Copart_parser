@@ -155,8 +155,15 @@ def get_copart_session_data(headless=False):
             page_loaded = False
             for _ in range(60):
                 # Check for success indicators (URL or Element)
-                if "vehicle" in sb.get_current_url().lower() and \
-                   (sb.is_element_visible('#serverSideDataTable') or sb.is_element_visible('.inner-wrap')):
+                # if "vehicle" in sb.get_current_url().lower() and \
+                #    (sb.is_element_visible('#serverSideDataTable') or sb.is_element_visible('.inner-wrap')):
+                current_url = sb.get_current_url().lower()
+                print(current_url)
+                if "copart" in current_url and (
+                    sb.is_element_visible('#search-form') or
+                    sb.is_element_visible('button#onetrust-accept-btn-handler')
+                ):
+                    print("if is true")
                     page_loaded = True
                     break
 
@@ -169,47 +176,132 @@ def get_copart_session_data(headless=False):
             if not page_loaded:
                 raise TimeoutError("Copart page failed to load (Cloudflare or Timeout).")
 
-            time.sleep(2) # Stabilization time for final cookies
+            # --- Smart Wait Logic ---
+            # page_loaded = False
+            # for i in range(80):
+            #     current_url = sb.get_current_url().lower()
+
+            #     # Шукаємо текст або кнопку
+            #     if "copart" in current_url and (
+            #         sb.is_text_visible("Vehicle Finder") or
+            #         sb.is_text_visible("Search inventory") or
+            #         sb.is_element_visible('button#onetrust-accept-btn-handler')
+            #     ):
+            #         page_loaded = True
+            #         print(f"Page loaded successfully after {i} seconds.")
+
+            #         # Закриваємо банер з куками
+            #         if sb.is_element_visible('button#onetrust-accept-btn-handler'):
+            #             try:
+            #                 sb.click('button#onetrust-accept-btn-handler')
+            #                 print("Clicked 'Accept All Cookies'")
+            #                 time.sleep(2)
+            #             except:
+            #                 pass
+            #         break
+
+            #     # Auto-solve Cloudflare
+            #     if sb.is_element_visible('iframe[src*="cloudflare"]'):
+            #         print(f"[{i}s] Cloudflare challenge detected. Attempting to click...")
+            #         try:
+            #             sb.uc_gui_click_captcha()
+            #         except Exception as e:
+            #             print(f"Failed to click captcha: {e}")
+
+            #     time.sleep(1)
+
+            if not page_loaded:
+                raise TimeoutError(f"Copart page failed to load. Current URL: {sb.get_current_url()}")
+
+            print("Page loaded! Waiting 2s for stabilization...")
+            time.sleep(2)
 
             # --- Data Extraction ---
-            # 1. User Agent
-            data["headers"]["User-Agent"] = sb.get_user_agent()
+            print("1. Fetching User-Agent...")
+            # Використовуємо обгортку sb, яка безпечно відновлює з'єднання в UC Mode
+            data["headers"]["User-Agent"] = sb.execute_script("return navigator.userAgent;")
 
-            # 2. Cookies (via CDP for completeness)
-            cookies_data = sb.cdp.get_all_cookies()
+            print("2. Fetching Cookies...")
+            # Вбудований метод SB для кук, який не валить UC Mode і не висить як CDP
+            cookies_data = sb.get_cookies()
             cookie_dict = {}
             xsrf_token = None
 
+            print("3. Parsing Cookies...")
+            # sb.get_cookies() повертає масив словників
             for cookie in cookies_data:
-                # Handle SeleniumBase object vs dict differences
-                if isinstance(cookie, dict):
-                    name = cookie.get('name', '')
-                    value = cookie.get('value', '')
-                else:
-                    name = getattr(cookie, 'name', '')
-                    value = getattr(cookie, 'value', '')
+                name = cookie.get('name', '')
+                value = cookie.get('value', '')
 
                 if name:
                     cookie_dict[name] = value
-                    # Capture XSRF token if found in cookies
                     if 'xsrf' in name.lower() or 'csrf' in name.lower():
                         xsrf_token = value
 
             data["cookies"] = cookie_dict
 
-            # 3. XSRF Token (Check Cookies -> then LocalStorage)
+            print("4. Fetching LocalStorage (XSRF)...")
             if xsrf_token:
                 data["headers"]["X-XSRF-TOKEN"] = xsrf_token
             else:
                 try:
                     ls = sb.execute_script("return window.localStorage;")
-                    for k, v in ls.items():
-                        if 'xsrf' in k.lower():
-                            data["headers"]["X-XSRF-TOKEN"] = v
-                            break
-                except: pass
+                    if ls:
+                        for k, v in ls.items():
+                            if 'xsrf' in k.lower():
+                                data["headers"]["X-XSRF-TOKEN"] = v
+                                break
+                except Exception as e:
+                    print(f"LocalStorage error: {e}")
 
+            print("5. Session data successfully extracted!")
             return data
+
+
+            # if not page_loaded:
+            #     raise TimeoutError(f"Copart page failed to load. Current URL: {sb.get_current_url()}")
+
+            # time.sleep(2) # Stabilization time for final cookies
+
+            # # --- Data Extraction ---
+            # # 1. User Agent
+            # data["headers"]["User-Agent"] = sb.get_user_agent()
+
+            # # 2. Cookies (via CDP for completeness)
+            # cookies_data = sb.cdp.get_all_cookies()
+            # cookie_dict = {}
+            # xsrf_token = None
+
+            # for cookie in cookies_data:
+            #     # Handle SeleniumBase object vs dict differences
+            #     if isinstance(cookie, dict):
+            #         name = cookie.get('name', '')
+            #         value = cookie.get('value', '')
+            #     else:
+            #         name = getattr(cookie, 'name', '')
+            #         value = getattr(cookie, 'value', '')
+
+            #     if name:
+            #         cookie_dict[name] = value
+            #         # Capture XSRF token if found in cookies
+            #         if 'xsrf' in name.lower() or 'csrf' in name.lower():
+            #             xsrf_token = value
+
+            # data["cookies"] = cookie_dict
+
+            # # 3. XSRF Token (Check Cookies -> then LocalStorage)
+            # if xsrf_token:
+            #     data["headers"]["X-XSRF-TOKEN"] = xsrf_token
+            # else:
+            #     try:
+            #         ls = sb.execute_script("return window.localStorage;")
+            #         for k, v in ls.items():
+            #             if 'xsrf' in k.lower():
+            #                 data["headers"]["X-XSRF-TOKEN"] = v
+            #                 break
+            #     except: pass
+
+            # return data
 
         except Exception as e:
             print(f"Error fetching Copart session data: {e}")
@@ -249,7 +341,7 @@ def refresh_copart_session(headless=False):
         future = executor.submit(_get_session_task)
 
         try:
-            session_data = future.result(timeout=60)
+            session_data = future.result(timeout=150)
             executor.shutdown(wait=True)
 
         except TimeoutError:
@@ -936,7 +1028,7 @@ def get_lot_details_for_page_vehicle_type(file_name, page, all_ln_values, search
     # max_workers=3 означає, що одночасно буде качатися 3 фотографій.
 
     #tmp
-    # all_ln_values = all_ln_values[:3]
+    all_ln_values = all_ln_values[:3]
     with ThreadPoolExecutor(max_workers=3) as executor:
         futures = []
         for number in all_ln_values:
@@ -1054,7 +1146,7 @@ def get_lot_details_for_page(brand, page, type_param, arr_of_lot_numbers, restar
     print(f"get_lot_details_for_page: {arr_of_lot_numbers} (Total: {len(arr_of_lot_numbers)})")
 
     # tmp
-    # arr_of_lot_numbers = arr_of_lot_numbers[:3]
+    arr_of_lot_numbers = arr_of_lot_numbers[:3]
     # --- Логіка RESTART ---
     # Фільтруємо список номерів ДО запуску потоків
     restart_lot_number = 0
@@ -1171,7 +1263,7 @@ def download_photos_from_lot(brand, page, type_param, arr_of_lot_numbers, restar
     print(f"Download_photos_for_lot: {arr_of_lot_numbers} (Total: {len(arr_of_lot_numbers)})")
 
     # tmp
-    # arr_of_lot_numbers = arr_of_lot_numbers[:3]
+    arr_of_lot_numbers = arr_of_lot_numbers[:3]
     # --- Логіка RESTART ---
     # Фільтруємо список номерів ДО запуску потоків
     restart_lot_number = 0
@@ -1326,7 +1418,7 @@ def download_photos_from_lot_vehicle_type(file_name, page, all_ln_values, search
     # max_workers=3 означає, що одночасно буде качатися 3 фотографій.
 
     #tmp
-    # all_ln_values = all_ln_values[:3]
+    all_ln_values = all_ln_values[:3]
     with ThreadPoolExecutor(max_workers=3) as executor:
         futures = []
         for number in all_ln_values:
@@ -1518,8 +1610,8 @@ def request_with_vehicle_type(search_query, include_tag_by_field, restart_object
         restart_page = max(0, restart_object['page'] - 1)
 
     #tmp
-    # for page in range (restart_page, 1):
-    for page in range (restart_page, 21):
+    for page in range (restart_page, 1):
+    # for page in range (restart_page, 21):
         start = page * 100
         payload = clean_payload({"query":["*"],"filter":{"VEHT":[f"{search_query}"]},"sort":["salelight_priority asc","member_damage_group_priority asc","auction_date_type desc","auction_date_utc asc"],"page":page,"size":100,"start":start,"watchListOnly":False,"freeFormSearch":False,"hideImages":False,"defaultSort":False,"specificRowProvided":False,"displayName":"","searchName":"","backUrl":"","includeTagByField":{"VEHT":f"{include_tag_by_field}"},"rawParams":{}})
 
@@ -1583,7 +1675,9 @@ def request_with_vehicle_type(search_query, include_tag_by_field, restart_object
             print(f"Error extracting ln values on page {page + 1}: {e}")
             continue
 
-        all_ln_values = remove_present(all_ln_values)
+        # tmp
+        # TODO: SHOULD BE UNCOMENTED AFTER FIRST FULL RUN
+        # all_ln_values = remove_present(all_ln_values)
 
         if len(all_ln_values) != 0:
             download_photos_from_lot_vehicle_type(file_name, page, all_ln_values, search_query)
@@ -2004,8 +2098,8 @@ def download_data_from_pages_of_single_brand_with_vehicle_type_and_brand(search_
     # you should use this configuration because it's confirmed to work
 
     # tmp
-    # for page in range (restart_page, 1):
-    for page in range (restart_page, 21):
+    for page in range (restart_page, 1):
+    # for page in range (restart_page, 21):
         # time.sleep(0.1)
         # print(f"Brand: {brand}, page: {page + 1}")
         start = page * 100
@@ -2067,7 +2161,9 @@ def download_data_from_pages_of_single_brand_with_vehicle_type_and_brand(search_
         if restart_object and isinstance(restart_object, dict) and restart_object.get('page') == page:
             per_page_restart = restart_object
 
-        all_ln_values = remove_present(all_ln_values)
+        # tmp
+        # TODO: SHOULD BE UNCOMENTED AFTER FIRST FULL RUN
+        # all_ln_values = remove_present(all_ln_values)
 
         if len(all_ln_values) != 0:
             download_photos_from_lot(brand, page, type_param, all_ln_values, per_page_restart)
@@ -2263,7 +2359,9 @@ def download_data_from_pages_of_single_brand_with_vehicle_type_and_brand_and_slo
                     print(f"Error extracting ln: {e}")
                     continue
 
-                all_ln_values = remove_present(all_ln_values)
+                # tmp
+                # TODO: SHOULD BE UNCOMENTED AFTER FIRST FULL RUN
+                # all_ln_values = remove_present(all_ln_values)
 
                 # Передаємо restart_object тільки якщо ми на тій самій сторінці, де зупинились
                 per_page_restart = None
@@ -2517,7 +2615,7 @@ def main():
                                             # if False then all vehicles types will be extracted
     res_json_path.mkdir(parents=True, exist_ok=True)
 
-    if not refresh_copart_session(headless=True):
+    if not refresh_copart_session(headless=False):
         print("Error. Could not initialize the very first session. Exiting.")
         save_error({
             'error_type': "Error. Could not initialize the very first session."
