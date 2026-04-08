@@ -57,7 +57,7 @@ MINIO_CONFIG = {
     "secret_key": _env("MINIO_SECRET_KEY"),
     "endpoint": _env("MINIO_ENDPOINT"),
     "region": _env("MINIO_REGION"),
-    "secure": _env("MINIO_SECURE", True)
+    "secure": _env("MINIO_SECURE", "True").lower() == "true"
 }
 
 BUCKET_NAME:      str = _env("MINIO_BUCKET_BASE")
@@ -1028,7 +1028,7 @@ def get_lot_details_for_page_vehicle_type(file_name, page, all_ln_values, search
     # max_workers=3 означає, що одночасно буде качатися 3 фотографій.
 
     #tmp
-    all_ln_values = all_ln_values[:3]
+    # all_ln_values = all_ln_values[:3]
     with ThreadPoolExecutor(max_workers=3) as executor:
         futures = []
         for number in all_ln_values:
@@ -1146,7 +1146,7 @@ def get_lot_details_for_page(brand, page, type_param, arr_of_lot_numbers, restar
     print(f"get_lot_details_for_page: {arr_of_lot_numbers} (Total: {len(arr_of_lot_numbers)})")
 
     # tmp
-    arr_of_lot_numbers = arr_of_lot_numbers[:3]
+    # arr_of_lot_numbers = arr_of_lot_numbers[:3]
     # --- Логіка RESTART ---
     # Фільтруємо список номерів ДО запуску потоків
     restart_lot_number = 0
@@ -1263,7 +1263,7 @@ def download_photos_from_lot(brand, page, type_param, arr_of_lot_numbers, restar
     print(f"Download_photos_for_lot: {arr_of_lot_numbers} (Total: {len(arr_of_lot_numbers)})")
 
     # tmp
-    arr_of_lot_numbers = arr_of_lot_numbers[:3]
+    # arr_of_lot_numbers = arr_of_lot_numbers[:3]
     # --- Логіка RESTART ---
     # Фільтруємо список номерів ДО запуску потоків
     restart_lot_number = 0
@@ -1418,7 +1418,7 @@ def download_photos_from_lot_vehicle_type(file_name, page, all_ln_values, search
     # max_workers=3 означає, що одночасно буде качатися 3 фотографій.
 
     #tmp
-    all_ln_values = all_ln_values[:3]
+    # all_ln_values = all_ln_values[:3]
     with ThreadPoolExecutor(max_workers=3) as executor:
         futures = []
         for number in all_ln_values:
@@ -1610,8 +1610,8 @@ def request_with_vehicle_type(search_query, include_tag_by_field, restart_object
         restart_page = max(0, restart_object['page'] - 1)
 
     #tmp
-    for page in range (restart_page, 1):
-    # for page in range (restart_page, 21):
+    # for page in range (restart_page, 1):
+    for page in range (restart_page, 21):
         start = page * 100
         payload = clean_payload({"query":["*"],"filter":{"VEHT":[f"{search_query}"]},"sort":["salelight_priority asc","member_damage_group_priority asc","auction_date_type desc","auction_date_utc asc"],"page":page,"size":100,"start":start,"watchListOnly":False,"freeFormSearch":False,"hideImages":False,"defaultSort":False,"specificRowProvided":False,"displayName":"","searchName":"","backUrl":"","includeTagByField":{"VEHT":f"{include_tag_by_field}"},"rawParams":{}})
 
@@ -2098,8 +2098,8 @@ def download_data_from_pages_of_single_brand_with_vehicle_type_and_brand(search_
     # you should use this configuration because it's confirmed to work
 
     # tmp
-    for page in range (restart_page, 1):
-    # for page in range (restart_page, 21):
+    # for page in range (restart_page, 1):
+    for page in range (restart_page, 21):
         # time.sleep(0.1)
         # print(f"Brand: {brand}, page: {page + 1}")
         start = page * 100
