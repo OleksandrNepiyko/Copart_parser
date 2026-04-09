@@ -29,12 +29,22 @@ from itertools import count
 from minio import Minio
 from minio.error import S3Error
 from api_uploader_copart import upload_to_api_and_cleanup
-from dotenv import find_dotenv, load_dotenv
+from dotenv import load_dotenv
 
-env_path = find_dotenv(".env")
-load_dotenv(env_path)
+# Визначаємо абсолютний шлях до папки, де лежить main.py
+BASE_DIR = Path(__file__).resolve().parent
+# Формуємо точний шлях до файлу .env у цій же папці
+env_path = BASE_DIR / ".env"
+
+# Завантажуємо файл, явно вказуючи шлях, і виводимо результат для перевірки
+loaded = load_dotenv(dotenv_path=env_path)
+print(f"DEBUG: .env loaded from {env_path} -> {loaded}")
+
 def _env(key: str, default: str = "") -> str:
-    return os.getenv(key, default).strip().strip('"').strip("'")
+    val = os.getenv(key, default)
+    if isinstance(val, str):
+        return val.strip().strip('"').strip("'")
+    return val
 
 tech_json_path = Path('tech_json')
 res_json_path = Path('res_json')
@@ -97,9 +107,9 @@ def upload_to_minio(local_file_path: Path):
         relative_path = local_file_path.relative_to(MINIO_BASE_DIR)
         linux_path = str(relative_path).replace(os.sep, "/")
         object_name = f"{AUCTION_PREFIX}/{linux_path}"
-
+        safe_bucket_name = str(BUCKET_NAME).strip().strip('"').strip("'").lower()
         client.fput_object(
-            BUCKET_NAME,
+            safe_bucket_name,
             object_name,
             str(local_file_path),
             content_type="application/json"
