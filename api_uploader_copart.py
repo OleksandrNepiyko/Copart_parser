@@ -6,7 +6,6 @@ import logging, ijson
 from pathlib import Path
 from datetime import datetime
 from dotenv import find_dotenv, load_dotenv
-from main import DELETE_FILES_LOCALY_WHILE_UPLOAD_TO_API
 
 env_path = find_dotenv(".env")
 load_dotenv(env_path)
@@ -17,6 +16,8 @@ def _env(key: str, default: str = "") -> str:
 API_URL: str = _env("API_URL")
 BATCH_SIZE = 30
 MAX_RETRIES = 3
+
+DELETE_FILES_LOCALY_WHILE_UPLOAD_TO_API = _env("DELETE_FILES_LOCALY_WHILE_UPLOAD_TO_API")
 
 log_dir = Path('api_logs')
 log_dir.mkdir(parents=True, exist_ok=True)

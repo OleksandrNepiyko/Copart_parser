@@ -56,8 +56,6 @@ POST_COUNT = 0
 POST_LIMITER = 1000  # Number of POST requests before refreshing
 #session (it includes pages and photos requests, so one full page = 1 page reques + 20 photos requests = 21 POST requests per full page)
 
-DELETE_FILES_LOCALY_WHILE_UPLOAD_TO_API = False
-
 SESSION_LOCK = threading.RLock()
 
 # Global Session Object
@@ -2407,10 +2405,9 @@ def download_data_from_pages_of_single_brand_with_vehicle_type_and_brand_and_slo
     # transfer_brand_data_to_minio(brand, type_param)
 
 def send_to_api(brand_description, vehtype):
-    global DELETE_FILES_LOCALY_WHILE_UPLOAD_TO_API
     transfer_brand_data_to_minio(brand_description, vehtype)
     print(f"Uploading {brand_description} to API...")
-    upload_to_api_and_cleanup(str(MINIO_BASE_DIR), DELETE_FILES_LOCALY_WHILE_UPLOAD_TO_API)
+    upload_to_api_and_cleanup(str(MINIO_BASE_DIR))
 
 def download_data_from_pages_of_each_brand(veht_array):
     #goes through brands from tech_json/list_of_automobile_brands.json and for each brand call the
@@ -2621,9 +2618,6 @@ def main():
     clean_working_files_bool = False
     if clean_working_files_bool:
         clean_working_files()
-
-    global DELETE_FILES_LOCALY_WHILE_UPLOAD_TO_API
-    DELETE_FILES_LOCALY_WHILE_UPLOAD_TO_API = False
 
     extract_only_automobile = False
     # extract_json_from_list_of_all_brands()
