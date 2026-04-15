@@ -2,10 +2,11 @@ import os
 import json
 import asyncio
 import aiohttp
-import logging
+import logging, ijson
 from pathlib import Path
 from datetime import datetime
 from dotenv import find_dotenv, load_dotenv
+from main import DELETE_FILES_LOCALY_WHILE_UPLOAD_TO_API
 
 env_path = find_dotenv(".env")
 load_dotenv(env_path)
@@ -32,8 +33,7 @@ logger = logging.getLogger(__name__)
 
 def load_photos_map_copart(lots_file_path: Path) -> dict:
     """
-    Зчитує файл з фотографіями Copart і збирає абсолютно всі масиви,
-    групуючи їх за значенням 'ln'.
+    Зчитує файл з фотографіями потоково (ijson), щоб не вбити пам'ять.
     """
     photos_map = {}
     try:
@@ -41,34 +41,24 @@ def load_photos_map_copart(lots_file_path: Path) -> dict:
         if not photos_file_path.exists():
             return photos_map
 
-        with open(photos_file_path, 'r', encoding='utf-8') as f:
-            photos_data = json.load(f)
-
-        if isinstance(photos_data, list):
-            for item in photos_data:
+        # ijson краще працює з бінарним режимом 'rb'
+        with open(photos_file_path, 'rb') as f:
+            # Читаємо масив поелементно
+            for item in ijson.items(f, 'item', use_float=True):
                 images_list = item.get('data', {}).get('imagesList', {})
                 if not isinstance(images_list, dict):
                     continue
 
-                # Проходимо по ВСІХ ключах (категоріях масивів) всередині imagesList
                 for category, images_array in images_list.items():
                     if isinstance(images_array, list) and len(images_array) > 0:
-
-                        # Беремо ln з першого елемента саме ЦЬОГО масиву
                         ln = images_array[0].get('ln')
-
                         if ln is not None:
                             ln_str = str(ln)
-
-                            # Якщо цього лота (ln) ще немає в нашому словнику - створюємо для нього порожній об'єкт
                             if ln_str not in photos_map:
                                 photos_map[ln_str] = {}
-
-                            # Якщо такої категорії (наприклад, 'IMAGE') ще немає для цього лота - створюємо масив
                             if category not in photos_map[ln_str]:
                                 photos_map[ln_str][category] = []
 
-                            # Додаємо всі елементи поточного масиву до загальної купи цього лота
                             photos_map[ln_str][category].extend(images_array)
 
     except Exception as e:
@@ -97,40 +87,46 @@ async def send_batch(session: aiohttp.ClientSession, batch: list):
 
 async def process_file(file_path: Path, session: aiohttp.ClientSession):
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            content = json.load(f)
-
-        if not isinstance(content, list):
-            return 0
-
         photos_map = load_photos_map_copart(file_path)
 
-        # 1. Готуємо всі лоти з фотографіями
-        prepared_lots = []
-        for raw_item in content:
-            # Дістаємо ln з data -> lotDetails -> ln
-            lot_details = raw_item.get('data', {}).get('lotDetails', {})
-            ln = lot_details.get('ln')
+        successful_lots = 0
+        tasks = []
+        current_batch = []
 
-            if ln is None:
-                continue # Якщо раптом лот без ln, пропускаємо (або можна логувати)
+        with open(file_path, 'rb') as f:
+            # Читаємо головний файл лотів поелементно
+            for raw_item in ijson.items(f, 'item', use_float=True):
+                lot_details = raw_item.get('data', {}).get('lotDetails', {})
+                ln = lot_details.get('ln')
 
-            ln_str = str(ln)
+                if ln is not None:
+                    ln_str = str(ln)
+                    raw_item['imagesList'] = photos_map.get(ln_str, {})
 
-            # Додаємо блок зображень до лота (якщо фоток немає, буде порожній словник)
-            raw_item['imagesList'] = photos_map.get(ln_str, {})
-            prepared_lots.append(raw_item)
+                current_batch.append(raw_item)
 
-        # 2. Розбиваємо на пачки по BATCH_SIZE
-        batches = list(chunker(prepared_lots, BATCH_SIZE))
+                # Як тільки зібрали пачку BATCH_SIZE — створюємо задачу на відправку
+                if len(current_batch) >= BATCH_SIZE:
+                    tasks.append(asyncio.create_task(send_batch(session, list(current_batch))))
+                    current_batch.clear()  # Очищаємо список для наступної пачки
 
-        # 3. Відправляємо пачки асинхронно
-        tasks = [asyncio.create_task(send_batch(session, b)) for b in batches]
+                    # Контроль паралельності: щоб не створювати тисячі тасок,
+                    # чекаємо виконання кожних 30 паралельних запитів
+                    if len(tasks) >= 30:
+                        results = await asyncio.gather(*tasks)
+                        successful_lots += sum(results)
+                        tasks.clear() # Звільняємо пам'ять від виконаних тасок
+
+        # Відправляємо залишок, якщо файл закінчився, а пачка ще не повна
+        if current_batch:
+            tasks.append(asyncio.create_task(send_batch(session, list(current_batch))))
+
+        # Чекаємо виконання всіх залишкових задач
         if tasks:
             results = await asyncio.gather(*tasks)
-            successful_lots = sum(results)
-            return successful_lots
-        return 0
+            successful_lots += sum(results)
+
+        return successful_lots
 
     except Exception as e:
         logger.error(f"Error processing file {file_path.name}: {e}")
@@ -153,30 +149,33 @@ async def async_main(minio_dir: str):
             sent_count = await process_file(file_path, session)
             total_lots_sent += sent_count
 
-            try:
-                # 1. Видаляємо файл лотів
-                if file_path.exists():
-                    file_path.unlink()
+            global DELETE_FILES_LOCALY_WHILE_UPLOAD_TO_API
 
-                # 2. Знаходимо та видаляємо відповідний файл з фотографіями
-                photos_file_path = Path(str(file_path).replace(f"{os.sep}lots{os.sep}", f"{os.sep}photos{os.sep}"))
-                if photos_file_path.exists():
-                    photos_file_path.unlink()
-
-                # 3. Видаляємо папку лотів, ЯКЩО вона порожня
+            if DELETE_FILES_LOCALY_WHILE_UPLOAD_TO_API:
                 try:
-                    file_path.parent.rmdir()
-                except OSError:
-                    pass # Директорія не порожня, пропускаємо
+                    # 1. Видаляємо файл лотів
+                    if file_path.exists():
+                        file_path.unlink()
 
-                # 4. Видаляємо папку фотографій, ЯКЩО вона порожня
-                try:
-                    photos_file_path.parent.rmdir()
-                except OSError:
-                    pass # Директорія не порожня, пропускаємо
+                    # 2. Знаходимо та видаляємо відповідний файл з фотографіями
+                    photos_file_path = Path(str(file_path).replace(f"{os.sep}lots{os.sep}", f"{os.sep}photos{os.sep}"))
+                    if photos_file_path.exists():
+                        photos_file_path.unlink()
 
-            except Exception as e:
-                logger.error(f"Cleanup error for {file_path.name}: {e}")
+                    # 3. Видаляємо папку лотів, ЯКЩО вона порожня
+                    try:
+                        file_path.parent.rmdir()
+                    except OSError:
+                        pass # Директорія не порожня, пропускаємо
+
+                    # 4. Видаляємо папку фотографій, ЯКЩО вона порожня
+                    try:
+                        photos_file_path.parent.rmdir()
+                    except OSError:
+                        pass # Директорія не порожня, пропускаємо
+
+                except Exception as e:
+                    logger.error(f"Cleanup error for {file_path.name}: {e}")
 
     logger.info("=" * 50)
     logger.info(f"UPLOAD TO API COMPLETED. Total lots: {total_lots_sent}")
