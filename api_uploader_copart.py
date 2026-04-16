@@ -4,7 +4,7 @@ import asyncio
 import aiohttp
 import logging, ijson
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, time
 from dotenv import find_dotenv, load_dotenv
 
 env_path = find_dotenv(".env")
@@ -97,6 +97,7 @@ async def process_file(file_path: Path, session: aiohttp.ClientSession):
         with open(file_path, 'rb') as f:
             # Читаємо головний файл лотів поелементно
             for raw_item in ijson.items(f, 'item', use_float=True):
+                time.sleep(2)
                 lot_details = raw_item.get('data', {}).get('lotDetails', {})
                 ln = lot_details.get('ln')
 
