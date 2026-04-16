@@ -80,10 +80,10 @@ async def send_batch(session: aiohttp.ClientSession, batch: list):
                     return len(batch)
                 else:
                     logger.warning(f"Server error {resp.status}. Attempt {attempt+1}")
-                    await asyncio.sleep(1)
+                    await asyncio.sleep(60)
         except Exception as e:
             logger.error(f"Network error: {e}. Attempt {attempt+1}")
-            await asyncio.sleep(1)
+            await asyncio.sleep(60)
     return 0
 
 async def process_file(file_path: Path, session: aiohttp.ClientSession):
