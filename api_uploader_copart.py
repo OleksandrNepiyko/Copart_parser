@@ -4,7 +4,7 @@ import asyncio
 import aiohttp
 import logging, ijson
 from pathlib import Path
-from datetime import datetime, time
+from datetime import datetime
 from dotenv import find_dotenv, load_dotenv
 
 env_path = find_dotenv(".env")
@@ -14,8 +14,13 @@ def _env(key: str, default: str = "") -> str:
 
 # --- НАЛАШТУВАННЯ ---
 API_URL: str = _env("API_URL")
-BATCH_SIZE = 30
+BATCH_SIZE = 10
 MAX_RETRIES = 3
+
+# Нові налаштування для оптимізації та рестарту
+MAX_CONCURRENT_TASKS = 2
+PAUSE_BETWEEN_REQUESTS_SEC = 2.0
+RESTART_POINT_FILE = Path('api_tech/restart_point.json')
 
 DELETE_FILES_LOCALY_WHILE_UPLOAD_TO_API = _env("DELETE_FILES_LOCALY_WHILE_UPLOAD_TO_API")
 
@@ -31,6 +36,26 @@ logging.basicConfig(
     ]
 )
 logger = logging.getLogger(__name__)
+
+def get_last_processed_file() -> str:
+    """Отримує шлях до останнього успішно завантаженого файлу з JSON."""
+    if RESTART_POINT_FILE.exists():
+        try:
+            with open(RESTART_POINT_FILE, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                return data.get('last_file', '')
+        except Exception as e:
+            logger.error(f"Error reading restart file: {e}")
+    return ""
+
+def save_last_processed_file(file_path: str):
+    """Зберігає шлях успішно завантаженого файлу в JSON."""
+    try:
+        RESTART_POINT_FILE.parent.mkdir(parents=True, exist_ok=True)
+        with open(RESTART_POINT_FILE, 'w', encoding='utf-8') as f:
+            json.dump({'last_file': file_path}, f, ensure_ascii=False, indent=4)
+    except Exception as e:
+        logger.error(f"Error saving restart file: {e}")
 
 def load_photos_map_copart(lots_file_path: Path) -> dict:
     """
@@ -80,10 +105,10 @@ async def send_batch(session: aiohttp.ClientSession, batch: list):
                     return len(batch)
                 else:
                     logger.warning(f"Server error {resp.status}. Attempt {attempt+1}")
-                    await asyncio.sleep(60)
+                    await asyncio.sleep(180)
         except Exception as e:
             logger.error(f"Network error: {e}. Attempt {attempt+1}")
-            await asyncio.sleep(60)
+            await asyncio.sleep(180)
     return 0
 
 async def process_file(file_path: Path, session: aiohttp.ClientSession):
@@ -97,7 +122,6 @@ async def process_file(file_path: Path, session: aiohttp.ClientSession):
         with open(file_path, 'rb') as f:
             # Читаємо головний файл лотів поелементно
             for raw_item in ijson.items(f, 'item', use_float=True):
-                time.sleep(2)
                 lot_details = raw_item.get('data', {}).get('lotDetails', {})
                 ln = lot_details.get('ln')
 
@@ -112,12 +136,13 @@ async def process_file(file_path: Path, session: aiohttp.ClientSession):
                     tasks.append(asyncio.create_task(send_batch(session, list(current_batch))))
                     current_batch.clear()  # Очищаємо список для наступної пачки
 
-                    # Контроль паралельності: щоб не створювати тисячі тасок,
-                    # чекаємо виконання кожних 30 паралельних запитів
-                    if len(tasks) >= 30:
+                    # Контроль паралельності: чекаємо виконання кожних MAX_CONCURRENT_TASKS
+                    if len(tasks) >= MAX_CONCURRENT_TASKS:
                         results = await asyncio.gather(*tasks)
                         successful_lots += sum(results)
                         tasks.clear() # Звільняємо пам'ять від виконаних тасок
+                        # Перерва між запитами
+                        await asyncio.sleep(PAUSE_BETWEEN_REQUESTS_SEC)
 
         # Відправляємо залишок, якщо файл закінчився, а пачка ще не повна
         if current_batch:
@@ -127,6 +152,7 @@ async def process_file(file_path: Path, session: aiohttp.ClientSession):
         if tasks:
             results = await asyncio.gather(*tasks)
             successful_lots += sum(results)
+            await asyncio.sleep(PAUSE_BETWEEN_REQUESTS_SEC)
 
         return successful_lots
 
@@ -137,12 +163,33 @@ async def process_file(file_path: Path, session: aiohttp.ClientSession):
 async def async_main(minio_dir: str):
     minio_dir = "Minio"
     lots_dir = Path(minio_dir) / "lots"
-    json_files = list(lots_dir.rglob("*.json"))
 
-    if not json_files:
+    # 1. Знаходимо та сортуємо всі файли в алфавітному порядку
+    all_json_files = sorted(list(lots_dir.rglob("*.json")), key=lambda p: str(p))
+
+    if not all_json_files:
+        logger.info("JSON files not found.")
         return
 
-    logger.info(f"Found {len(json_files)} JSON files.")
+    # 2. Логіка рестарта: отримуємо останній оброблений файл
+    last_processed_file = get_last_processed_file()
+    json_files = []
+
+    if last_processed_file:
+        for f in all_json_files:
+            # Пропускаємо файли, які лексикографічно менші або рівні останньому обробленому
+            if str(f) <= last_processed_file:
+                continue
+            json_files.append(f)
+        logger.info(f"Skipped processed files up to: {Path(last_processed_file).name}")
+    else:
+        json_files = all_json_files
+
+    if not json_files:
+        logger.info("All files have already been processed.")
+        return
+
+    logger.info(f"Found {len(json_files)} new JSON files to process.")
     total_lots_sent = 0
 
     async with aiohttp.ClientSession() as session:
@@ -151,9 +198,12 @@ async def async_main(minio_dir: str):
             sent_count = await process_file(file_path, session)
             total_lots_sent += sent_count
 
+            # Зберігаємо прогрес після повного завершення обробки файлу
+            save_last_processed_file(str(file_path))
+
             global DELETE_FILES_LOCALY_WHILE_UPLOAD_TO_API
 
-            if DELETE_FILES_LOCALY_WHILE_UPLOAD_TO_API:
+            if str(DELETE_FILES_LOCALY_WHILE_UPLOAD_TO_API).lower() == "true":
                 try:
                     # 1. Видаляємо файл лотів
                     if file_path.exists():
