@@ -74,6 +74,8 @@ BUCKET_NAME:      str = _env("MINIO_BUCKET_BASE")
 AUCTION_PREFIX:   str = _env("AUCTION_PREFIX")
 MINIO_BASE_DIR:   Path = _env("MINIO_BASE_DIR")
 
+API_CHECK_IF_PRESENT_LINK: str=_env("API_CHECK_IF_PRESENT")
+
 def upload_to_minio(local_file_path: Path):
     """
     Завантажує один конкретний файл у Minio.
@@ -428,7 +430,8 @@ def remove_present(input_arr):
     flat_lot_numbers = [str(x[0]) if isinstance(x, tuple) else str(x) for x in input_arr]
     # print(f'input len: {len(input_arr)}')
     # print(input_arr)
-    check_if_present_url = 'http://127.0.0.1:8000/lots/get-missing-from-batch'
+    global API_CHECK_IF_PRESENT_LINK
+    check_if_present_url = API_CHECK_IF_PRESENT_LINK
     if input_arr is not None and len(input_arr) > 0:
         response = None
         try:
@@ -1686,8 +1689,7 @@ def request_with_vehicle_type(search_query, include_tag_by_field, restart_object
             continue
 
         # tmp
-        # TODO: SHOULD BE UNCOMENTED AFTER FIRST FULL RUN
-        # all_ln_values = remove_present(all_ln_values)
+        all_ln_values = remove_present(all_ln_values)
 
         if len(all_ln_values) != 0:
             download_photos_from_lot_vehicle_type(file_name, page, all_ln_values, search_query)
@@ -2172,8 +2174,7 @@ def download_data_from_pages_of_single_brand_with_vehicle_type_and_brand(search_
             per_page_restart = restart_object
 
         # tmp
-        # TODO: SHOULD BE UNCOMENTED AFTER FIRST FULL RUN
-        # all_ln_values = remove_present(all_ln_values)
+        all_ln_values = remove_present(all_ln_values)
 
         if len(all_ln_values) != 0:
             download_photos_from_lot(brand, page, type_param, all_ln_values, per_page_restart)
@@ -2370,8 +2371,7 @@ def download_data_from_pages_of_single_brand_with_vehicle_type_and_brand_and_slo
                     continue
 
                 # tmp
-                # TODO: SHOULD BE UNCOMENTED AFTER FIRST FULL RUN
-                # all_ln_values = remove_present(all_ln_values)
+                all_ln_values = remove_present(all_ln_values)
 
                 # Передаємо restart_object тільки якщо ми на тій самій сторінці, де зупинились
                 per_page_restart = None
