@@ -75,6 +75,7 @@ AUCTION_PREFIX:   str = _env("AUCTION_PREFIX")
 MINIO_BASE_DIR:   Path = _env("MINIO_BASE_DIR")
 
 API_CHECK_IF_PRESENT_LINK: str=_env("API_CHECK_IF_PRESENT")
+print(f"DEBUG: API_CHECK_IF_PRESENT_LINK{API_CHECK_IF_PRESENT_LINK}")
 
 def upload_to_minio(local_file_path: Path):
     """
@@ -456,7 +457,7 @@ def remove_present(input_arr):
             save_error({
                 'error_type': f'Error: remove_present exception {e}'
             })
-            return []
+            return input_arr
 
 def safe_post(url, **kwargs):
     global POST_COUNT
