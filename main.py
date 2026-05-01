@@ -138,6 +138,13 @@ def kill_chrome_processes():
             os.system("taskkill /f /im chromedriver.exe >nul 2>&1")
         except:
             pass
+    else: # Linux / macOS
+        try:
+            # Примусово вбиваємо всі процеси Chrome та драйвера
+            os.system("pkill -9 -f chrome > /dev/null 2>&1")
+            os.system("pkill -9 -f chromedriver > /dev/null 2>&1")
+        except:
+            pass
 
 def get_copart_session_data(headless=False):
     """
@@ -229,19 +236,29 @@ def get_copart_session_data(headless=False):
             print("Page loaded! Waiting 2s for stabilization...")
             time.sleep(2)
 
+            # Встановлюємо таймаут 5 секунд на виконання JS-скриптів.
+            # Тепер sb.execute_script ніколи не зависне намертво.
+            sb.driver.set_script_timeout(5)
+
             # --- Data Extraction ---
             print("1. Fetching User-Agent...")
-            # Використовуємо обгортку sb, яка безпечно відновлює з'єднання в UC Mode
-            data["headers"]["User-Agent"] = sb.execute_script("return navigator.userAgent;")
+            try:
+                # Отримуємо User-Agent безпечно через CDP браузера
+                version_info = sb.driver.execute_cdp_cmd('Browser.getVersion', {})
+                data["headers"]["User-Agent"] = version_info.get('userAgent', '')
+            except Exception as e:
+                print(f"CDP User-Agent fetch failed: {e}. Fallback to JS...")
+                try:
+                    data["headers"]["User-Agent"] = sb.execute_script("return navigator.userAgent;")
+                except Exception as e2:
+                    data["headers"]["User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 
             print("2. Fetching Cookies...")
-            # Вбудований метод SB для кук, який не валить UC Mode і не висить як CDP
             cookies_data = sb.get_cookies()
             cookie_dict = {}
             xsrf_token = None
 
             print("3. Parsing Cookies...")
-            # sb.get_cookies() повертає масив словників
             for cookie in cookies_data:
                 name = cookie.get('name', '')
                 value = cookie.get('value', '')
@@ -258,6 +275,8 @@ def get_copart_session_data(headless=False):
                 data["headers"]["X-XSRF-TOKEN"] = xsrf_token
             else:
                 try:
+                    # Завдяки set_script_timeout вище, якщо тут зависне,
+                    # то через 5 секунд впаде в except, і потік не "помре"
                     ls = sb.execute_script("return window.localStorage;")
                     if ls:
                         for k, v in ls.items():
@@ -265,7 +284,7 @@ def get_copart_session_data(headless=False):
                                 data["headers"]["X-XSRF-TOKEN"] = v
                                 break
                 except Exception as e:
-                    print(f"LocalStorage error: {e}")
+                    print(f"LocalStorage error (likely blocked by Cloudflare): {e}")
 
             print("5. Session data successfully extracted!")
             return data
