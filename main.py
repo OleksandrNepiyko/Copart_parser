@@ -2021,77 +2021,79 @@ def transfer_brand_data_to_minio(brand_name, type_param):
 
     categories = ["lots", "photos"]
 
+    CHUNK_SIZE = 20000
+
     for category in categories:
         dest_dir = minio_base / category / current_date
         dest_dir.mkdir(parents=True, exist_ok=True)
 
-        final_filename = f"{type_letter}_{brand_fs_name}.json"
-        dest_file_path = dest_dir / final_filename
-
         search_pattern = f"{brand_fs_name}_{type_param}_*_{category}"
 
-        found_files_count = 0
+        # 1. Збираємо всі шляхи до знайдених файлів у єдиний плоский список
+        all_json_files = []
+        for item in sorted(res_json_path.glob(search_pattern), key=lambda x: x.name):
+            if item.is_dir():
+                all_json_files.extend(list(item.glob("*.json")))
 
-        # Відкриваємо файл на запис ОДИН раз
-        with open(dest_file_path, 'w', encoding='utf-8') as outfile:
-            outfile.write('[') # Починаємо JSON масив
-
-            first_entry = True
-
-            # Проходимось по res_json
-            # Використовуємо sorted, щоб порядок був передбачуваним, але це не обов'язково
-            for item in sorted(res_json_path.glob(search_pattern), key=lambda x: x.name):
-                if item.is_dir():
-                    json_files = list(item.glob("*.json"))
-                    if not json_files:
-                        continue
-
-                    print(f"  Processing folder: {item.name} ({len(json_files)} files)")
-
-                    for json_file in json_files:
-                        try:
-                            with open(json_file, 'r', encoding='utf-8') as infile:
-                                data = json.load(infile)
-
-                                # Логіка обробки списку або словника
-                                items_to_write = []
-                                if isinstance(data, dict):
-                                    items_to_write.append(data)
-                                elif isinstance(data, list):
-                                    items_to_write = data
-
-                                for obj in items_to_write:
-                                    if not first_entry:
-                                        outfile.write(',\n') # Додаємо кому перед наступним елементом
-                                    else:
-                                        first_entry = False
-
-                                    # Записуємо об'єкт одразу у файл
-                                    json.dump(obj, outfile, ensure_ascii=False, indent=2)
-
-                                found_files_count += 1
-
-                        except Exception as e:
-                            print(f"  Error reading {json_file.name}: {e}")
-
-            outfile.write(']') # Закриваємо JSON масив
-
-        if found_files_count > 0:
-            print(f"[Minio Transfer] SUCCESS: Streamed {found_files_count} items to {dest_file_path}")
-            # Перевіряємо розмір файлу перед завантаженням (для інформації)
-            file_size_mb = dest_file_path.stat().st_size / (1024 * 1024)
-            print(f"[Minio Transfer] File size: {file_size_mb:.2f} MB")
-
-            try:
-                upload_to_minio(dest_file_path)
-            except Exception as e:
-                 print(f"[Minio Transfer] Error uploading to Minio: {e}")
-                 save_error({'error_type': f"Minio upload error for {brand_name}: {e}"})
-        else:
+        if not all_json_files:
             print(f"[Minio Transfer] No data found for category '{category}'")
-            # Видаляємо пустий файл (там тільки "[]")
-            if dest_file_path.exists():
-                os.remove(dest_file_path)
+            continue
+
+        print(f"[Minio Transfer] Found {len(all_json_files)} files for {category}. Chunking by {CHUNK_SIZE}...")
+
+        # 2. Розбиваємо масив файлів на безпечні шматки (чанки)
+        for chunk_idx, i in enumerate(range(0, len(all_json_files), CHUNK_SIZE)):
+            chunk_files = all_json_files[i:i + CHUNK_SIZE]
+
+            # Генеруємо назву файлу. Якщо чанк один, він буде _part_1
+            final_filename = f"{type_letter}_{brand_fs_name}_part_{chunk_idx + 1}.json"
+            dest_file_path = dest_dir / final_filename
+
+            found_files_count = 0
+
+            with open(dest_file_path, 'w', encoding='utf-8') as outfile:
+                outfile.write('[\n') # Починаємо масив з нового рядка
+                first_entry = True
+
+                for json_file in chunk_files:
+                    try:
+                        with open(json_file, 'r', encoding='utf-8') as infile:
+                            data = json.load(infile)
+
+                        items_to_write = []
+                        if isinstance(data, dict):
+                            items_to_write.append(data)
+                        elif isinstance(data, list):
+                            items_to_write = data
+
+                        for obj in items_to_write:
+                            if not first_entry:
+                                outfile.write(',\n')
+                            else:
+                                first_entry = False
+
+                            json.dump(obj, outfile, ensure_ascii=False, indent=2)
+
+                        found_files_count += 1
+
+                    except Exception as e:
+                        print(f"  Error reading {json_file.name}: {e}")
+
+                outfile.write('\n]')
+
+            # 3. Вивантажуємо кожен готовий чанк у Minio по черзі
+            if found_files_count > 0:
+                file_size_mb = dest_file_path.stat().st_size / (1024 * 1024)
+                print(f"[Minio Transfer] SUCCESS: Created {dest_file_path} ({file_size_mb:.2f} MB)")
+                try:
+                    upload_to_minio(dest_file_path)
+                except Exception as e:
+                     print(f"[Minio Transfer] Error uploading to Minio: {e}")
+                     save_error({'error_type': f"Minio upload error for {brand_name} part {chunk_idx+1}: {e}"})
+            else:
+                # Видаляємо пустий файл, якщо щось пішло не так
+                if dest_file_path.exists():
+                    os.remove(dest_file_path)
 
 def download_data_from_pages_of_single_brand_with_vehicle_type_and_brand(search_query, brand, type_param, restart_object):
     """
@@ -2703,6 +2705,6 @@ def main():
     # HTML_downloader.download_all()
 
 if __name__ == '__main__':
-    # while True:
-    #     main()
-    upload_to_api_and_cleanup("Minio")
+    while True:
+        main()
+    # upload_to_api_and_cleanup("Minio")
