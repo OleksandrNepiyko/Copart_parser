@@ -2194,9 +2194,12 @@ def download_data_from_pages_of_single_brand_with_vehicle_type_and_brand(search_
             per_page_restart = restart_object
 
         if all_ln_values is not None and len(all_ln_values) != 0:
-            all_ln_values = remove_present(all_ln_values)
-            download_photos_from_lot(brand, page, type_param, all_ln_values, per_page_restart)
-            get_lot_details_for_page(brand, page, type_param, all_ln_values, per_page_restart)
+            filtered_ln_values = remove_present(all_ln_values)
+            if filtered_ln_values:
+                download_photos_from_lot(brand, page, type_param, filtered_ln_values, per_page_restart)
+                get_lot_details_for_page(brand, page, type_param, filtered_ln_values, per_page_restart)
+            else:
+                print(f"No missing lot numbers to process on page {page+1} after filtering")
         else:
             print(f"No lot numbers found on page {page+1}")
 
