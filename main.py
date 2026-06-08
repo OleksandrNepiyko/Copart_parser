@@ -2654,9 +2654,12 @@ def main():
             while True: # to refresh HOME.json with each next vehicle type
                 actual_vehicle_types_list = refresh_home_and_get_actual_vehicle_types_list()
 
-                #tmp to limit only one vehtype (but if you want to limit only vehtype_V it should be 3 and in number..to_skip.json must be 2)
-                # if actual_vehicle_types_list:
-                #     actual_vehicle_types_list = actual_vehicle_types_list[:3]
+                #tmp to limit only one vehtype
+                # if you want to limit only vehtype_V (only automobiles) actual_vehicle_types_list[:3] should be 3 and in number..to_skip.json must be 2)
+                # therefore to save only automobiles the 3 lines below this text should be uncommented
+                if actual_vehicle_types_list:
+                    actual_vehicle_types_list = actual_vehicle_types_list[:3]
+                number_of_vehicle_types_to_skip = 2
 
                 if actual_vehicle_types_list is None:
                     print("Error. Could not get actual vehicle types list from HOME.json. Retrying in 60 sec...")
