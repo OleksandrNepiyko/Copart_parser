@@ -34,7 +34,7 @@ from dotenv import load_dotenv
 # Визначаємо абсолютний шлях до папки, де лежить main.py
 BASE_DIR = Path(__file__).resolve().parent
 # Формуємо точний шлях до файлу .env у цій же папці
-env_path = BASE_DIR / ".env"
+env_path = BASE_DIR / "env"
 
 # Завантажуємо файл, явно вказуючи шлях, і виводимо результат для перевірки
 loaded = load_dotenv(dotenv_path=env_path)
@@ -65,16 +65,19 @@ SESSION = requests.Session()
 MINIO_CONFIG = {
     "access_key": _env("MINIO_ACCESS_KEY"),
     "secret_key": _env("MINIO_SECRET_KEY"),
-    "endpoint": _env("MINIO_ENDPOINT"),
+    # "endpoint": _env("MINIO_ENDPOINT"),
+    "endpoint": "storage.automoto.com.lv",
     "region": _env("MINIO_REGION"),
     "secure": _env("MINIO_SECURE", "True").lower() == "true"
 }
 
-BUCKET_NAME:      str = _env("MINIO_BUCKET_BASE")
+# BUCKET_NAME:      str = _env("MINIO_BUCKET_BASE")
+BUCKET_NAME:      str = "usa-auctions-bak"
 AUCTION_PREFIX:   str = _env("AUCTION_PREFIX")
 MINIO_BASE_DIR:   Path = _env("MINIO_BASE_DIR")
 
-API_CHECK_IF_PRESENT_LINK: str=_env("API_CHECK_IF_PRESENT")
+# API_CHECK_IF_PRESENT_LINK: str=_env("API_CHECK_IF_PRESENT")
+API_CHECK_IF_PRESENT_LINK: str="https://usa-parsers.automoto.ua/api-check-if-lot-present/lots/get-missing-from-batch"
 print(f"DEBUG: API_CHECK_IF_PRESENT_LINK{API_CHECK_IF_PRESENT_LINK}")
 
 def upload_to_minio(local_file_path: Path):
