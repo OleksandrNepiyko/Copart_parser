@@ -2191,10 +2191,8 @@ def download_data_from_pages_of_single_brand_with_vehicle_type_and_brand(search_
         if restart_object and isinstance(restart_object, dict) and restart_object.get('page') == page:
             per_page_restart = restart_object
 
-        # tmp
-        all_ln_values = remove_present(all_ln_values)
-
         if len(all_ln_values) != 0:
+            all_ln_values = remove_present(all_ln_values)
             download_photos_from_lot(brand, page, type_param, all_ln_values, per_page_restart)
             get_lot_details_for_page(brand, page, type_param, all_ln_values, per_page_restart)
         else:
