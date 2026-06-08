@@ -2671,9 +2671,9 @@ def main():
                     print("All vehicle types processed. Resetting counter.")
                     print(f"number_of_vehicle_types_to_skip: {number_of_vehicle_types_to_skip}")
                     print(f"len of actual_vehicle_types_list: {len(actual_vehicle_types_list)}")
-                    # number_of_vehicle_types_to_skip = 0
-                    # with open(tech_json_path / 'number_of_vehicle_types_to_skip.json', 'w', encoding='utf-8') as f:
-                    #     json.dump({"number_of_vehicle_types_to_skip": 0}, f)
+                    number_of_vehicle_types_to_skip = 0
+                    with open(tech_json_path / 'number_of_vehicle_types_to_skip.json', 'w', encoding='utf-8') as f:
+                        json.dump({"number_of_vehicle_types_to_skip": 0}, f)
                     break
 
                 current_vehicle_type_batch = [actual_vehicle_types_list[number_of_vehicle_types_to_skip]] #Щоб кількості оновлювати. Тобто оновили кількість для всіх типів, але лише один послали, потім він пройшов знов оновили і наступний послали
