@@ -461,18 +461,20 @@ def remove_present(input_arr):
                 data = response.json()
                 # print(f'output len: {len(data)}')
                 # print(data)
-                return data.get('missing_ids')
+                return data.get('missing_ids', [])
             else:
                 print(f'Error: remove_present response status code isn\'t 200')
                 save_error({
                     'error_type': f'Error: remove_present response status code isn\'t 200'
                 })
+                return input_arr
         except Exception as e:
             print(f'Error: remove_present exception {e}')
             save_error({
                 'error_type': f'Error: remove_present exception {e}'
             })
             return input_arr
+    return []
 
 def safe_post(url, **kwargs):
     global POST_COUNT
